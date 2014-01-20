@@ -1,0 +1,94 @@
+<link href="/resources/stats/styles/cur_common.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+#table_tr tr td{text-align:left}
+#table_tr tr td span{text-align:right;float: right;width:auto}
+
+.datalist table{border:1px double}
+.datalist table td{border:1px double;padding-left:5px;}
+.on{float:left;cursor:pointer;background:url(/resources/images/recharge.jpg) no-repeat left top;width:118px;height:138px;text-align:center;margin:2px 2px 2px 2px;}
+.off{float:left;background:url(/resources/images/h_recharge.jpg) no-repeat left top;width:118px;height:138px;text-align:center;margin:2px 2px 2px 2px;}
+._text{height:120px;line-height:120px;display:block;font-family:Arial;font-weight:800;position:relative;top:38px;left:36px;}
+</style>
+<link href="/resources/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+<script src="/resources/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+<script type='text/javascript'>
+$(function(){
+	$('.on').live('click',function(){
+		if(!!scoreConvert.lock) return;
+		var _vl 		  = parseInt($(this).attr('vl'));
+		$('#tip_stu').html('');
+		$.ligerDialog.confirm('您确定要兑换'+_vl+'元的充值卡吗？', function (yes) {
+			if(yes){
+				scoreConvert.lock = true;
+				$.ligerDialog.waitting('正在兑换中,请稍候...');
+				$.post('/api/api_member.php',{act:'conver_cz',cz_val:_vl},function(data){
+					$.ligerDialog.closeWaitting();
+					scoreConvert.lock = false;
+					if(data.code == '006'){
+						scoreConvert.score -= _vl*scoreConvert.scoreScale;
+						scoreConvert.setStatu();
+						$('#tip_score').html(scoreConvert.score);
+					}
+					$('#tip_stu').html(ERR_INFO.conver[data.code]);
+				},'json');
+			} 
+		});
+	})
+	$.get('/api/api_member.php',{act:'getsaleinfo'},function(data){
+		scoreConvert.score = data.usable_score || 0;
+		scoreConvert.init();
+		$('#tip_score').html(scoreConvert.score);
+	},'json');
+})
+ERR_INFO   =   {
+	"conver":{
+		"004":"登陆过期或是兑换充值卡金额有误！",
+		"005":"兑换失败请稍后再试！",
+		"006":"兑换成功！"
+	}
+}
+var scoreConvert = {
+	cnt:'#cnt',
+	score:0,
+	lock:false,
+	scoreScale:200,
+	scoreOnce:10,
+	scoreMax:1000,
+	init:function(){
+		var tmp = 10;
+		while(this.scoreMax>=tmp){
+			this.setOnce(tmp);
+			var _score = tmp*this.scoreScale;
+			$(this.cnt).append('<span class="'+(this.score<_score?'off':'on')+'" id="sc_'+tmp+'" vl="'+tmp+'"><span class="_text">'+tmp+'</span>'+tmp*this.scoreScale+'积分</span>');
+			tmp += this.scoreOnce;
+		}
+	},
+	setOnce:function(score){
+		this.scoreOnce = 100 > score ? 10 : 100;
+	},
+	setStatu:function(){
+		this.setOnce(this.score/this.scoreScale);
+		var _score = this.scoreScale*this.scoreMax;
+		var _tl    = this.scoreScale*this.scoreOnce;
+		if(this.score>=_score) return ;
+		var tmp = Math.ceil(this.score%_tl==0?this.score/_tl+1:this.score/_tl)*this.scoreOnce;
+		while(this.scoreMax>=tmp){
+			this.setOnce(tmp);
+			$('#sc_'+tmp).attr('class','off');
+			tmp += this.scoreOnce;
+		}
+	}
+}
+</script>
+<div class="path">
+	<a href="/">信息管理平台</a>
+	<em>&rsaquo;</em> <a href="/intergral/conver.html">积分商城</a>
+</div>
+<div class="datalist">
+<center><h1>积分商城, 系统升级中...</h1></center>
+<!-- 
+<div>您目前的积分为：<span id='tip_score'></span><span id='tip_stu' style='color:red;margin-left:50px;'></span></div>
+<div id='cnt' style="width:100%"></div>
+ -->
+</div>

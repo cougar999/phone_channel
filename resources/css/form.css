@@ -1,0 +1,48 @@
+.controlbar{background:url("/resources/stats/images/ctrl_bg.png") repeat-x scroll 0 0 transparent;border-left:1px solid #D6D6D6;border-right:1px solid #D6D6D6;border-top:1px solid #D6D6D6;height:29px;}
+.controlbar ul{padding-left:0px;}
+.box td{text-align:left;}
+.box th{width:20%;font-weight:800;}
+.box tr:hover td{background:none;}
+
+#someuser_content,#otheruser_content{display:none;}
+
+ul.szlist{background-color:#D9ECEF;padding:10px;}
+ul.szlist li {
+    color: #52878F;
+    cursor: pointer;
+    display: inline-block;
+    float: left;
+    height: 20px;
+    line-height: 20px;
+    padding: 0 18px 0 14px;
+    white-space: nowrap;
+}
+ul.szlist li.hover{position: relative;z-index:9;}
+ul.szlist li.hover a{text-decoration: none;}
+a.tag {filter: none;}
+ul.szlist li .tagFun {display: none;}
+.tagFun {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border: 1px solid #C9C9C9;
+    height: 20px;
+    margin: -1px 0 0 -4px;
+    overflow: hidden;
+    padding: 0 20px 0 5px;
+    position: absolute;
+}
+.delTag {
+    color: #D6D6D6;
+    font-family: "Simsun";
+    font-weight: bold;
+    height: 20px;
+    padding-top: 1px;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    width: 15px;
+}
+.f_line{padding:10px 10px;}
+.f_line1{padding:10px 0;}
+.input-text, .measure-input, textarea, input.date, input.endDate, .input-focus{height: 18px;margin: 0 5px 0 0;padding: 2px 0 2px 5px;border: 1px solid #D0D0D0;background: white url(/resources/images/form/input.png) repeat-x;font-family: Verdana, Geneva, sans-serif,"宋体";font-size: 12px;border-image: initial;}
+.measure-input{background: url("/resources/images/form/ruler.gif") repeat-x scroll 0 9px transparent;}

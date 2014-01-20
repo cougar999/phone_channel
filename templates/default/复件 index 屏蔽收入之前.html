@@ -1,0 +1,80 @@
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="/">首页概况</a></label>
+	</div>
+</div>
+<div class="bm">
+        <div class="notice notice_t mbm" id="tipsDiv" style='display:none;'>
+        <em><a href="javascript:;" onclick="javascript:cancelTip(901, 'tipsDiv');">我知道了!</a></em>
+        <p>网站基本概况，方便您了解和掌握网站的全局情况。</p>
+    </div>
+<!--{if empty($smarty.session.level) && !$smarty.session.isSup}-->
+<p style="text-align:center;line-height:200px">暂无数据</p>
+<!--{else}-->
+
+<!--{statistic tag=get_shop_login type=0 ret=a_statistic_login_list act=index count=12}-->
+            <h3><em class="mtn"><a href="/statistic_login.html?date=<!--{$a_statistic_login_list[1].stat_date}-->&end_date=<!--{$a_statistic_login_list[0].stat_date}-->">查看详情</a></em>店面登录概况</h3>
+    <div class="box">
+        <table>
+        <tr>
+            <th></th>
+                        <th>登录店面数</th>
+                        <th>未登录店面数</th>
+                        <th>总店面数</th>
+                        <th>登陆比例</th>
+                    </tr>
+        <tr>
+            <td class="hl"><!--{$a_statistic_login_list[0].stat_date|datestyle:"1"}--></td>
+                        <td><!--{$a_statistic_login_list[0].login_y|number_format}--></td>
+                        <td><!--{$a_statistic_login_list[0].login_n|number_format}--></td>
+                        <td><!--{$a_statistic_login_list[0].login_t|number_format}--></td>
+                        <td><!--{if $a_statistic_login_list[0].login_t && $a_statistic_login_list[0].login_t != 0}-->
+                        	<!--{$a_statistic_login_list[0].login_y*100/$a_statistic_login_list[0].login_t|string_format:'%.2f'}-->%<!--{else}-->0%<!--{/if}--></td>
+                    </tr>
+        <tr>
+            <td class="hl"><!--{$a_statistic_login_list[1].stat_date|datestyle:"2"}--></td>
+                        <td><!--{$a_statistic_login_list[1].login_y|number_format}--></td>
+                        <td><!--{$a_statistic_login_list[1].login_n|number_format}--></td>
+                        <td><!--{$a_statistic_login_list[1].login_t|number_format}--></td>
+                        <td><!--{if $a_statistic_login_list[1].login_t && $a_statistic_login_list[1].login_t != 0}-->
+                        	<!--{$a_statistic_login_list[1].login_y*100/$a_statistic_login_list[1].login_t|string_format:'%.2f'}-->%<!--{else}-->0%<!--{/if}--></td>
+                    </tr>
+        </table>
+    </div>
+<!--{statistic tag=get_shop_use type=0 ret=a_statistic_list act=index count=12}-->
+            <h3><em class="mtn"><a href="/statistic_use.html?date=<!--{$a_statistic_list[1].stat_date}-->&end_date=<!--{$a_statistic_list[0].stat_date}-->">查看详情</a></em>店面使用概况</h3>
+    <div class="box">
+        <table>
+        <tr>
+            <th></th>
+                        <th>连接苹果设备</th>
+                        <th>连接安卓设备</th>
+                        <th>下载苹果软件</th>
+                        <th>下载安卓软件</th>
+                        <th>苹果卡激活</th>
+                        <th>下载卡激活</th>
+                    </tr>
+        <tr>
+            <td class="hl"><!--{$a_statistic_list[0].stat_date|datestyle:"1"}--></td>
+                        <td><!--{$a_statistic_list[0].ios_phone_connect|number_format}--></td>
+                        <td><!--{$a_statistic_list[0].apk_phone_connect|number_format}--></td>
+                        <td><!--{$a_statistic_list[0].ios_soft_dl|number_format}--></td>
+                        <td><!--{$a_statistic_list[0].apk_soft_dl|number_format}--></td>
+                        <td><!--{$a_statistic_list[0].iso_card_act|number_format}--></td>
+                        <td><!--{$a_statistic_list[0].dl_card_act|number_format}--></td>
+                    </tr>
+        <tr>
+            <td class="hl"><!--{$a_statistic_list[1].stat_date|datestyle:"2"}--></td>
+                        <td><!--{$a_statistic_list[1].ios_phone_connect|number_format}--></td>
+                        <td><!--{$a_statistic_list[1].apk_phone_connect|number_format}--></td>
+                        <td><!--{$a_statistic_list[1].ios_soft_dl|number_format}--></td>
+                        <td><!--{$a_statistic_list[1].apk_soft_dl|number_format}--></td>
+                        <td><!--{$a_statistic_list[1].iso_card_act|number_format}--></td>
+                        <td><!--{$a_statistic_list[1].dl_card_act|number_format}--></td>
+                    </tr>
+        </table>
+    </div>
+<!--{/if}-->
+</div>

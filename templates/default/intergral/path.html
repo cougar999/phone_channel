@@ -1,0 +1,41 @@
+<style>
+.main_a_a {
+    height: 25px;
+    line-height: 25px;
+    width: 100%;
+	border-bottom:2px solid #7AD3FF;
+}
+.main_a_a a{
+	color:#545454;
+	font-family:微软雅黑,宋体,arial,verdana;
+}
+.main_a1{
+	font-size:14px;
+	font-weight:bold;
+	width:107px;
+	text-align:center;
+	margin-right:31px;
+}
+.main_a_a1{
+	margin-top:1px;
+}
+</style>
+<div class='main_a_a p_fl'>
+	<div class='main_a1 p_fl'><a href='/intergral/index.html'>店员中心</a></div>
+	<div class='main_a1 p_fl'><a href='/intergral/ranking.html'>积分排名</a></div>
+	<div class='main_a1 p_fl'><a href='/intergral/detailed.html'>积分明细</a></div>
+	<div class='main_a1 p_fl'><a href='/intergral/conver.html'>积分商城</a></div>
+	<div class='main_a1 p_fl'><a href='/intergral/intergral.html'>积分规则</a></div>
+	<script>
+	$('.main_a_a div').each(function(k,v){
+		preg = $(v).find('a').attr('href')+(typeof($(v).find('a').attr('preg')) == 'undefined' ? '' : $(v).find('a').attr('preg')); 
+		if(preg.indexOf(urlObj.path) != -1){
+			$(v).find('a').addClass('main_a_a1');
+			flag = true;
+			return false;
+		}
+	})
+	</script>
+</div>
+<div class='clear'></div>
+<link href="/resources/css/style.css" rel="stylesheet" type="text/css" />

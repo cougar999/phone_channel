@@ -1,0 +1,198 @@
+<link href="/resources/stats/styles/cur_common.css" rel="stylesheet" type="text/css" />
+<style>
+.user_score{width:750px; margin-left:auto; margin-right:auto}
+.user_head_img{height:80px;padding-top:10px;width:100px; float:left}
+.user_status{width:650px; float:left}
+.user_status ul{border-bottom-width: 1px;border-bottom-style: dotted;border-bottom-color: #bfbfbf;}
+.user_grade{height:30px; width:100%; float:none; clear:both}
+#table_tr td span{
+	margin:0 3px;
+}
+#table_tr tr td .levelid{
+	width:auto;
+}
+._red{
+	color:blue;
+}
+</style>
+<div class="path">
+	<a href="/">信息管理平台</a>
+	<em>&rsaquo;</em> <a href="/intergral/index.html">店面中心</a>
+</div>
+<!--{intergral tag='info' ret='a_intergral_info'}-->
+<div class="user_grade"></div>
+<div class="user_score">
+	<div class="user_head_img"><img src="/resources/images/head.gif" /></div>
+	<div class="user_status">
+		<ul class="clear">
+			<li>
+			<h3 style="float:left"><font color="#2179cb"><!--{$smarty.session.username}--></font></h3>
+			<span title="<!--{intergral tag=getleveldesc level=$a_intergral_info.level}-->" class="medal medal_<!--{if $a_intergral_info.level}--><!--{$a_intergral_info.level}--><!--{else}-->1<!--{/if}--> pleft"></span>
+			</li>
+		</ul>
+		<ul class="clear">
+			<li>
+				<span>当前等级:<font color="#ef7429" title="<!--{intergral tag=getleveldesc level=$a_intergral_info.level}-->"><!--{if $a_intergral_info.level}--><!--{$a_intergral_info.level}--><!--{else}-->1<!--{/if}-->级</font></span>
+				<!--<span>距下一等级还需:<font color="#ef7429">分</font></span>-->
+			</li>
+			<li>
+				<span>累积积分:<font color="#ef7429"><!--{if $a_intergral_info.score}--><!--{$a_intergral_info.score}--><!--{else}-->0<!--{/if}-->分</font>　　<a href="/intergral/detailed.html?category=2">积分明细</a></span>　　　<span>可用积分:<font color="#ef7429"><!--{if $a_intergral_info.usable_score}--><!--{$a_intergral_info.usable_score}--><!--{else}-->0<!--{/if}-->分</font></span>　　　<!--<img src="/resources/images/score_shopping.jpg" />-->
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="clear"></div>
+<!--{intergral tag='ranking' is_month=1 ret='a_ranking_list'}-->
+<table cellspacing="1" class="datatable" id="sorterTable">
+	<thead>
+    	<tr>
+        	<th colspan="3" align="left">&nbsp;<font color="2179cb"><!--{php}-->echo intval(date("m",time()));<!--{/php}-->月积分排行</font></th>
+    	</tr>
+    </thead>
+    <tfoot>
+    	<tr>
+        	<td colspan="3">&nbsp;</td>
+    	</tr>
+    </tfoot>
+    <tbody id="table_tr">
+    
+    </tbody>
+</table>
+<script>
+var Rank = {
+	pageOpt:{
+			num_edge_entries:1,
+			prev_text:'上一页',
+			next_text:'下一页',
+			items_per_page:20,
+			num_display_entries:5,
+			callback: pageselectCallback
+	},
+	type:'',
+	page:0,
+	maxlen:5,
+	init:function(){
+		var self = this;
+		self.type = 'allorder';
+		self.maxlen = 3;
+		self.getData(this);
+	},
+	getData:function(obj){
+		var self = this;
+		var cut  = parseInt($(obj).attr('page')) || 0;
+		Rank.page = 0;
+		Rank.loadingHtml('table_tr',200);
+		$.getJSON('/api/rank/api_1207.php',{type:Rank.type,act:'info',page:1,pgsz:10},function(data){
+			if(!data.data){
+				$('#table_tr').empty();
+				$('#table_tr').append('<tr><td><div style="text-align:center;display:inline-block;height:100px;line-height:100px;">暂无数据</div></td></tr>');
+			}else{
+				if(Rank.type == 'a3'){
+					Rank.maxlen = CF_INFO[data.data.lvl].len;
+					flagObj     = CF_INFO[data.data.lvl];
+					_data       = data.data.data;
+					_level      = data.data.lvl;
+				}else _data = data.data;
+				Rank.packageData(_data);
+			}
+		});
+	},
+	packageData:function(data){
+		var html = '';
+		$('#table_tr').empty();
+		$.each(data,function(k,v){
+			html += '<tr>';
+			if(Rank.type == 'allorder'){
+				html += '<td width="740" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">积分：<font class="'+(v.score>=6000?'_red':'')+'">'+v.score+'</font></span>\
+					<span class="levelid">下载卡激活：<font class="'+(v.card_count>=10?'_red':'')+'">'+(v.card_count>=10?10:v.card_count)+'</font>张</span>\
+					<span class="levelid">下载畅游金榜：<font class="'+(v.cyjb_count>=200?'_red':'')+'">'+(v.cyjb_count>=200?200:v.cyjb_count)+'</font>个</span>\
+					<span class="levelid">省份级别：<font class="'+setHeightRed(Rank.page*Rank.pageOpt.items_per_page+k,v.con_lvl)+'">'+(v.con_lvl==null?'':v.con_lvl)+'</font>级</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'a3'){
+				html += '<td width="740" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">7月积分：<font class="'+(v.score>=flagObj.score?'_red':'')+'">'+v.score+'</font></span>\
+					<span class="levelid">下载卡激活：<font class="'+(v.card_count>=flagObj.card?'_red':'')+'">'+v.card_count+'</font>张</span>\
+					<span class="levelid">下载畅游金榜：<font class="'+(v.cyjb_count>=flagObj.cyjb?'_red':'')+'">'+v.cyjb_count+'</font>个</span>\
+					<span class="levelid">省份级别：<font class="_red">'+_level+'</font>级</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'a4'){
+				html += '<td width="740" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">登陆：<font class="'+(v.login_count>=dObj.getDate()-1?'_red':'')+'">'+v.login_count+'</font>天</span>\
+					<span class="levelid">连接手机：<font class="'+(v.con_count>=10?'_red':'')+'">'+(v.con_count>=10?10:v.con_count)+'</font>部</span>\
+					<span class="levelid">下载应用数：<font class="'+(v.down_count>=150?'_red':'')+'">'+(v.down_count>=150?150:v.down_count)+'</font>个</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'a5'){
+				html += '<td width="740" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">手机复制：<font class="'+(v.copy_count>=88?'_red':'')+'">'+v.copy_count+'</font>部</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'a10'){
+				html += '<td width="740" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">更新软件：<font class="'+(v.update_count>=550?'_red':'')+'">'+v.update_count+'</font>个</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'a6'){
+				html += '<td width="740" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?'1':'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">'+v.ys+'</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'all'){
+				html += '<td width="740" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span style="float: right;min-width:120px;width:auto;text-align:left;" class="levelid">总积分：'+v.score+'</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>';
+			}
+			html += '</tr>';
+		})
+		$('#table_tr').append(html);
+	},
+	loadingHtml: function(id, height, width, tip, src) {
+        var height = height || $('#' + id).height();
+        var width = width || $('#' + id).width();
+        var tip = tip || '数据加载中';
+        var src = src || '/resources/images/loader.gif';
+        $('#' + id).html('<tr><td><div style="width:' + (width == 0 ? '100%': width + 'px') + ';height:' + (height == 0 ? '100%': height + 'px') + ';background:url(' + src + ') center no-repeat;display:inline-block;" alt="' + tip + '" title="' + tip + '"></div></td></tr>');
+    },
+	pageselectCallback:function(page_index, jq){
+		
+	}
+}
+function pageselectCallback(){}
+function setHeightRed(k,lvl){
+	if(k==0&&lvl=='A') return '_red';
+	else if(k>=1&&k<=2&&(lvl=='A'||lvl=='B')) return '_red';
+	else return '';
+}
+Rank.init();
+</script>

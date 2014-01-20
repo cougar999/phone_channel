@@ -1,0 +1,56 @@
+.ch_agent {width:750px;color:#666666;background:url("/resources/images/thbg.gif") repeat-x scroll 0 0 transparent;font-size: 14px;clear:both}
+.ch_agent_list {width:750px;clear:both}
+.datalist .ch_agent_list , .datalist .ch_agent {border-bottom:none;margin:0;text-align:left;border-top: 1px dotted #DEEFFB;}
+.ch_agent_list li, .ch_agent li {float:left;height:30px;line-height: 30px;_line-height:27px;_height:27px}
+.ch_agent_list .ch_agent_t1 , .ch_agent .ch_agent_t1 {width:5%;_width:4.46%}
+.ch_agent_list .ch_agent_t2 ,.ch_agent .ch_agent_t2 {width:70%}
+.ch_agent_list .ch_agent_t3 ,.ch_agent .ch_agent_t3 {width:20%}
+
+.ch_person {width:750px;color:#666666;background:url("/resources/images/thbg.gif") repeat-x scroll 0 0 transparent;font-size: 14px;clear:both}
+.ch_person_list {width:750px;clear:both}
+.datalist .ch_person_list , .datalist .ch_person {border-bottom:none;margin:0;text-align:left;border-top: 1px dotted #DEEFFB;}
+.ch_person_list li, .ch_person li {float:left;height:30px;line-height: 30px;_line-height:27px;_height:27px}
+.ch_person_list .ch_person_t1 , .ch_person .ch_person_t1 {width:5%;_width:4.46%}
+.ch_person_list .ch_person_t2 ,.ch_person .ch_person_t2 {width:50%}
+.ch_person_list .ch_person_t3 ,.ch_person .ch_person_t3 {width:20%}
+.ch_person_list .ch_person_t4 ,.ch_person .ch_person_t4 {width:20%}
+
+.addchannel{height:20px;line-height:20px;padding:5px !important;}
+.no{display:none}
+.errordata {background: url("/resources/images/bg_repno.gif") no-repeat scroll 10px -286px transparent;padding-left: 30px;}
+.truedata {background: url("/resources/images/bg_repno.gif") no-repeat scroll 10px -486px transparent;padding-left: 30px;}
+.errordata font,.truedata font{color:red;font-size:12px}
+.board {
+    background: url("/resources/images/bg_repno.gif") no-repeat scroll -245px -550px transparent;
+    padding-left: 50px;
+}
+.deleterow {
+    color: #FFFFFF;
+    line-height: 25px;
+    margin-right: 5px;
+    padding-left: 17px;
+}
+.deleterow {
+    background: url("/resources/images/close.gif") no-repeat scroll 0 50% transparent;
+    padding-left: 12px;
+}
+.txt{margin-right: 10px;width: 100px;}
+.lastboard {
+    background: url("/resources/images/bg_repno.gif") no-repeat scroll -245px -600px transparent;
+    padding-left: 50px;
+}
+.addtr {
+    background: url("/resources/images/bg_repno.gif") no-repeat scroll 0 1px transparent;
+    color: #FF6600;
+    line-height: 25px;
+    padding-left: 17px;
+}
+
+.addform{
+    height: 206px;
+    width: 350px;
+    float:left;
+    padding-left:10px;
+}
+.addform table{padding:15px 0 0 10px}
+.addform table input{width:165px}

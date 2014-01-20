@@ -1,0 +1,498 @@
+<link href="/resources/css<!--{#version#}-->/pagination.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="/resources/js<!--{#version#}-->/jquery.pagination.js"></script>
+<script src="/resources/lib<!--{#version#}-->/jquery.json-2.3.min.js" type="text/javascript"></script>
+<link href="/resources/lib/ligerUI/skins/Aqua/css/ligerui-dialog.css" rel="stylesheet" type="text/css" />
+<script src="/resources/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+<style type="text/css">
+#overflowDiv_fex table{table-layout:fixed;}
+#dataTable_fex td{cursor:pointer;overflow:hidden;text-align:left;white-space:nowrap;}
+#dataTable td{cursor:pointer;}
+#dataTable td{text-align:center;}
+.optionbar li{width:100%;}
+.optionbar li .a{color:#336699;cursor:pointer;margin-right:0px;}
+#load_div_cnt{_min-height:100px;min-height:100px;}
+.overflowDiv{border-bottom:1px solid #C1CBDF;border-left:0px;border-right:1px solid #C1CBDF;border-top:1px solid #C1CBDF;}
+.box{border-bottom:1px solid #C1CBDF;margin-left:-1px;}
+.optionbar dl{padding:2px 0 2px 0;}
+.controlbar{background:url("/resources/stats/images/ctrl_bg.png") repeat-x scroll 0 0 transparent;border-left:1px solid #D6D6D6;border-right:1px solid #D6D6D6;border-top:1px solid #D6D6D6;height:29px;}
+.controlbar ul{padding-left:0px;}
+.optionbar{border:1px solid #D6D6D6;}
+.date{margin:4px 0 0 108px;}
+.fix_tmp{margin-left:0px;}
+.trbg_color{background-color:#F2F2F2;color:#333}
+
+.tip_cut_show{color:red;}
+.op_fr{float:right;}
+.op_fl{float:left;}
+.op_modify{background:url('/resources/images/modify_button_tm.png') no-repeat;display:inline-block;height:16px;width:16px;margin-right:2px;display:none;}
+</style>
+<script type='text/javascript'>
+var DIALOG,INIT_SCROLL_LEFT,_INIT_SCROLL_LEFT,__INIT_LEFT__;
+var CF_SESS  = eval('[<!--{php}-->echo json_encode($_SESSION)<!--{/php}-->]')[0];
+var CF_PAGE  = {
+	num_edge_entries:1,
+	prev_text:'上一页',
+	next_text:'下一页',
+	items_per_page:50,
+	num_display_entries:5,
+	callback: function(page_index,jq,opts){
+		$("html,body").animate({scrollTop:0},1000);
+		DATA_TABLE_CF.fex_open && $('#fixedtableheader,#fixedtableheader0').remove();
+		$('#dataTable tbody,#dataTable_fex tbody').empty();
+		DATA_TABLE_CF.cf_do_pra.page     = page_index+1;
+		DATA_TABLE_CF.cf_do_pra.pagesize = opts.items_per_page;
+		ZwzCommonOp.loading_layerOpen($("#load_div_cnt").is(":hidden")?'load_div_cnt_no':'load_div_cnt');
+		$.getJSON(DATA_TABLE_CF.do_api_url,DATA_TABLE_CF.cf_do_pra,function(data){
+			ZwzCommonOp.loading_layerClose();
+			packageData(data.Rows);
+		});
+		return false;
+	}
+};
+var ITEM_TIPS_MESSAGE = {};
+var DATA_TABLE_CF 	  = {
+	do_api_url:'/apis/api_member.json',
+	fex_open:true,//是否开启固定表头
+	def_head_width:80,
+	def_head_padd:16,
+	def_src_tip:{"src":[]},
+	cf_cut_bl:3/22,//自动截取字符比例设置
+	cf_do_pra:{},
+	cf_init_pra:{},
+	cf_init_block:false,
+	do_tip_tpl:function(){
+		var self = this;
+		$('#tpl_tip_src').empty();
+		$.each(self.def_src_tip.src,function(k,v){
+			var _cc_ = $("<a>"+v.text+"</a>")
+						.attr('pra',$.toJSON(v.pra))
+						.addClass('a');
+			$('#tpl_tip_src').append(k!=0?"&gt;&gt;":"").append(_cc_);
+		})
+	},
+	do_head:function(){
+		var tmp_cf = {
+			'1':{
+				"level":"渠道客户评级",
+				"name":"渠道客户名称",
+				"address":"总部所在地区"
+			},
+			'2':{
+				"level":"分公司评级",
+				"name":"分公司名称",
+				"address":"分公司所在地区"
+			},
+			'3':{
+				"level":"店面评级",
+				"name":"店面名称",
+				"address":"店面所在地区"
+			}
+		};
+		return [
+				{ display: '', name: 'id',frozen: true,hide:1 },
+				{ display: '', name: 'level',frozen: true,hide:1 },
+				{ display: tmp_cf[this.cf_do_pra.level].name, name: 'name',width:'180',frozen:true,len:22,is_order:true,align:'left',
+				format:function(data,display,opt,html){
+					var _index = $(html).attr('id').replace(/_name/g,'');
+					var _level = parseInt(data[_index].level) || 0;
+					var _title = $.trim(data[_index].name);
+					var _id    = parseInt(data[_index].id);
+					return "<span class='op_fl'>"+display+"</span><span class='op_cnt'><a class='op_modify op_fr' doid='"+_id+"' index='"+_index+"' level='"+_level+"' title='"+_title+"'>&nbsp;</a></span>";
+				}},
+			    { display: tmp_cf[this.cf_do_pra.level].address, name: 'company_address',width:'180',frozen:false,is_order:true},
+				{ display: '负责人', name: 'contact_name',width:'120',frozen:false,is_order:false,align:'left'},
+				{ display: '联系电话', name: 'contact_tel',width:'120',frozen:false,is_order:false},
+				{ display: '操作店员', name: 'real_name',width:'180',frozen:false,align:'left',is_order:false,hide:(3==this.cf_do_pra.level?false:true)},
+				{ display: '联系电话', name: 'telphone',width:'180',frozen:false,is_order:false,hide:(3==this.cf_do_pra.level?false:true)},
+				{ display: '店面数量', name: 'sp_count_total',width:'90',frozen:false,is_order:true,hide:(3>this.cf_do_pra.level?false:true),
+			    format:function(data,display,opt,html){
+					return parseInt(display) || 0;
+			    }},
+				{ display: '已开通数量', name: 'sp_count_open',width:'100',frozen:false,is_order:true,hide:(3>this.cf_do_pra.level?false:true),
+			    format:function(data,display,opt,html){
+					return parseInt(display) || 0;
+			    }},
+				{ display: '拓展人员', name: 'sp_expand_er',width:'100',frozen:false,is_order:true,hide:(1==this.cf_do_pra.level?false:true)},
+				{ display: '拓展进度', name: 'sp_expand_ing',width:'240',frozen:false,hide:(1==this.cf_do_pra.level?false:true)},
+				{ display: '评级', name: 'shop_prop',width:'80',frozen:false,is_order:true,
+				format:function(data,display,opt,html){
+					var tmp_cf = {"A":"优质","B":"良好","C":"一般","D":"很差"}
+					return tmp_cf[display.toUpperCase()];
+				}}
+		];
+	}
+};
+
+function packageData(datas){
+	var data 	  = datas || {};
+	var fex_table = $('#dataTable_fex').find('table');
+	var dat_table = $('#dataTable').find('table');
+	var head_obj  = DATA_TABLE_CF.do_head();
+	var _str,__str,_display,_index,_code_width;
+	
+	if(ZwzCommonOp.isEmpty(data)){
+		$('#load_div_cnt_no').show();
+		$('#load_div_cnt').hide();
+		return;
+	}else {$('#load_div_cnt').show();$('#load_div_cnt_no').hide();}
+	$.each(data,function(k,v){
+		//组装fix和data表格数据DOM
+		$.each([$(fex_table),$(dat_table)],function(tb_tmp_k,tb_tmp_v){
+			_str = $('<tr></tr>');
+			$(tb_tmp_v).find('thead th').each(function(){
+				_index   = $(this).attr('index');
+				__str    = $('<td id="'+k+'_'+$(this).attr('name')+'"></td>').css({'text-align':(head_obj[_index].align||'center')});
+				_code_width = head_obj[_index].width || 0;
+				_display = eval("v."+$(this).attr('name')) || '';
+				//自动截取字符
+				if('' != _display && 0 != _code_width){
+					var _code_len     = head_obj[_index].len || Math.floor((_code_width-DATA_TABLE_CF.def_head_padd)*DATA_TABLE_CF.cf_cut_bl);
+					var _code_display = ZwzCommonOp.obj_char.autoAddEllipsis(_display,_code_len);
+					if(_display != _code_display){
+						$(__str).attr('title',_display);
+						_display = _code_display;
+					}
+				}
+				_display = 'function' == typeof head_obj[_index].format ? head_obj[_index].format(datas,_display,head_obj[_index],$(__str)) : _display;
+
+				$(__str).html(''==_display?'&nbsp;':_display);
+				head_obj[_index].hide && $(__str).hide();
+				$(_str).append($(__str));
+			});
+			0 < $(tb_tmp_v).find('thead th').length && $(tb_tmp_v).find('tbody').append($(_str));
+		});
+	});
+	/*固定表头*/
+	$(".tablesorter").fixedtableheader({ addclass:['box','fix_tmp'],headerrowsize: 1 });
+	//处理滚动隐藏start
+	if('undefined' == typeof _INIT_SCROLL_LEFT) _INIT_SCROLL_LEFT= $('#overflowDiv').scrollLeft();
+	
+	$('<div id="fixedtableheader"><div id="fixedtableheader_"></div></div>').appendTo($("body"));
+	$('#fixedtableheader1').css('position','relative');
+	if('undefined' == typeof __INIT_LEFT__){
+		__INIT_LEFT__ = $('#fixedtableheader1').css('left');
+		__INIT_LEFT__ = (Math.floor(__INIT_LEFT__.replace(/px/g,''))+_INIT_SCROLL_LEFT)+'px';
+	}
+	$('#fixedtableheader').css({
+		"overflow":"hidden",
+		"width":$("#overflowDiv").width(),
+		"position":"fixed",
+		"top":"0px",
+		"left":__INIT_LEFT__
+	});
+	$('#fixedtableheader_').css({
+		"position":"relative",
+		"top":"0px",
+		"left":'-'+__INIT_LEFT__
+	});
+	$('#fixedtableheader_').append($('#fixedtableheader1'));
+	//处理滚动隐藏end
+	//初始化横向滚动条事件
+	$('#overflowDiv').scroll(function(){
+		var _scrollLeft = $(this).scrollLeft();
+		if(!INIT_SCROLL_LEFT){
+			try{INIT_SCROLL_LEFT = $('#fixedtableheader1').offset().left+_INIT_SCROLL_LEFT;}
+			catch(e){}
+		}
+		if(0 < INIT_SCROLL_LEFT){
+			$('#fixedtableheader1').css('left',parseInt(INIT_SCROLL_LEFT-_scrollLeft)+'px');
+		}
+	});
+	/*固定表头*/
+}
+function showData(pra){show_data(pra);}
+function show_data(pra){
+	var pra = pra || {};
+	
+	$.extend(DATA_TABLE_CF.cf_do_pra,{
+		q:$.trim($('#q').val())
+	},pra);
+	//初始化表头
+	show_head();
+	//初始化数据
+	ZwzCommonOp.loading_layerOpen($("#load_div_cnt").is(":hidden")?'load_div_cnt_no':'load_div_cnt');
+	DATA_TABLE_CF.cf_do_pra._act = 'cut';
+	//提示信息
+	$('#tip_per_num').html(CF_PAGE.items_per_page);
+	$.getJSON(DATA_TABLE_CF.do_api_url,DATA_TABLE_CF.cf_do_pra,function(data){
+		ZwzCommonOp.loading_layerClose();
+		var _count_ = parseInt(data.Total) || 0;
+		$('#tip_cut').html(_count_);
+		if(0 == _count_){
+			$('#load_div_cnt_no').show();
+			$('#load_div_cnt').hide();
+			return;
+		}else{
+			DATA_TABLE_CF.cf_do_pra._act = 'info';
+			$(".pagination").pagination(_count_, CF_PAGE);
+		}
+	});
+}
+function show_head(){
+	var init_width = init_width_fix = 0;
+	var head_data  = DATA_TABLE_CF.do_head();
+	var _fex_flag  = false;
+	var _str       = '';
+	$("html,body").animate({scrollTop:0},1000);//scrollTop:$("#qy_name").offset().top
+	DATA_TABLE_CF.fex_open && $('#fixedtableheader,#fixedtableheader0').remove();
+	$('#dataTheadTr,#dataTheadTr_fex,#dataTable tbody,#dataTable_fex tbody').empty();
+	
+	$.each(head_data,function(k,v){
+		var _width_ = (parseInt(v.width) || DATA_TABLE_CF.def_head_width);
+		v.width     = _width_-DATA_TABLE_CF.def_head_padd;
+		var _str = '<th class="header '+(v.is_order?'thAjax ':'')+'itemTips" order="'+v.name+'" index="'+k+'" item="'+v.name+'" style="display:'+(v.hide?'none':'')+'"';
+		$.each(v,function(kk,vv){
+			if(kk=='display' || kk=='format') return true;
+			_str += ' '+kk+'="'+vv+'"';
+		})
+		_str += '>'+v.display+'</th>';
+		
+		if(v.frozen){
+			//设置fex表格
+			$('#dataTheadTr_fex').append(_str);
+			_fex_flag = true;
+			!v.hide && (init_width_fix += _width_);
+			return true;
+		}
+		$('#dataTheadTr').append(_str);
+		!v.hide && (init_width += _width_);
+	});
+	if(!_fex_flag){
+		$('#overflowDiv_fex').hide();
+		$('#overflowDiv').css({"width":"auto","border-left":"1px solid #C1CBDF"});
+	}else{
+		$('#overflowDiv_fex').show();
+		$('#overflowDiv').css({"width":"auto","border-left":"0px solid #C1CBDF"});
+	}
+	$('#dataTable').width(init_width);//动态设置宽度出现滚动条
+	$('#overflowDiv_fex').width(init_width_fix+6);//动态设置fex宽度
+	if ($.browser.msie && 0 < $("#overflowDiv")[0].offsetWidth && parseInt($.browser.version)<=7) { 
+		if($('#overflowDiv')[0].scrollWidth > $('#overflowDiv')[0].offsetWidth){
+			$('#overflowDiv').css({'padding-bottom' : '16px'});
+		}else $('#overflowDiv').css({'padding-bottom' : '0px'});
+	}
+	
+	//初始化排序
+	orderAjax('', DATA_TABLE_CF.cf_do_pra.sortname, DATA_TABLE_CF.cf_do_pra.sortorder, 'thAjax', 'dataTheadTr');
+	//初始化提示信息
+	initItemTips('itemTips');
+	$('div:.prmm').remove();
+	//初始化页面提示
+	DATA_TABLE_CF.do_tip_tpl();
+}
+/*nocommon*/
+function updateTreeItem(data)
+{
+	show_data({});
+}
+$(function(){
+	$('#tab_use_info li').live('click',function(){
+		var tmpPra =  {};
+		var _self  = this;
+		var _index = $(_self).index();
+   		$(_self).parent().find('li').removeClass('a');
+		$(_self).addClass('a');
+		//初始化提交参数
+		DATA_TABLE_CF.cf_do_pra   = {};
+		DATA_TABLE_CF.cf_init_pra = {};
+		DATA_TABLE_CF.def_src_tip.src = [];
+		var _level = parseInt(CF_SESS.level) || 0;
+		
+		if(0 == _index){
+			_level = 3 == _level ? 3 : _level+1;
+			$.extend(DATA_TABLE_CF.cf_init_pra,{
+				agent_id:0,
+				level:_level,
+				act:'get_mag_info',
+				sortname:'name',
+				sortorder:'desc'
+			});
+		}
+		$.extend(tmpPra,DATA_TABLE_CF.cf_init_pra);
+		if(!DATA_TABLE_CF.cf_init_block){
+			$.extend(tmpPra,URLOBJ.params);
+			DATA_TABLE_CF.cf_init_block = true;
+		}
+		DATA_TABLE_CF.def_src_tip.src.push({text:$.trim($('#navSiteMasterName').html()),pra:{agent_id:0,level:_level,q:''}});
+		show_data(tmpPra);
+   	});
+	$('#exportFile').click(function() {
+		$('#rqstr').val($.toJSON($.extend({},{type:'get_mag_info'},DATA_TABLE_CF.cf_do_pra)));
+		$('#excel_frm').submit();
+		return false;
+	});
+	$('#searchBtn').click(function(){
+		show_data();
+	});
+	//初始化开始
+	$('#tab_use_info li').eq(URLOBJ.params.index || 0).trigger('click');
+	$(window).keydown(function(event){
+		switch(event.keyCode){
+			case 37://左
+				$("#overflowDiv").scrollLeft($("#overflowDiv").scrollLeft()-5);
+			break;
+			case 39://右
+				$("#overflowDiv").scrollLeft($("#overflowDiv").scrollLeft()+5);
+			break;
+			default:break;
+		}
+    });
+	$("#overflowDiv table tbody tr,#overflowDiv_fex table tbody tr").live({
+		mouseenter:
+		function(e)
+		{
+			var obj_fix_tr = $('#overflowDiv_fex table tbody tr').eq($(this).index());
+			var obj_dat_tr = $('#overflowDiv table tbody tr').eq($(this).index());
+			$(obj_fix_tr).addClass('trbg_color');
+			$(obj_dat_tr).addClass('trbg_color');
+			$(obj_fix_tr).find('.op_modify').css({display:'inline-block'});
+		},
+		mouseleave:
+		function(e)
+		{
+			var obj_fix_tr = $('#overflowDiv_fex table tbody tr').eq($(this).index());
+			var obj_dat_tr = $('#overflowDiv table tbody tr').eq($(this).index());
+			$(obj_fix_tr).removeClass('trbg_color');
+			$(obj_dat_tr).removeClass('trbg_color');
+			$(obj_fix_tr).find('.op_modify').hide();
+		}
+	});
+	$('#tpl_tip_src a').live('click',function(){
+		if(1 == DATA_TABLE_CF.def_src_tip.src.length) return;
+		var _index = $(this).index();
+		var _pra   = $.evalJSON($(this).attr('pra'));
+		DATA_TABLE_CF.def_src_tip.src.splice(_index+1,DATA_TABLE_CF.def_src_tip.src.length-1);
+		show_data(_pra);
+	})
+	/*nocommon*/
+	$('.op_modify').live('click',function(){
+		var self  = this;
+		var item  = {level:$(self).attr('level'),icon:'modify',id:$(self).attr('doid'),title:$(self).attr('title'),index:$(self).attr('index')}
+		var _cf_  = {
+			"1":{
+				"url":"add_channel.html",
+				"tip":"渠道",
+				"width":530,
+				"height":450
+			},
+			"2":{
+				"url":"add_agent.html",
+				"tip":"子公司",
+				"width":530,
+				"height":400
+			},
+			"3":{
+				"url":"add_shop.html",
+				"tip":"店面",
+				"width":900,
+				"height":470
+			}
+		};
+		var _url_ = '/layer/'+_cf_[item.level].url+'?id='+item.id+'&action='+item.icon+'&_level_='+item.level+'&_index_='+item.index;
+		var _title= (item.icon=='add'?'添加':'修改')+_cf_[item.level].tip+(item.icon=='modify'?'--'+item.title:'');
+		dialog = $.ligerDialog.open({ url: _url_,isResize:true,width:_cf_[item.level].width,height:_cf_[item.level].height,title:_title});
+		return false;
+	});
+	$('#dataTable_fex table tbody tr,#dataTable table tbody tr').live('click',function(){
+		var self    = this;
+		var _index  = $(self).index();
+   		var _doId   = parseInt($('#'+_index+'_id').html()) || 0;
+   		var _level  = parseInt($('#'+_index+'_level').html()) || 0;
+   		var _name   = $.trim($('#'+_index+'_name').text());
+		var _pra    = {
+			q:'',
+			agent_id:_doId,
+			level:_level+1
+		};
+		
+		if(!_doId || 3==_level) return;
+		DATA_TABLE_CF.def_src_tip.src.push({text:_name,pra:_pra});
+		show_data(_pra);
+	});
+	$('#q').keyup(function(e){
+		if('13' == e.keyCode) $('#searchBtn').trigger('click');
+	});
+})
+</script>
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="javascript:void(0);">决策系统</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="/mag_info.html">渠道信息</a></label>
+		<label style="float:right;margin-right:10px;width:80px;"><a id="exportFile" href="javascript:void(0);" class="export" title="导出数据">导出数据</a></label>
+	</div>
+</div>
+<div class="bm">
+	<div class="optionbar cl mbm">
+		<dl class="cl">
+			<dt></dt>
+			<dd>
+				<ul class="cl">
+					<li>
+						<span>当前路径 ：</span>
+						<span id='tpl_tip_src'></span>
+					</li>
+				</ul>
+			</dd>
+		</dl>
+	</div>
+	<div class="bm_t">
+		<h3>
+			<div class="controlsearch vm">
+				<input type="text" id="q" name="q" plg_defval="请输入名称或用户名" value="" class="px" size="40" />
+				&nbsp;
+				<button id="searchBtn" class="pnc pn">
+					<span>查询</span>
+				</button>
+			</div>
+		</h3>
+	</div>
+	<div class="bm_t">
+		<h3>
+			渠道信息列表&nbsp;&nbsp;共计<span id="tip_cut" class="tip_cut_show">0</span>条记录,每页<span id="tip_per_num" class="tip_cut_show">0</span>条记录
+		</h3>
+	</div>
+	<div class="controlbar cl"  id="tab_use_info">
+		<ul class="datebar cl">
+			<li>
+				<a id="" href="javascript:void(0);">渠道信息</a>
+			</li>
+		</ul>
+	</div>
+	<div id='load_div_cnt_no' style='display:none;'>
+		<p style='text-align:center;font-size:14px;line-height:200px;'>暂无数据</p>
+	</div>
+    <div id='load_div_cnt'>
+		<div id='overflowDiv_fex' style='float:left;'>
+			<div id="dataTable_fex" class="box">
+				<table class="tablesorter" id="sortTable">
+					<thead>
+						<tr id="dataTheadTr_fex"></tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+		<div id="overflowDiv" class="overflowDiv" style='width:auto'>
+			<div id="dataTable" class="box">
+				<table class="tablesorter" id="sortTable">
+					<thead>
+						<tr id="dataTheadTr"></tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+		<div id="pageAjax" class="pgs cl">
+			<div class="pg">
+				<span id='Pagination' class="pagination"></span>
+			</div>
+		</div>
+    </div>
+</div>
+<form id="excel_frm" target="" method="get" action="/api/exp.php">
+	<input type='hidden' id='rqstr' name="rqstr" value='' />
+</form>

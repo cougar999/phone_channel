@@ -1,0 +1,400 @@
+<script src="/resources/js<!--{#version#}-->/comm_op.js" type="text/javascript"></script>
+<link href="/resources/css<!--{#version#}-->/pagination.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="/resources/js<!--{#version#}-->/jquery.pagination.js"></script>
+<script src="/resources/lib<!--{#version#}-->/jquery.json-2.3.min.js" type="text/javascript"></script>
+<style type="text/css">
+.optionbar li{width:100%;}
+.optionbar li .a{color:#336699;cursor:pointer;margin-right:0px;}
+#load_div_cnt{_min-height:100px;min-height:100px;}
+.overflowDiv{border-bottom:1px solid #C1CBDF;border-left:0px;border-right:1px solid #C1CBDF;border-top:1px solid #C1CBDF;}
+
+.box table tr{height:40px;}
+.box table tr td a{padding:10px;}
+.box td, .box th{padding:0};
+.box table tr td.title_agent{cursor: pointer;}
+.box table tr td.title_agent:hover{background-color:#CCCCCC;}
+.optionbar dl{padding:2px 0 2px 0;}
+.controlbar{background:url("/resources/stats/images/ctrl_bg.png") repeat-x scroll 0 0 transparent;border-left:1px solid #D6D6D6;border-right:1px solid #D6D6D6;border-top:1px solid #D6D6D6;height:29px;}
+.controlbar ul{padding-left:0px;}
+.optionbar{border:1px solid #D6D6D6;}
+.date{margin:4px 0 0 108px;}
+.gxstatuscolor1{color:#303030;}
+.gxstatuscolor2{color:green;}
+.gxstatuscolor3{color:red;}
+.confirm_payment_all{float:right;}
+.payment_for_bank{background-color:#FFFDEE;border:1px solid #FFE6BC;padding:5px;text-align:left;}
+.payment_for_bank li{padding-left:10px;}
+.payment_for_bank li font{font-weight:800;width:100px;}
+</style>
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="#">金币兑换审核列表</a></label>
+	</div>
+</div>
+<div class="bm">
+ 	<!-- <div class="bm_t">
+		<h3>
+			<div class="controlsearch vm">
+			<input type="text" id="searchUrl" name="searchUrl" value="" class="px xg1" size="40" />
+			<input type="hidden" id="searchUrlEncode" name="searchUrlEncode" value=""/>
+			&nbsp;
+			<button id="searchUrlBtn" class="pnc pn">
+			<span>查询</span>
+			</button>
+			<button class="pn" id="searchUrlBackBtn" style='display:none;'>
+			<span>返回</span>
+			</button>
+			</div>
+		</h3>
+	</div> -->
+	<div class="bm_t">
+		<h3>
+		金币兑换审核列表
+		<span id='tableHeadDate' class='start_and_end_date'></span>
+		</h3>
+	</div>
+	<div class="controlbar cl"  id="tab_use_info">
+		<ul class="datebar cl">
+			<li class='a'><a id="gxlist" href="javascript:void(0);">待审核列表</a></li>
+			<li><a id="gxpasslists" href="javascript:void(0);">审核通过列表</a></li>
+			<li><a id="gxsuccesslists" href="javascript:void(0);">已完成付款列表</a></li>
+			<li><a id="gxrefuselists" href="javascript:void(0);">审核拒绝列表</a></li>
+		</ul>
+	</div>
+    <div id='load_div_cnt'>
+		<div id='overflowDiv_fex' style='width:100%;float:left;'>
+			<div class="box"></div>
+		</div>
+    </div>
+</div>
+<script language="javascript">
+var goldexchangestatus = {
+	1:"审核中",
+	2:"审核完成，请耐心等待财务付款……",
+	3:"兑换被拒",
+	4:"已付款"
+};
+var goldexchangeextype = {
+	1:"手机话费充值",
+	2:"银行卡转账",
+	0:"旧数据"
+};
+var CF_SESS  = eval('[<!--{php}-->echo json_encode($_SESSION)<!--{/php}-->]');
+
+function getGoldExchangeList(row){
+	CF_SESS._excel_ = $.extend({},row,{type:'gold_exp',_type_:row.type || ''});
+	$('.box').html('<center><img src="/resources/images/loader.gif"></center>');
+	$.post('/api/api_goldcoinexchange.php',row,function(data){
+		var html_content = '';
+		if(!row.status){
+			html_content += '<div class="cl"><ul class="datebar cl"><li class="menulist1" style="border-bottom: 1px solid #D6D6D6;"><a href="javascript:void(0);" onclick="getGoldExchangeList({pageno:1,count:20,type:\'list\',ex_type:1});">手机话费充值列表</a></li><li class="menulist2" style="border-bottom: 1px solid #D6D6D6;"><a href="javascript:void(0);" onclick="getGoldExchangeList({pageno:1,count:20,type:\'list\',ex_type:2});">银行卡转账列表</a></li><li class="menulist0" style="border-bottom: 1px solid #D6D6D6;"><a href="javascript:void(0);" onclick="getGoldExchangeList({pageno:1,count:20,type:\'list\',ex_type:0});">旧数据列表</a></li></ul>';
+		}else{
+			html_content += '<div class="cl"><ul class="datebar cl"><li class="menulist1" style="border-bottom: 1px solid #D6D6D6;"><a href="javascript:void(0);" onclick="getGoldExchangeList({pageno:1,count:20,type:\'lists\',status:' + row.status + ',ex_type:1});">手机话费充值列表</a></li><li class="menulist2" style="border-bottom: 1px solid #D6D6D6;"><a href="javascript:void(0);" onclick="getGoldExchangeList({pageno:1,count:20,type:\'lists\',status:' + row.status + ',ex_type:2});">银行卡转账列表</a></li><li class="menulist0" style="border-bottom: 1px solid #D6D6D6;"><a href="javascript:void(0);" onclick="getGoldExchangeList({pageno:1,count:20,type:\'lists\',status:' + row.status + ',ex_type:0});">旧数据列表</a></li></ul>';
+		}
+		html_content += '<label style="float:right;margin-right:10px;"><a id="exportFile" href="javascript:void(0);" class="export" title="导出数据">导出数据</a></label>';
+		html_content += '</div>';
+		if(data.totalcount > 0){
+			if(!row.status){
+				html_content += '<table>'
+            		+ '<colgroup><col width="5%"><col width="10%"><col width="15%"><col width="10%"><col width="10%"><col width="10%"><col width="20%"><col width="30%"></colgroup>'
+            		+ '<thead>'
+            		+ '<tr id="dataTheadTr_fex">'
+            		+ '<th>序号</th>'
+            		+ '<th>申请时间</th>'
+            		+ '<th>店员名<br><font style="color:red;">(鼠标移到店员名查阅所属渠道)</font></th>'
+            		+ '<th>联系电话</th>'
+            		+ '<th>兑换金币(个)</th>'
+            		+ '<th>人民币(元)</th>'
+            		+ '<th>兑换方式</th>'
+			        + '<th>审核操作</th>'
+			        + '</tr>'
+			        + '</thead>'
+			        + '<tbody>';
+			}
+			else if(2 == row.status){
+				html_content += '<div style="padding:10px;" class="cl"><button class="pnc pn confirm_payment_all"><span>批量确认付款</span></button></div>';
+				html_content += '<table>'
+            		+ '<colgroup><col width="5%"><col width="5%"><col width="10%"><col width="15%"><col width="8%"><col width="7%"><col width="10%"><col width="20%"><col width="10%"><col width="20%"></colgroup>'
+            		+ '<thead>'
+            		+ '<tr id="dataTheadTr_fex">'
+            		+ '<th><button class="pnc pn btn_check_all"><span>全选</span></button></th>'
+            		+ '<th>序号</th>'
+            		+ '<th>申请时间</th>'
+            		+ '<th>店员名<br><font style="color:red;">(鼠标移到店员名查阅所属渠道)</font></th>'
+            		+ '<th>联系电话</th>'
+            		+ '<th>兑换金币(个)</th>'
+            		+ '<th>人民币(元)</th>'
+            		+ '<th>兑换方式</th>'
+			        + '<th>审核完成时间</th>'
+			        + '<th>操作</th>'
+			        + '</tr>'
+			        + '</thead>'
+			        + '<tbody>';
+			}else if(4 == row.status){
+				html_content += '<table>'
+            		+ '<colgroup><col width="5%"><col width="10%"><col width="15%"><col width="10%"><col width="10%"><col width="10%"><col width="20%"><col width="20%"></colgroup>'
+            		+ '<thead>'
+            		+ '<tr id="dataTheadTr_fex">'
+            		+ '<th>序号</th>'
+            		+ '<th>申请时间</th>'
+            		+ '<th>店员名<br><font style="color:red;">(鼠标移到店员名查阅所属渠道)</font></th>'
+            		+ '<th>联系电话</th>'
+            		+ '<th>兑换金币(个)</th>'
+            		+ '<th>人民币(元)</th>'
+            		+ '<th>兑换方式</th>'
+			        + '<th>付款完成时间</th>'
+			        + '</tr>'
+			        + '</thead>'
+			        + '<tbody>';
+			}else {
+				html_content += '<table>'
+            		+ '<colgroup><col width="5%"><col width="10%"><col width="15%"><col width="10%"><col width="10%"><col width="10%"><col width="20%"><col width="30%"></colgroup>'
+            		+ '<thead>'
+            		+ '<tr id="dataTheadTr_fex">'
+            		+ '<th>序号</th>'
+            		+ '<th>申请时间</th>'
+            		+ '<th>店员名<br><font style="color:red;">(鼠标移到店员名查阅所属渠道)</font></th>'
+            		+ '<th>联系电话</th>'
+            		+ '<th>兑换金币(个)</th>'
+            		+ '<th>人民币(元)</th>'
+            		+ '<th>兑换方式</th>'
+			        + '<th>审核结果</th>'
+			        + '</tr>'
+			        + '</thead>'
+			        + '<tbody>';
+			}
+			for(i = 0;i < data.items.length;i++){
+				var item = data.items[i];
+				var description = item.description || '';
+				html_content += '<tr>';
+				if(2 == row.status){
+					html_content += '<td><input class="check_one" type="checkbox" value="' + item.id + '"></td>';
+				}
+				html_content += '<td>' + parseInt(i+1) + '</td>';
+				html_content += '<td>' + item.create_time + '</td>'
+					        + '<td class="title_agent" title="' + item.agent_info + '">' + item.sales_name + '</td>'
+					        + '<td>' + item.telphone + '</td>'
+					        + '<td>' + item.goldcoin + '</td>'
+					        + '<td>￥' + (item.goldcoin/10) + '</td>';
+				switch(item.ex_type){
+					case "0":var payment_info = goldexchangeextype[item.ex_type];break;
+					case "1":var payment_info = "<div class=\"payment_for_bank\">" + goldexchangeextype[item.ex_type] + ":<font style=\"font-family: Georgia;font-size: 18px;\">" + item.payment_mobnumber + "</font></div>";break;
+					case "2":
+						var payment_info = "<ul class=\"payment_for_bank\"><h1>"+goldexchangeextype[item.ex_type] + ":</h1><li><font>开户行：</font>" + item.bank_name + "</li><li><font>开户名：</font>" + item.account_name + "</li><li><font>开户身份/证件号：</font>" + (item.identity_card ? item.identity_card : '无') + "</li><li><font>银行卡号：</font>" + item.bank_card_no + "</li></ul>";
+						break;
+				}
+				html_content += '<td>' + payment_info + '</td>';
+				switch(row.type){
+					case "lists":
+						if(2 == row.status){
+							var sms_content = '';
+							switch(item.is_sms){
+								case "1":sms_content = '<br><font style="color:#CC0000;font-size:8px;">(短信已发送)</font>';break;
+								case "2":sms_content = '<br><font style="color:red;font-size:8px;">(短信发送失败)</font><p><a href="javascript:void(0);" class="send_sms" rel="' + item.id + '">重新发送短信</a></p>';break;
+								case "3":sms_content = '<br><font style="color:green;font-size:8px;">(短信已回复)</font>';break;
+								default:sms_content = '<br><a href="javascript:void(0);" class="send_sms" rel="' + item.id + '">发送短信</a>';break;
+							}
+							html_content += '<td>' + item.update_time + '</td><td style="padding:10px 0;"><button class="pnc pn confirm_payment" rel="' + item.id + '"><span>确认付款</span></button>' + sms_content;
+						}else if(4 == row.status){
+							html_content += '<td>' + item.update_time;	
+						}else {
+							html_content += '<td style="text-align:left;"><font class="gxstatuscolor'+item.status+'">' + goldexchangestatus[item.status] + '</font>：' + item.description;	
+						}
+						break;
+					case "list":
+						html_content += '<td><div class="modify"><a href="javascript:void(0);" class="goldexpass" operatetime="' + item.create_time + '" count="' + item.goldcoin + '" salesid="' + item.sales_id + '" rel="' + item.id + '" telphone="' + item.telphone + '">完成</a>'
+				        + '<a href="javascript:void(0);" class="goldexrefuse" rel="' + item.id + '">拒绝</a></div>';
+						break;
+				}
+				html_content += '</td></tr>';
+			}
+			html_content += '</tbody></table>';
+			var row_paging = {
+					count : row.count,
+					pageno : row.pageno,
+					totalcount : data.totalcount
+				};
+			html_content += getListPagingJS(row_paging,'goldexchange');
+		}else{
+			html_content += '<div style="padding:20px;font-size:18px;"><h1>暂无记录...</h1></div>';
+		}
+		$('.box').html(html_content);
+		$('.goldexchangepageno').click(function(){
+			row.pageno = parseInt($(this).find('span').html());
+			getGoldExchangeList(row);
+			return false;
+		});
+		$('.goldexchangefirstpage').click(function(){
+			row.pageno = 1;
+			getGoldExchangeList(row);
+			return false;
+		});
+		$('.goldexchangeprevpage').click(function(){
+			row.pageno = row.pageno - 1;
+			getGoldExchangeList(row);
+			return false;
+		});
+		$('.goldexchangenextpage').click(function(){
+			row.pageno = row.pageno + 1;
+			getGoldExchangeList(row);
+			return false;
+		});
+		$('.goldexchangelastpage').click(function(){
+			row.pageno = Math.ceil(data.totalcount/row.count);
+			getGoldExchangeList(row);
+			return false;
+		});
+		
+		$(".confirm_payment").click(function(){
+			ids = new Array();
+			ids[0] = $(this).attr("rel");
+			var admin_id = CF_SESS[0]['real_id'];
+			var o_row = {
+					ids			:	ids,
+					admin_id	:	admin_id,
+					type		:	'confirm_payment',
+					row			:	row
+			};
+			$.post('/api/api_goldcoinexchange.php',o_row,function(data){
+				if(data.result == 'success'){
+					alert(data.result_desc);
+					getGoldExchangeList(o_row.row);
+				}else{
+					alert(data.result + ',程序问题，请联系技术人员！');
+				}
+			},'json');
+		});
+		
+		$(".confirm_payment_all").click(function(){
+			var ids = new Array();
+			$("input[class=check_one]:checked").each(function(i){
+				ids[i] = $(this).val();
+			});
+			if(ids.length <= 0){
+				alert('请选择确认付款的条目！');
+				return false;
+			}
+			var admin_id = CF_SESS[0]['real_id'];
+			var o_row = {
+					ids			:	ids,
+					admin_id	:	admin_id,
+					type		:	'confirm_payment',
+					row			:	row
+			};
+			$.post('/api/api_goldcoinexchange.php',o_row,function(data){
+				if(data.result == 'success'){
+					alert(data.result_desc);
+					getGoldExchangeList(o_row.row);
+				}else{
+					alert(data.result + ',程序问题，请联系技术人员！');
+				}
+			},'json');
+		});
+		
+		$(".btn_check_all").toggle(function(){
+				$(".check_one").each(function(){
+						$(this).attr("checked","checked");
+				});
+				$(this).children('span').html('全不选');
+			},
+			function(){
+				$(".check_one").each(function(){
+					$(this).attr("checked","");
+				});
+				$(this).children('span').html('全选');
+			}
+		);
+		
+		$(".send_sms").click(function(){
+			var id = $(this).attr('rel');
+			var admin_id = CF_SESS[0]['real_id'];
+			var obj_this = $(this);
+			$.post('/api/api_goldcoinexchange.php',{id:id,admin_id:admin_id,type:"send_sms",},function(data){
+				if(data.result == 'success'){
+					alert(data.result_desc);
+					obj_this.html('已发送');
+					obj_this.unbind("click");
+				}else{
+					alert(data.result + ',程序问题，请联系技术人员！');
+				}
+			},'json');
+		});
+		if('undefined' != row.ex_type){
+			$(".menulist"+row.ex_type).addClass("a");
+		}
+	},'json');
+}
+$(function(){
+	getGoldExchangeList({pageno:1,count:20,type:'list'});
+	
+	$('.goldexpass').live('click',function(){
+		var gid = $(this).attr('rel');
+		var salesid = $(this).attr('salesid');
+		var count = $(this).attr('count');
+		var operatetime = $(this).attr('operatetime');
+		var telphone = $(this).attr('telphone');
+		var admin_id = CF_SESS[0]['real_id'];
+		$.post('/api/api_goldcoinexchange.php',{admin_id:admin_id,count:count,operatetime:operatetime,salesid:salesid,id:gid,telphone:telphone,type:'pass'},function(data){
+			if(data.result == 'success'){
+				alert(data.result_desc);
+				getGoldExchangeList({pageno:1,count:20,type:'list'});
+			}else{
+				alert(data.result + '程序问题，请联系技术人员！');
+			}
+		},'json');
+	});
+
+	$('.goldexrefuse').live('click',function(){
+		var id = $(this).attr('rel');
+		var html_content = '<div class="gform">拒绝理由：<input type="hidden" value="' + id + '" class="gid"><input type="text" class="gdescr"><input class="gsubmit" type="submit"><a href="javascript:void(0);" class="gclose">取消</a></div>';
+		$(this).parent('.modify').after(html_content);
+		$(this).parent('.modify').hide();
+	});
+
+	$('.gsubmit').live('click', function(){
+		var descr = $(this).parent().find('.gdescr').val();
+		var gid = $(this).parent().find('.gid').val();
+		var admin_id = CF_SESS[0]['real_id'];
+		if($.trim(descr)){
+			$.post('/api/api_goldcoinexchange.php',{admin_id:admin_id,id:gid,description:descr,type:'refuse'},function(data){
+				if(data.result == 'success'){
+					alert('已完成拒绝操作！');
+					getGoldExchangeList({pageno:1,count:20,type:'list'});
+				}else{
+					alert('程序问题，请联系技术人员！');
+				}
+			},'json');
+		}else{
+			alert('请输入合理的拒绝理由！');
+		}
+	});
+
+	$('.gclose').live('click', function(){
+		$(this).parent().parent().find('.modify').show();
+		$(this).parent().remove();
+	});
+	
+	$('#tab_use_info li').live('click',function(){
+		$('#tab_use_info li').removeClass('a');
+		$(this).addClass('a');
+		switch($(this).find('a').attr('id')){
+			case "gxlist":getGoldExchangeList({pageno:1,count:20,type:'list'});break;
+			case "gxpasslists":getGoldExchangeList({pageno:1,count:20,type:'lists',status:2});break;
+			case "gxsuccesslists":getGoldExchangeList({pageno:1,count:20,type:'lists',status:4});break;
+			case "gxrefuselists":getGoldExchangeList({pageno:1,count:20,type:'lists',status:3});break;
+		}
+	});
+	
+	//导出excel
+	$('#exportFile').live('click',function(){
+		$('#rqstr').val($.toJSON(CF_SESS._excel_));
+		$('#excel_frm').submit();
+		return false;
+	})
+})
+</script>
+<form id="excel_frm" target="" method="get" action="/api/exp.php">
+	<input type='hidden' id='rqstr' name="rqstr" value='' />
+</form>

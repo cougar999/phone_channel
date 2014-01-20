@@ -1,0 +1,140 @@
+<script src="/resources/js<!--{#version#}-->/comm_op.js" type="text/javascript"></script>
+<link href="/resources/css<!--{#version#}-->/pagination.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="/resources/js<!--{#version#}-->/jquery.pagination.js"></script>
+
+<link href="/resources/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+<script src="/resources/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+<script src="/resources/lib<!--{#version#}-->/jquery.json-2.3.min.js" type="text/javascript"></script>
+<style type="text/css">
+.imsertbox {padding: 20px 10px;background:#efefef;border-radius: 5px;margin:0 0 10px 0;}
+.imsertbox:hover {background:#ccc;}
+#sorterTable th {background: #EFEFEF;padding: 10px; font-weight: bold;}
+#sorterTable td {height: 26px;}
+#sorterTable td:first-child {padding-left: 5px;}
+</style>
+
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="#">软件黑名单</a></label>
+	</div>
+</div>
+<div class="bm">
+ 	<!-- <div class="bm_t">
+		<h3>
+			<div class="controlsearch vm">
+			<input type="text" id="searchUrl" name="searchUrl" value="" class="px xg1" size="40" />
+			<input type="hidden" id="searchUrlEncode" name="searchUrlEncode" value=""/>
+			&nbsp;
+			<button id="searchUrlBtn" class="pnc pn">
+			<span>查询</span>
+			</button>
+			<button class="pn" id="searchUrlBackBtn" style='display:none;'>
+			<span>返回</span>
+			</button>
+			</div>
+		</h3>
+	</div> -->
+	<div class="bm_t">
+		<h3>
+		软件黑名单列表
+		<span id='tableHeadDate' class='start_and_end_date'></span>
+		</h3>
+	</div>
+	
+	<div class="imsertbox">
+		<label for="sid">sid：</label><input type="text" name="sid" value="" id="sid" placeholder="sid" />
+		<label for="appname">软件名称：</label><input type="text" name="appname" value="" id="appname"  placeholder="appname" />
+		<label for="appid">appid：</label><input type="text" name="appid" value="" id="appid" placeholder="appid" />
+		<input type="button" name="addappblacklist" value="添加软件到黑名单" id="addappblacklist"/>
+	</div>
+	<table cellspacing="1" class="datatable" id="sorterTable">
+		<colgroup>
+			<!-- <col width="100"/> -->
+			<col width="300"/>
+			<col width="300"/>
+			<col width="300"/>
+			<col width="100"/>
+		</colgroup>
+		<thead>
+	    	<tr>
+	    		<!-- <th style="text-align:center"><input type="checkbox" name="sid" value="" id="selectorall"/>
+				</th> -->
+	        	<th align="left">&nbsp;<font color="2179cb">sid</font></th>
+	        	<th align="left">&nbsp;<font color="2179cb">软件名称</font></th>
+	        	<th align="left">&nbsp;<font color="2179cb">appid</font></th>
+	        	<th style="text-align:center">&nbsp;<font color="2179cb">操作</font></th>
+	    	</tr>
+	    </thead>
+	    <tfoot>
+	    	<tr>
+	        	<!-- <td>&nbsp;</td> -->
+	        	<td>&nbsp;</td>
+	        	<td>&nbsp;</td>
+	        	<td>&nbsp;</td>
+	        	<td>&nbsp;</td>
+	    	</tr>
+	    </tfoot>
+	    <tbody id="table_tr">
+	    
+	    </tbody>
+	</table>
+</div>
+<script language="javascript">
+$(document).ready(function(){
+	$.post('/api/api_blacklist.php',{tag:'list'} ,function(data){
+		if(!data){
+			$('#table_tr').empty();
+			$('#table_tr').append('<tr><td><div style="text-align:center;display:inline-block;height:100px;line-height:100px;">暂无数据</div></td></tr>');
+		} else {
+			var html = '';
+			$.each(data,function(i,v){
+				html += '<tr>';
+				//html += '<td align="center"><input type="checkbox" name="sid" value="' + data[i].sid + '" id="app' + i +'"/></td>';
+				html += '<td>'+data[i].sid+'</td><td>'+data[i].sname+'</td><td>'+data[i].appid+'</td>'
+				html += '<td align="center"><a href="#null" onclick=deleteApp("'+data[i].sid+'")>删除</a></td>';
+				html += '</tr>';
+			});
+			$('#table_tr').append(html);
+		}
+	},'json');
+	
+	$("#addappblacklist").bind("click", function() {
+	  var sid = $.trim($("#sid").val());
+	  var appname = $.trim($("#appname").val());
+	  var appid = $.trim($("#appid").val());
+	  var flag = {
+	  	tag:'add',
+	  	sid:sid,
+	  	appname:appname,
+	  	appid:appid
+	  }
+	  $.post('/api/api_blacklist.php', flag ,function(data){
+	  	if(data && data == 1){
+	  		alert("插入成功，刷新页面即可看到新内容。");
+	  		$.get('http://118.145.22.12:9007/shop/reloadPresoft.jsp',function(){
+	  		});
+	  		window.location.reload(location.href);
+	  	}else {
+	  		alert("插入失败，请稍后再试。");
+	  	};
+	  });
+	},'json')
+});
+function deleteApp(sid) {
+	$.post('/api/api_blacklist.php',{tag:'del',sid:sid} ,function(data){
+		if(data && data == 1) {
+			alert("删除成功！");
+			$.get('http://118.145.22.12:9007/shop/reloadPresoft.jsp',function(){
+	  		});
+	  		window.location.reload(location.href);
+		}
+	});
+}
+
+</script>
+<form id="excel_frm" target="" method="get" action="/api/exp.php">
+	<input type='hidden' id='rqstr' name="rqstr" value='' />
+</form>

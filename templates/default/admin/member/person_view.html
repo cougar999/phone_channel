@@ -1,0 +1,44 @@
+<!--{include file="admin/path.html"}-->
+<!--{person tag=view id=$smarty.get.id ret=a_person_info}-->
+<div class="datalist">
+	<!--{member tag=getmemberagentinfo aid=$a_person_info.agent_id ret=a_agent_info}-->
+	<div class="clear">
+		<h2>
+			<a href="/admin/member/index.html">渠道列表</a>
+			<!--{foreach key=key item=item from=$a_agent_info}-->
+			<!--{if (($n++)+2) > 3}-->
+			-&nbsp;<a href="/admin/member/person_list.html?aid=<!--{$key}-->"><!--{$item}--></a>
+			<!--{else}-->
+			-&nbsp;<a href="/admin/member/index.html?level=<!--{$n+1}-->&pid=<!--{$key}-->"><!--{$item}--></a>
+			<!--{/if}-->
+			<!--{/foreach}-->-&nbsp;修改店员
+		</h2>
+	</div>
+	<div style="height:5px" class="float_clear"></div>
+	<div class="main_container" style="padding:20px 0 0 40px;margin:0 auto">
+	  <table class="adminform_table">
+	    <tr>
+	      <th>用户名:</th><td><input type="text" name="username" value="<!--{$a_person_info.username}-->" readonly></td>
+	    </tr>
+	    <tr>
+	      <th>密码:</th><td><input type="text" name="password" value="<!--{$a_person_info.password}-->" readonly></td>
+	    </tr>
+	    <tr>
+	      <th>营业员真实姓名:</th>
+	      <td>
+	      	<input type="text" name="real_name" value="<!--{$a_person_info.real_name}-->" readonly>
+	      	<input type="hidden" name="agent_id" value="<!--{$a_person_info.agent_id}-->" readonly>
+	      </td>
+	    </tr>
+	    <tr>
+	      <th>工号:</th><td><input type="text" name="job_number" value="<!--{$a_person_info.job_number}-->" readonly></td>
+	    </tr>
+	    <tr>
+	      <th>联系电话:</th><td><input type="text" name="telphone" value="<!--{$a_person_info.telphone}-->" readonly></td>
+	    </tr>
+	    <tr>
+	      <th>email:</th><td><input type="text" name="email" value="<!--{$a_person_info.email}-->" readonly></td>
+	    </tr>
+     </table>
+     </div>
+</div>

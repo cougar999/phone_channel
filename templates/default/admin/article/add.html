@@ -1,0 +1,74 @@
+<!--{admin tag=checkadmingorup ret=b_admin_group_result}-->
+<style type="text/css">
+.datalist{background-color:#FFFFFF;clear:both;margin:20px;word-wrap:break-word;}
+.formeditor{font-size:12px;}
+.formeditor .line-editor{margin:5px;}
+.pright{float:right;}
+</style>
+<script type="text/javascript" src="/resources/ckeditor/ckeditor.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#submit").click(function(){
+		if($("#title").val().length>40){
+			alert("您的标题过长，请适当缩短标题长度！");
+			return false;
+		}else if($.trim($("#title").val().length)<1){
+			alert("标题不能为空！");
+			return false;
+		};
+	});
+});
+CKEDITOR.replace('TextArea1');
+</script>
+<!--{if !empty($smarty.post.submit)}-->
+	<!--{article tag=adminadd authorid=$assign.userid ret=b_res agentid=$smarty.session.agentid}-->
+	<!--{if $b_res}-->
+	<div style="text-align:center">文章发表成功！</div>
+	<script language="javascript">window.location.replace("/article/index.html?category=<!--{$smarty.get.category}-->");</script>
+	<!--{else}-->
+	<div style="text-align:center">数据不能为空！</div>
+	<script language="javascript">window.history.go(-1);</script>
+	<!--{/if}-->
+<!--{else}-->
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="/article/index.html?category=<!--{$smarty.get.category}-->"><!--{$assign.article_category[$smarty.get.category]}--></a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web">发布信息</label>
+	</div>
+</div>
+<div class="datalist">
+	<form action="" method="post" class="formeditor">
+		<div class="line-editor">
+			<span>标题：</span>
+			<input type="text" id="title" name="title" style="width:650px; height:20px">
+		</div>
+		<!--{if $b_admin_group_result}-->
+		<div class="line-editor">
+			<span>类型：</span>
+			<select name="category" style="width:100px">
+			<!--{foreach key=key item=category from=$assign.article_category}-->
+				<option value="<!--{$key}-->" <!--{if $key == $smarty.get.category}-->selected<!--{/if}-->><!--{$category}--></option>
+			<!--{/foreach}-->
+			</select>
+		</div>
+		<!--{else}-->
+			<input type='hidden' name='category' id='' value='<!--{$smarty.get.category}-->'/>
+		<!--{/if}-->
+		<div class="line-editor">
+			<span>摘要：</span>
+			<textarea name="description" id="description" style="height:40px;width:650px;"></textarea>
+		</div>
+		<div class="line-editor">
+			<span>内容：</span>
+			<textarea class="ckeditor" name="content"></textarea>
+		</div>
+		<div class="line-editor pright">
+			<!-- <input type="reset" value="重 填"> -->
+			<input name="submit" type="submit" id="submit" value="提 交">
+		</div>
+	</form>
+</div>
+<!--{/if}-->

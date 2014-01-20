@@ -1,0 +1,256 @@
+<link href="/resources/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+<script src="/resources/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerTree.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerMenu.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerDrag.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerResizable.js" type="text/javascript"></script>
+<script src="/resources/lib/jquery.json-2.3.min.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="http://res3.www.appdear.com/resources/js/tangram_suggestion.js" charset="utf-8"></script>
+<link style="text/css" rel="stylesheet" href="http://res3.www.appdear.com/resources/css/suggestion.css">
+<style type="text/css">
+.l-tree .l-tree-icon-none img{width:16px; height:16px; margin:3px;}
+#tip_menu a{padding-right:10px;display:inline;color: #1686CB;}
+#tip_menu a:hover{text-decoration:underline; color:#ee3333;}
+ 
+.l-body,.l-body span{height:24px !important;line-height:24px !important;}
+#tip_menu{height:24px;line-height:24px}
+</style>
+<script type="text/javascript">
+var menu;
+var ct_node;
+var dialog;
+var t;
+var e = window.event;
+var flag_stop = true;
+var flag_id   = 0;
+
+$(function ()
+{
+	var memeber = '/resources/lib/ligerUI/skins/icons/memeber.gif';
+
+	 $('#so_btn').live('click',function(){
+		 manager.clear();
+		 manager.loadData(null, '/api/api_member.php',{act:'init',q:$('#q').val()});
+	 });
+	 $('#exp_btn').live('click',function(){
+		 var node = manager.getChecked();
+		 var req  = {type:'member',data:[]};
+         if (node.length){
+        	 $.each(node,function(k,v){
+        		 req.data.push({id:v.data.id,type:(v.data.level==0||v.data.level==null?1:0)});
+        	 });
+        	 $('#rqstr').val($.toJSON(req));
+        	 $('#excel_frm').submit();
+        	 return ;
+         }else $.ligerDialog.alert("当前无数据无法导出请确认！");
+	 });
+	var regEmailElement = baidu.G("q");
+	var regEmailSuggester = baidu.ui.suggestion.create( regEmailElement, {
+	    "onconfirm":function(){
+	        regEmailElement.value = regEmailElement.value.replace(/\s+/g, "");
+	        $('#so_btn').trigger('click');
+	    },
+	    "getData" : function (wd){
+			$.getJSON('/api/api_member.php',{'kw':wd,'act':'sug'},function(data){
+	    		var assign = function(){
+		            regEmailSuggester.giveData("", data);
+		        }
+		        setTimeout(assign, 50);
+	    	})
+	    },
+	    "append_html" : "",
+	    "prepend_html" : ""
+	});
+	 $("#tree1").ligerTree(  
+      {  
+    	  url:'/api/api_member.php?act=init',
+          checkbox:false,    
+          nodeWidth : 800,  
+          btnClickToToggleOnly:false,
+          checkbox: true,
+          onExpand: onExpand,
+          idFieldName :'id',
+          parentIDFieldName :'pid',
+          onClick:function(node){
+        	  if(node.data == null) return ;
+        	  $('#tip_menu').remove();
+        	  var all_data   = manager.getData();
+        	  var self_level = all_data[0].level;
+        	  
+        	  ct_node     = node;
+        	  var tag_obj = [];
+        	  if(parseInt(node.data.id) == 0){
+        		  tag_obj.push({ text: '添加渠道', click: itemclick, icon: 'add' });
+        	  }else{
+        		  if(parseInt(node.data.level) == 2) tag_obj.push({ text: '批量导入店面信息', click: itemclick, icon: 'import' });
+        		  if(parseInt(node.data.level) && self_level<3) tag_obj.push({ text: '添加'+(node.data.level==3?'店员':(node.data.level==1?'子公司':(node.data.level==2?'店面':'渠道'))), click: itemclick, icon: 'add' });
+        		  if(parseInt(node.data.level) && parseInt(node.data.level)<3 && self_level<3) tag_obj.push({ text: '添加负责人', click: itemclick, icon: 'addsa' });
+        		  if(self_level<3 || all_data[0].id==node.data.id) tag_obj.push({ text: '修改', click: itemclick, icon: 'modify' });
+        		  tag_obj.push( { line: true },
+			                    { text: '查看', click: itemclick, icon: 'view' });
+        	  }
+        	  var obj = (node.target || node.srcElement);
+        	  if($.browser.msie && parseInt($.browser.version) < 8){
+      	      	$(obj).find('div').eq(0).prepend("<div id='tip_menu' style='z-index:999;float:right;margin-right:50px;'></div>");
+      	   	  }else $(obj).find('div').eq(0).prepend("<div id='tip_menu' style='z-index:999;float:right;margin-right:50px;'></div>");
+        	  $.each(tag_obj,function(k,v){
+      	  		if(typeof v.text == 'undefined') return true;
+      	  		$('#tip_menu').append("<a icon="+v.icon+">"+v.text+"</a>");
+	      	  });
+        	  return ;
+          },
+          onContextmenu: function (node, e){
+        	  var all_data   = manager.getData();
+        	  var self_level = all_data[0].level;
+        	  
+        	  ct_node     = node;
+        	  var tag_obj = [];
+        	  if(parseInt(node.data.id) == 0){
+        		  tag_obj.push({ text: '添加渠道', click: itemclick, icon: 'add' });
+        	  }else{
+        		  if(parseInt(node.data.level) == 2) tag_obj.push({ text: '批量导入店面信息', click: itemclick, icon: 'import' });
+        		  if(parseInt(node.data.level) && self_level<3) tag_obj.push({ text: '添加'+(node.data.level==3?'店员':(node.data.level==1?'子公司':(node.data.level==2?'店面':'渠道'))), click: itemclick, icon: 'add' });
+        		  if(parseInt(node.data.level) && parseInt(node.data.level)<3 && self_level<3) tag_obj.push({ text: '添加负责人', click: itemclick, icon: 'addsa' });
+        		  if(self_level<3 || all_data[0].id==node.data.id) tag_obj.push({ text: '修改', click: itemclick, icon: 'modify' });
+        		  tag_obj.push( { line: true },
+			                    { text: '查看', click: itemclick, icon: 'view' });
+        	  }
+        	  menu = $.ligerMenu({ top: 100, left: 100, width: 150, items:tag_obj});
+        	  menu.show({ top: e.pageY, left: e.pageX });
+              return false;
+          },
+          onMouseOut:function(node, e ,cc){
+        	  return ;
+          },
+          onMouseOver: function (node, e ,cc){
+        	  return ;
+        	  if(!flag_stop) return ;
+        	  if(node.data == null) return ;
+        	  var all_data   = manager.getData();
+        	  var self_level = all_data[0].level;
+        	  
+        	  ct_node     = node;
+        	  var tag_obj = [];
+        	  if(parseInt(node.data.id) == 0){
+        		  tag_obj.push({ text: '添加渠道', click: itemclick, icon: 'add' });
+        	  }else{
+        		  if(parseInt(node.data.level) == 2) tag_obj.push({ text: '批量导入店面信息', click: itemclick, icon: 'import' });
+        		  if(parseInt(node.data.level) && self_level<3) tag_obj.push({ text: '添加'+(node.data.level==3?'店员':(node.data.level==1?'子公司':(node.data.level==2?'店面':'渠道'))), click: itemclick, icon: 'add' });
+        		  if(parseInt(node.data.level) && parseInt(node.data.level)<3 && self_level<3) tag_obj.push({ text: '添加负责人', click: itemclick, icon: 'addsa' });
+        		  if(self_level<3 || all_data[0].id==node.data.id) tag_obj.push({ text: '修改', click: itemclick, icon: 'modify' });
+        		  tag_obj.push( { line: true },
+			                    { text: '查看', click: itemclick, icon: 'view' });
+        	  }
+        	  //menu = $.ligerMenu({ top: 100, left: 100, width: 120, items:tag_obj});
+        	  //menu.show({ top: e.pageY, left: e.pageX });
+        	  
+        	  var obj = (node.target || node.srcElement);
+        	  $(obj).find('span').eq(0).mouseenter(function()
+        	  {
+        	   	$('#tip_menu').remove();
+        	   	if($.browser.msie && parseInt($.browser.version) < 8){
+        	   		$(obj).find('div').eq(0).prepend("<span id='tip_menu' style='z-index:999;float:right;'></span>");
+        	   	}else $(obj).find('span').eq(0).html("<span style='float:left;'>"+$(obj).find('span').eq(0).html()+"</span><span id='tip_menu' style='float:left;margin-left:100px;'></span>");
+//        	   	if($.browser.msie && parseInt($.browser.version) < 8){
+//        	   		$(obj).find('div').eq(0).prepend("<span id='tip_menu' style='z-index:999;float:right;'></span>");
+//        	   	}else $(obj).find('span').eq(0).prepend("<span id='tip_menu' style='z-index:999;float:right;'></span>");
+        	  	$.each(tag_obj,function(k,v){
+        	  		if(typeof v.text == 'undefined') return true;
+        	  		$('#tip_menu').append("<a icon="+v.icon+">"+v.text+"</a>");
+        	  	});
+        	  	return ;
+        	  }).mouseleave(function()
+        	  {
+        	      //$('#tip_menu').remove();
+        	  });
+        	  $(obj).find('span').eq(0).trigger('mouseenter');
+              return false;
+          }
+      });
+      manager = $("#tree1").ligerGetTreeManager();
+      $('#tip_menu a').live('click',function(){
+    	  itemclick({text:$(this).html(),icon:$(this).attr('icon')},0);
+      });
+});
+function checkHover(e, target) {  
+    if (getEvent(e).type == "mouseover") {  
+        return !contains(target, getEvent(e).relatedTarget  
+                || getEvent(e).fromElement)  
+                && !((getEvent(e).relatedTarget || getEvent(e).fromElement) === target);  
+    } else {  
+        return !contains(target, getEvent(e).relatedTarget  
+                || getEvent(e).toElement)  
+                && !((getEvent(e).relatedTarget || getEvent(e).toElement) === target);  
+    }  
+}  
+function contains(parentNode, childNode) {  
+    if (parentNode.contains) {  
+        return parentNode != childNode && parentNode.contains(childNode);  
+    } else {  
+        return !!(parentNode.compareDocumentPosition(childNode) & 16);  
+    }  
+}  
+//取得当前window对象的事件  
+function getEvent(e) {  
+    return e || window.event;  
+}
+function itemclick(item, i)
+{
+	var _level = ct_node.data.level;
+	if(item.icon=='addsa'&&item.text=='添加负责人'){
+		dialog = $.ligerDialog.open({ url: '/layer/add_person.html?id='+ct_node.data.id+'&action=add',isResize:true,width:400,height:300 });
+		return ;
+	}
+	if(item.icon == 'import'){
+		dialog = $.ligerDialog.open({ url: '/layer/person_import.html?id='+ct_node.data.id+'&action='+item.icon,isResize:true,width:700,height:300 });
+		return ;
+	}
+	if((_level==3&&item.icon=='add') || _level==0 || _level==null){
+		dialog = $.ligerDialog.open({ url: '/layer/add_person.html?id='+ct_node.data.id+'&action='+item.icon,isResize:true,width:400,height:300 });
+	}else dialog = $.ligerDialog.open({ url: '/layer/add_agent.html?id='+ct_node.data.id+'&action='+item.icon,isResize:true,width:700,height:350 });
+}
+function onExpand(note)  
+{
+	if (note.data.children && note.data.children.length == 0)
+    {
+        //parentIDFieldName :'pid', 
+        //manager.append(note.target, [{id:"2" , text: "111" }]);
+        manager.loadData(note.target, '/api/api_member.php?act=show&nid='+note.data.id);
+    }   
+}
+function updateTreeItem(data)
+{
+//    var node = manager.getSelected();
+    var node = ct_node;
+    if (node)
+        manager.update(node.target, { text: data.text });
+    //dialog.close();
+}
+function addTreeItem(data)
+{
+//    var node = manager.getSelected();
+    var node  = ct_node;
+    var nodes = [];
+    !!data.length ? nodes = data : nodes.push(data);
+    if (node)
+        manager.append(node.target, nodes); 
+    else
+        manager.append(null, nodes);
+    //dialog.close();
+}
+</script>
+<!-- <div style='color:red;margin-left:15px;'>（注：更多操作项请在要操作的体系账户上<a>右键</a>）</div> -->
+<div style='margin-left:15px;'><input type='text' name='q' id='q' style='width:300px;'/>
+	<span style='margin-left:10px;'><input type='button' id='so_btn' name='so_btn' value='搜索'/></span>
+	<span style='margin-left:10px;'><input type='button' id='exp_btn' name='exp_btn' value='导出EXCEL'/></span>
+</div>
+<form id="excel_frm" target="" method="post" action="/api/exp.php?cact=mem">
+<input type='hidden' id='rqstr' name="rqstr" value='' />
+</form>
+<div style="width:100%; position:relative; height:auto; min-height:200px;display:block; margin:10px; background:white;   border:0px solid #ccc; overflow:auto;  ">
+<ul id="tree1">
+</ul>
+</div>
+<div id='test_span'></div>

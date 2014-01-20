@@ -1,0 +1,35 @@
+<!--{include file="admin/path.html"}-->
+<div class="datalist">
+<div class="datalist_top"></div>
+	<!--{article tag=lists category=$smarty.get.category pageno=$smarty.get.pageno|default:1 count=10 ret=a_article_list}-->
+	<!--{foreach key=key item=item from=$a_article_list.info}-->
+	<ul id="art_<!--{$item.aid}-->">
+		<b>【<a href='?category=<!--{$item.category}-->' target='_blank'><!--{$assign.article_category[$item.category]}--></a>】&nbsp;&nbsp;<a href="/article/view.html?aid=<!--{$item.aid}-->" target="_blank"><!--{$item.title}--></a></b>
+		<span style="float:right;padding-top:5px"><a href="javascript:delArticle(<!--{$item.aid}-->)" title="删除文章"><img src="/resources/images/del_button.png"></a></span>
+		<span style="float:right">&nbsp;&nbsp;</span>
+		<span style="float:right;padding-top:3px"><a href="/admin/article/modify.html?aid=<!--{$item.aid}-->" title="修改文章"><img src="/resources/images/modify_button.png"></a></span>
+		<span style="float:right">&nbsp;|&nbsp;</span>
+		<span style="float:right">发布于：<!--{$item.create_date|date_format:"%Y-%m-%d %H:%M"}--></span>
+		<p style="margin-left:10px">
+		<br />
+			&nbsp;&nbsp;&nbsp;&nbsp;<!--{$item.description}-->
+		<br /><br />
+		</p>
+	</ul>
+	<!--{/foreach}-->
+	<div class="clear"></div>
+	<div class="page"><!--{$a_article_list.pagehtml}--></div>
+</div>
+<script type="text/javascript">
+function delArticle(aid){
+	if(confirm('确定要删除这篇文章吗？') ){
+		$.post('/api/api_article.php', {aid:aid,tag:'del'}, function(data){
+			if(data.result){
+		 		$("#art_"+aid).hide();
+			}else{
+				alert('执行失败请重试！');
+			}
+		}, "json");
+	}
+}
+</script>

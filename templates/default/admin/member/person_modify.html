@@ -1,0 +1,68 @@
+<!--{include file="admin/path.html"}-->
+<!--{if !empty($smarty.post.submit)}-->
+	<!--{person tag=modify id=$smarty.get.id ret=b_res}-->
+	<!--{if $b_res}-->
+	<div style="text-align:center">修改店员成功！</div>
+	<script language="javascript">window.location.replace("/admin/member/person_modify.html?id=<!--{$smarty.get.id}-->");</script>
+	<!--{else}-->
+	<div style="text-align:center">数据不正确！</div>
+	<script language="javascript">window.history.go(-1);</script>
+	<!--{/if}-->
+<!--{else}-->
+<!--{person tag=view id=$smarty.get.id ret=a_person_info}-->
+<div class="datalist">
+	<!--{member tag=getmemberagentinfo aid=$a_person_info.agent_id ret=a_agent_info}-->
+	<div class="clear">
+		<h2>
+			<a href="/admin/member/index.html">渠道列表</a>
+			<!--{foreach key=key item=item from=$a_agent_info}-->
+			<!--{if (($n++)+2) > 3}-->
+			-&nbsp;<a href="/admin/member/person_list.html?aid=<!--{$key}-->"><!--{$item}--></a>
+			<!--{else}-->
+			-&nbsp;<a href="/admin/member/index.html?level=<!--{$n+1}-->&pid=<!--{$key}-->"><!--{$item}--></a>
+			<!--{/if}-->
+			<!--{/foreach}-->-&nbsp;修改店员
+		</h2>
+	</div>
+	<div style="height:5px" class="float_clear"></div>
+	<form action="" method="post">
+	<div class="main_container" style="padding:20px 0 0 40px;margin:0 auto">
+	  <table class="adminform_table">
+	    <!--<tr>
+	      <th>uuid:</th><td><input type="text" name="uuid" value="{uuid}"></td>
+	    </tr>-->
+	    <tr>
+	      <th>用户名:</th><td><input type="text" name="username" value="<!--{$a_person_info.username}-->" readonly></td>
+	    </tr>
+	    <tr>
+	      <th>密码:</th><td><input type="text" name="password" value="<!--{$a_person_info.password}-->" readonly></td>
+	    </tr>
+	    <tr>
+	      <th>营业员真实姓名:</th>
+	      <td>
+	      	<input type="text" name="real_name" value="<!--{$a_person_info.real_name}-->">
+	      	<input type="hidden" name="agent_id" value="<!--{$a_person_info.agent_id}-->" readonly>
+	      </td>
+	    </tr>
+	    <tr>
+	      <th>工号:</th><td><input type="text" name="job_number" value="<!--{$a_person_info.job_number}-->"></td>
+	    </tr>
+	    <tr>
+	      <th>联系电话:</th><td><input type="text" name="telphone" value="<!--{$a_person_info.telphone}-->"></td>
+	    </tr>
+	    <tr>
+	      <th>email:</th><td><input type="text" name="email" value="<!--{$a_person_info.email}-->"></td>
+	    </tr>
+     </table>
+     <center>
+     <table>
+	    <tr>
+	      <td colspan="2"><input type="submit" name="submit" value="修改">
+	    </tr>
+	  </table>
+	  </center>
+     </div>
+	</form>
+	<div><font color="red">注意：用户名与密码均不可以修改！</font></div>
+</div>
+<!--{/if}-->

@@ -1,0 +1,47 @@
+<link href="/resources/css/style.css" rel="stylesheet" type="text/css" />
+<link href="/resources/css/admin.css" rel="stylesheet" type="text/css" />
+<style>
+.main_a_a {
+    height: 25px;
+    line-height: 25px;
+    width: 100%;
+	border-bottom:2px solid #7AD3FF;
+}
+.main_a1{
+	font-size:14px;
+	font-weight:bold;
+	width:107px;
+	text-align:center;
+	margin-right:31px;
+}
+.main_a2{
+	margin-right:21px;
+	color:#92c1e3;
+}
+.main_a_a1{
+	margin-top:1px;
+}
+.main_a_a a{
+	color:#545454;
+	font-family:微软雅黑,宋体,arial,verdana;
+}
+</style>
+<div class='main_a_a p_fl'>
+	<div class='main_a1 p_fl'><a href='/admin/article/index.html' preg="/admin/article/modify.html,/admin/article/add.html">资料分享管理</a></div>
+	<div class='main_a1 p_fl'><a href='/admin/note/index.html'>公告通知管理</a></div>
+	<div class='main_a1 p_fl'><a href='/admin/member/index.html'>渠道账号管理</a></div>
+	<div class='main_a2 p_fr' style="display:none;"><a href="/admin/article/add.html?category=<!--{$smarty.get.category}-->">发布文章</a></div>
+</div>
+<div class='clear'></div>
+<script type='text/javascript'>
+var preg = '';
+$('.main_a_a div').each(function(k,v){
+	preg = $(v).find('a').attr('href')+(typeof($(v).find('a').attr('preg')) == 'undefined' ? '' : $(v).find('a').attr('preg')); 
+	if(preg.indexOf(urlObj.path) != -1){
+		$(v).find('a').addClass('main_a_a1');
+		if($(v).find('a').attr('href') == '/admin/article/index.html') $('.main_a2').show();
+		else $('.main_a2').hide();
+		return false;
+	}
+})
+</script>

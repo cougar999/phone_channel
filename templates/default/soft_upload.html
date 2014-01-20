@@ -1,0 +1,169 @@
+<script type="text/javascript" src="/resources/stats/scripts/jquery.uploadify-3.1.min.js"></script>
+<script src="/resources/lib<!--{#version#}-->/jquery.json-2.3.min.js" type="text/javascript"></script>
+<script language="javascript" src="/resources/js/jquery.form.js"></script>
+<link rel="stylesheet" type="text/css" href="/resources/stats/styles/uploadify.css">
+<style type='text/css'>
+.op_up a{margin-right:10px;}
+.op_a_div,.fileQueue{margin:6px 0;}
+.notice_info{background:url("/resources/stats/images/ico_info.png") no-repeat scroll 12px 9px #FEF9E8}
+.notice_close{background:url("/resources/stats/images/icon_close.png") no-repeat scroll 12px 9px #FEF9E8}
+.err_tips{color:red;}
+.up_soft_info{}
+.up_soft_info font,.update_soft_info font{margin-left:15px;}
+.update_soft_info{color:red;}
+.pnsd{display:none;}
+</style>
+<script type="text/javascript">
+var CF_SESS  = eval('[<!--{php}-->echo json_encode($_SESSION)<!--{/php}-->]');
+var timer;
+
+$(function() {
+	$('#frm_soft_cm').ajaxForm({
+		url:'/apis/api_soft.json',
+		type:'post',
+		data:{act:'submit'},
+		dataType:'json',
+		beforeSubmit:function(){
+			$('.err_tips').empty();
+			showLoadingDiv('op_a_div');
+		},
+	    success: function(data) {
+	    	$('.no_info').remove();
+	    	clearLoadingDiv();
+	    	$.each(data.data,function(k,v){
+	    		$('#'+k+'_tips').html(1==v.code?'添加成功':'添加失败请重试！');
+	    		1 == v.code && $('#'+k).remove();
+	    	});
+	    	//提示信息
+	    	if(1 > $('#cm_qe_div').find('div').length){
+	    		$('#frm_op_span').hide();
+	    		$('#up_op_cnt_span').show();
+	        	$('.pnsd').hide();
+	    		showWindows('软件上传并自动发布成功，请选择下一步操作？','提示信息',function(y){
+			    	if($(this).text() == '继续上传'){
+			    		
+			    	}else window.location.href = '/soft_release.html';
+			    	$('#fwin_dialog_close').click();
+			    },6);
+	    	}
+	    },
+	    error:function(){
+	    	
+	    }
+	});
+    $("#uploadify").uploadify({
+    	'height'   : 24,
+    	'queueID' : 'fileQueue',
+    	'buttonText':'选择APK文件',
+    	'auto'     : false,
+    	'multi'    : true,
+    	'fileTypeExts':'*.apk',
+    	'swf'      : '/resources/stats/scripts/uploadify.swf',
+    	'uploader' : '/api/api_soft.php',
+    	'width'    : 90,
+    	'fileSizeLimit' :'40MB',
+    	'queueSizeLimit':20,
+    	'formData':{'chn_id':CF_SESS[0].real_id,'act':'upload','chn_code':CF_SESS[0].chn_code,'_se_str':$.toJSON(CF_SESS[0])},
+    	'onUploadComplete' : function(file) {
+    		
+        },
+        'onSelectError' : function() {
+            //alert('The file ' + file.name + ' returned an error and was not added to the queue.');
+        },
+        'onUploadError' : function(file, errorCode, errorMsg, errorString) {
+            //alert('The file ' + file.name + ' could not be uploaded: ' + errorString);
+        },
+        'onCancel' : function(file) {
+        	clearTimeout(timer);
+        	timer = setTimeout(function(){
+        		$('#fileQueue').html() == '' && $('.pnsd').hide();
+        	},1800);
+        },
+        onDialogClose : function(swfuploadifyQueue) {
+        	0 < swfuploadifyQueue.filesQueued && $('.pnsd').show();
+        },
+        'onQueueComplete':function(queueData){
+        	$('#up_op_cnt_span').hide();
+        	$('#fileQueue').empty();
+        },
+		'onUploadSuccess' : function(file, data, response) {
+			var data = $.evalJSON(data);
+			if('006' == data.code || '003' == data.code){
+				$('#frm_op_span').show();
+				var html = '';
+				if('003' == data.code){
+					html = '<div class="notice notice_t mbm notice_close no_info">\
+							<em><a href="javascript:;" id="btn_que_close">删除</a></em>\
+							<p style="text-align:left;">软件读取错误，稍后我们会进行人工修复处理！</p>\
+							</div>';
+				}else{
+					var _div_id   = typeof data.data.id != 'undefined' ? data.data.id : '';
+					data.data.ds.size = file.size;
+					html = '<div class="notice notice_t mbm '+(2 == data.data.ds.operType?'':'notice_info')+'" id="'+_div_id+'">\
+						        <em><a href="javascript:;" id="btn_que_close">删除</a></em>\
+						        <p><span class="up_soft_info">软件上传成功：<font>名称：'+data.data.tg.name+'</font><font>版本：v'+data.data.ds.versionName+'</font><font>大小：'+ZwzCommonOp.format_fileSize(data.data.ds.size)+'</font><font id="'+_div_id+'_tips" class="err_tips"></font></span></p>\
+						    ';
+					2 == data.data.ds.operType && (html += '<p><span class="update_soft_info">该软件已存在，将会用最新上传的覆盖旧文件。     旧文件信息：<font>名称：'+data.data.tg.name+'</font><font>版本：v'+data.data.tg.versionname+'</font><font>大小：'+ZwzCommonOp.format_fileSize(data.data.tg.size)+'</font></span></p>');
+					$.each(data.data.ds,function(k,v){
+						html += '<input type="hidden" name="'+k+'[]" value="'+v+'"/>';
+					});
+					html += '</div>';
+				}
+				$('#cm_qe_div').append(html);
+			}
+        }
+    });
+    $('#btn_frm_sub').live('click',function(){
+    	$('#frm_soft_cm').submit();
+    });
+    $('#btn_frm_cancel').live('click',function(){
+    	$('#cm_qe_div').empty();
+    	$(this).parent().hide();
+    	$('#up_op_cnt_span').show();
+    	$('.pnsd').hide();
+    });
+    $('#a_frm_cl').live('click',function(){
+    	jQuery('#uploadify').uploadify('cancel', '*');
+    	$('.pnsd').hide();
+    });
+    $('#a_frm_st').live('click',function(){
+    	jQuery('#uploadify').uploadify('upload','*');
+    });
+    $('#btn_que_close').live('click',function(){
+    	$(this).parent().parent().remove();
+    	if(1 > $('#cm_qe_div').find('div').length){
+    		$('#frm_op_span').hide();
+    		$('#up_op_cnt_span').show();
+        	$('.pnsd').hide();
+        	$('#fileQueue').empty();
+    	}
+    });
+});
+</script>
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="/soft_upload.html">软件上传</a></label>
+	</div>
+</div>
+<div class="bm">
+	<div class='op_a_div' id='op_a_div'>
+		<form name='frm_soft_cm' id='frm_soft_cm' method='post' action=''>
+			<div id='cm_qe_div'></div>
+		</form>
+		<span id='frm_op_span' style='display:none;'>
+			<button class="pn pnc" id="btn_frm_sub"><span>确定发布</span></button>
+			<button id="btn_frm_cancel" class="pn"><span>取消</span></button>
+		</span>
+	</div>
+	<span id="up_op_cnt_span">
+	<h3>点击按钮选择要上传的安卓软件（单个文件大小小于40M，一次上传文件个数小于20）</h3>
+	<input type="file" name="uploadify" id="uploadify" style='display:none;'/>
+	<div id="fileQueue" class="fileQueue"></div>
+	<p class="op_up">
+		<button class="pn pnc pnsd" id="a_frm_st"><span>开始上传</span></button>
+		<button class="pn pnsd" id="a_frm_cl"><span>取消上传</span></button>
+	</p>
+	</span>
+</div>

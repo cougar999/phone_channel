@@ -1,0 +1,66 @@
+<!--{if !empty($smarty.post.submit)}-->
+<!--{comment tag="add" aid=$smarty.get.aid authorid=$assign.userid author_name=$assign.username ret=b_add_comment_result}-->
+	<!--{if $b_add_comment_result}-->
+		<div style="text-align:center">评论发表成功！</div>
+		<script language="javascript">window.location.replace("/article/view.html?aid=<!--{$smarty.get.aid}-->");</script>
+	<!--{/if}-->
+<!--{else}-->
+<div id="comment">
+	<div class="comment_title">评论:</div>
+	<div class="comment_sharing"><a onfocus="this.blur();" href="javascript:addSharingNum(<!--{$smarty.get.aid}-->,this)"><img src="/resources/images/sharing.png"></a><span class="sharing_num"><!--{$a_article_view.sharing_num}-->次</span></div>
+	<form action="" method="POST" id="comment_form">
+		<div><br /><textarea name="content" id="content"></textarea><br /></div>
+		<div class="clear"></div>
+		<div style="float:right;padding:10px 20px"><input name="submit" id="submit" type="submit" value="提交评论"></div>
+	</form>
+	<div class="clear"></div>
+	<!--{comment tag="lists" aid=$smarty.get.aid ret=a_comment_list}-->
+	<div class="comment_list">
+		<div class="comment_title">评论列表</div>
+		<div class="comment_list_content">
+			<!--{if $a_comment_list.msg}-->
+				<p style="text-align:center"><!--{$a_comment_list.msg}--></p>
+			<!--{else}-->
+				<!--{section name=customer loop=$a_comment_list}-->
+				<p style="border-bottom-color:#b2c9e9; border-bottom-style:dashed; border-bottom-width:1px;word-wrap: break-word;" class="clear">
+					<span class="comment_user_info"><!--{$a_comment_list[customer].author_name}-->：</span>
+					<span><!--{$a_comment_list[customer].content}--></span>
+					<span style="color:#666666">(<!--{$a_comment_list[customer].create_date|date_format:"%Y-%m-%d %H:%M:%S"}-->)</span>
+				</p>
+				<!--{/section}-->
+			<!--{/if}-->
+		</div>
+	</div>
+</div>
+
+<!--{article tag=readnum aid=$smarty.get.aid}-->
+<!--{/if}-->
+<script type="text/javascript">
+var sharing_button = false;
+function addSharingNum(aid,thisT){
+	if( sharing_button == false){
+		$.post('/api/api_article.php', {aid:aid,tag:'addSharingNum'}, function(data){
+			if(data.result){
+				var sharing_num = parseInt($(".sharing_num").html());
+				$(".sharing_num").html(sharing_num+1+"次");
+				sharing_button = true;
+			}else{
+				alert('执行失败请重试！');
+			}
+		}, "json");
+	}else{
+		alert('您已推荐过！');
+	}
+}
+$(document).ready(function(){
+	function trim(str){ //删除左右两端的空格
+	    return str.replace(/(^\s*)|(\s*$)/g, "");
+	} 
+	$("#submit").click(function(){
+		if(trim($("#content").val()).length<1){
+			alert("内容不能为空！");
+			return false;
+		}
+	});
+});
+</script>

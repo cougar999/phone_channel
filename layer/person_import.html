@@ -1,0 +1,341 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--STATUS OK-->
+<html>
+<head>
+<META http-equiv='Pragma' content='no-cache'>
+<meta http-equiv=content-type content="text/html; charset=utf-8">
+<title></title>
+<script language="javascript" src="/resources/js/jquery.min.js"></script>
+<script language="javascript" src="/resources/js/jquery.form.js"></script>
+<script language="javascript" src="/resources/js/ajaxfileupload.js"></script>
+<script src="/resources/lib/jquery.json-2.3.min.js" type="text/javascript"></script>
+<link href="/resources/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+<script src="/resources/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+
+<link href="/resources/css/admin.css" rel="stylesheet" type="text/css" />
+<style>
+*{margin:0;padding:0;}
+p,div,form,ul,dl,ol,li,dt,dd,h1,h2,h3,span{margin:0;padding:0;list-style:none;}
+html,body{margin:0 auto;font-size:12px;background-color:#f9f9f9;color:#000000;font-family:"宋体";}
+a{outline: medium none;text-decoration: none;color:#1686CB;}
+a:hover{ text-decoration:underline; color:#ee3333;}
+img{ border:0;}
+br {line-height:0;}
+sup{vertical-align:text-top}
+sub{vertical-align:text-bottom}
+.clear{ clear:both;zoom:1}
+.no{display:none;}
+.clearfix:after{content:".";display:inline-block;height:0;clear:both;visibility:hidden;}
+*+html .clearfix{display:inline-block;}
+* html .clearfix{height:1%;}
+.p_fl{float:left;}
+.p_fr{float:right;}
+.p_fl,.p_fr{display:inline}
+.t_transparent{filter:alpha(opacity=50);-moz-opacity:0.5;opacity: 0.5;background:url("source.png") no-repeat scroll center top transparent;}
+.t_bg{background-color:red}
+.clear {
+    clear: both;
+}
+body{background-color:#f8f9fa;}
+.lreg_cnt{width:100%;margin:10px;}
+.tp_tip{width:100%;height:4px;text-align:center;color:red;display:inline-block;}
+.tpa{color:#229de6;width:100%;text-align:left;font-size:14px;}
+.tpb{margin-top:15px;}
+.tpb li{float:left;width:48%;}
+.tp_sm{color:red;margin-left:14px;line-height:22px;width:180px;}
+.frm_div{margin-bottom:10px;}
+#email{width:98%;}
+#frm_lsd p{line-height:22px;margin-bottom:5px;}
+#otinfo{width:70% !important;}
+.tip_stu,.tip_time,.tip_uname{margin-right:5px;margin-top:5px;color:red;}
+
+.addform {width:312px;height:190px;padding-left:0px;}
+.adminform_table th{text-align:right;}
+#tip_fail li{height:22px;line-height:22px;overflow:hidden;color:red;}
+</style>
+<script language='javascript'>
+function MathRand(count)
+{
+	var count = count || 6;
+	var Num   = "";
+	for(var i=0;i<count;i++)
+	{
+		Num+=Math.floor(Math.random()*10);
+	}
+	return Num;
+} 
+function parseURL(url) {
+    var a  = document.createElement('a');
+    a.href = url;
+    return {
+        source: url,
+        protocol: a.protocol.replace(':', ''),
+        host: a.hostname,
+        port: a.port,
+        query: a.search,
+        params: (function() {
+            var ret = {},
+            seg = a.search.replace(/^\?/, '').split('&'),
+            len = seg.length,
+            i = 0,
+            s;
+            for (; i < len; i++) {
+                if (!seg[i]) {
+                    continue;
+                }
+                s = seg[i].split('=');
+                ret[s[0]] = decodeURI(s[1]);
+            }
+            return ret;
+        })(),
+        file: (a.pathname.match(/\/([^\/?#]+)$/i) || [, ''])[1],
+        hash: a.hash.replace('#', ''),
+        path: a.pathname.replace(/^([^\/])/, '/$1'),
+        relative: (a.href.match(/tps?:\/\/[^\/]+(.+)/) || [, ''])[1],
+        segments: a.pathname.replace(/^\//, '').split('/')
+    };
+}
+function getRealDomain(domains) {
+	domains = domains || window.location.host;
+    var redomain = '';
+    var domainArray = new Array("com", "net", "org", "gov", "edu");
+    var domains_array = domains.split('.');
+    var domain_count = domains_array.length - 1;
+    var flag = false;
+    if (domains_array[domain_count] == 'cn') {
+        for (i = 0; i < domainArray.length; i++) {
+            if (domains_array[domain_count - 1] == domainArray[i]) {
+                flag = true;
+                break;
+            }
+        }
+        if (flag == true) {
+            redomain = domains_array[domain_count - 2] + "." + domains_array[domain_count - 1] + "." + domains_array[domain_count];
+        } else {
+            redomain = domains_array[domain_count - 1] + "." + domains_array[domain_count];
+        }
+    } else {
+        redomain = domains_array[domain_count - 1] + "." + domains_array[domain_count];
+    }
+    return redomain;
+}
+function GetExtensionFileName(pathfilename)
+{
+	var reg = /(\\+)/g;
+	var pfn = pathfilename.replace(reg, "#");
+	var arrpfn = pfn.split("#");
+	var fn = arrpfn[arrpfn.length - 1];
+	var arrfn = fn.split(".");
+	return arrfn[arrfn.length - 1];
+}
+function ajaxFileUpload(){
+	$('#result').html('');
+	var ext  = GetExtensionFileName($('#houseMaps').val());
+	
+	if (ext && /^(xlsx|xls)$/.test(ext)){
+		$('#result').html('正在导入......');
+		$('#tip_fail ul').empty();
+		$('#lsd_pb_btn').prop('disabled',true);
+		$.ajaxFileUpload({
+			url:'/api/api_member.php?act=rd_excel&n=houseMaps&id='+urlObj.params.id+'&r='+Math.random(),            //需要链接到服务器地址
+			secureuri:false,
+			fileElementId:'houseMaps',                        //文件选择框的id属性
+			dataType: 'json',                                     //服务器返回的格式，可以是json
+			success: function (data, status)            //相当于java中try语句块的用法
+			{
+				$('#lsd_pb_btn').prop('disabled',false);
+				$('#result').html('');
+				$('#tip_fail ul').empty();
+				if(typeof data.succ != 'undefined'){
+					$('#result').html('添加成功');
+					parent.addTreeItem(data.succ);
+					$.ligerDialog.confirm('是否要继续添加', function (yes) {
+		    			if(yes) window.location.href = document.URL;
+		    			else parent.$('.l-dialog-close').last().trigger('click');
+		    		});
+				}
+				if(typeof data.fail != 'undefined'){
+					$('#result').html('当前没有成功导入请确认以下用户名是否被占用!');
+					$.each(data.fail,function(k,v){
+						$('#tip_fail ul').append("<li>名称："+v.real_name+"，用户名："+v.username+"</li>");
+					})
+				}
+			},
+			error: function (data, status, e)            //相当于java中catch语句块的用法
+			{
+				$('#lsd_pb_btn').prop('disabled',false);
+			    $('#result').html('添加失败');
+			}
+	 	});
+	}else $('#result').html('文件格式有误！');
+}
+ERR_INFO   =   {
+	"perm":{
+		"004":"无权限对此进行操作！",
+		"002":"用户名已被占用！",
+		"001":"参数有误！",
+		"003":"提交失败请稍后重试！",
+		"006":"提交成功！"
+	}
+}
+$(function(){
+	urlObj 	 		= parseURL(document.URL);
+	
+	$('#tp_tip').html(urlObj.params.tip || '');
+	$('#id').val(urlObj.params.id);
+	$('#action').val(urlObj.params.action);
+	$('#frm_lsd').ajaxForm({
+		url:'/api/api_member.php',//对应表单的get参数
+		type:'post',
+		data:{act:'perm',table:1},
+		dataType:'json',
+		beforeSubmit:function(){
+			$('.tip_stu').html('');
+			$('#real_name').val($('#real_name').val().replace(/^\s+|\s+$/g,""));
+			$('#username').val($('#username').val().replace(/^\s+|\s+$/g,""));
+			$('#password').val($('#password').val().replace(/^\s+|\s+$/g,""));
+			if(!$('#real_name').val()){
+				$('.tip_stu').html('名称不能为空！');
+				return false;
+			}else if(!$('#password').val()){
+				$('.tip_stu').html('密码不能为空！');
+				return false;
+			}
+			$('#username').trigger('blur');
+			if($('#tip_uname').html() != ''){
+				return false;
+			}
+			$('.tip_stu').html('正在提交......');
+			$('#lsd_pb_btn').prop('disabled',true);
+		},
+	    success: function(data) {
+	    	$('#lsd_pb_btn').prop('disabled',false);
+	    	$(".tip_stu").html(ERR_INFO.perm[data.code]);
+	    	if(data.code == '006'){
+	    		$('#action').val()=='add'?parent.addTreeItem(data.data):parent.updateTreeItem(data.data);
+	    		return false;
+	    	}
+	    },
+	    error:function(){
+	    	$('.tip_stu').html('服务器忙请稍后再试！');
+	    	$('#lsd_pb_btn').prop('disabled',false);
+	    }
+	});
+	$('#username').blur(function(){
+		$('#tip_uname').html('');
+		var uname = $(this).val().replace(/^\s+|\s+$/g,"");
+		if(!uname) $('#tip_uname').html('用户名不能为空！');
+		else{
+			$.getJSON('/api/api_member.php',{act:'ckpwd',uname:uname,type:1,ckpwdid:$('#action').val()=='modify'?$('#id').val():0},function(data){
+				if(data == '') $('#tip_uname').html('');
+				else $('#tip_uname').html('用户名已被使用请更换！');
+			});
+		}
+	})
+	//表单数据初始化
+	switch($('#action').val()){
+		case 'add':
+			var _tmp = urlObj.params;
+			if(typeof _tmp.username == 'undefined'){
+				$.getJSON('/api/api_member.php',{act:'create',pid:$('#id').val(),type:0},function(data){
+					if(typeof data.u_new != undefined) _tmp.username = data.u_new;
+					if(typeof _tmp.password == 'undefined') _tmp.password = MathRand();
+					$('#frm_lsd').datatoform(_tmp);
+					return;
+				});
+			}
+			if(typeof _tmp.password == 'undefined') _tmp.password = MathRand();
+			$('#frm_lsd').datatoform(_tmp);
+			break;
+		case 'view':
+			$("input,textarea").each(function(){
+			$(this).attr('readonly','readonly');
+			$(this).attr('disabled','disabled');
+			});
+			$("select").each(function(){
+			$(this).attr('disabled','disabled');
+			});
+		case 'modify':
+			$.getJSON('/api/api_member.php',{act:'getinfo',id:$('#id').val(),type:1},function(data){
+				$('#frm_lsd').datatoform(data);
+				return;
+			});
+			break;
+	}
+})
+$.fn.datatoform=function(json){
+	$.each(json,function(k,v){
+		selector="[name='"+k+"']";  
+	     //alert(selector);  
+	     //alert($(selector).length);  
+	     if($(selector).length>0){  
+	       for(j=0;j<$(selector).length;j++){  
+	          //text or password   
+	          if($(selector).attr("type")=="text"||$(selector).attr("type")=="password"){  
+	             $(selector).val(v);  
+	          }  
+	          //combo select   
+	          if($(selector).attr("type")==null&&$(selector).length==1){  
+	              if($("select"+selector).length==1){  
+	                  for(n=0;n<$(selector+" option").length;n++){  
+	                    //alert(n+":"+$(selector+" option:eq("+n+")").val()+"["+$(selector+" option:eq("+n+")").html()+"]==?=="+v);  
+	                    if($(selector+" option:eq("+n+")").val()==v){  
+	                       $(selector+" option:eq("+n+")").attr("selected",true);  
+	                       break;  
+	                    }  
+	                  };  
+	              }  
+	          }  
+	          // checkbox  
+	          if($(selector).attr("type")=="checkbox"){  
+	             var checkboxselector="input[type='checkbox'][name='"+k+"']";  
+	             var options=v.split('|');  
+	             for(m=0;m<options.length;m++){  
+	                for(k=0;k<$(checkboxselector).length;k++)  
+	                {  
+	                   if($(checkboxselector+":eq("+k+")").val()==options[m]){  
+	                      $(checkboxselector+":eq("+k+")").attr("checked",true);  
+	                   }  
+	                }  
+	             }  
+	          }  
+	          //readio  
+	          if($(selector).attr("type")=="radio"){  
+	             var radioselector="input[type='radio'][name='"+k+"']";  
+	             for(k=0;k<$(radioselector).length;k++){  
+	                if($(radioselector+":eq("+k+")").val()==v){  
+	                   $(radioselector+":eq("+k+")").attr("checked",true);  
+	                }  
+	             }  
+	          }  
+	            
+	         //textarea  
+	          if($("textarea[name='"+k+"']").length==1){  
+	              $("textarea[name='"+k+"']").val(v);  
+	          }  
+	            
+	           
+	       }  
+	     } 
+	})
+};
+</script>
+</head>
+<body>
+<center style='line-height:50px;'>
+<div style='color:red;margin-left:0px;'>请上传xlsx,xls数据文件，格式为店面，店名，用户名，密码。模板文件<a href='/data/user_tpl.xlsx'>点此下载</a></div><BR>
+<form method="post" action="update.do?method=uploader" enctype="multipart/form-data"> 
+    <input type="file" id="houseMaps" name="houseMaps"/>
+</form>
+<div style='margin-left:0px;'>
+	<input type="button" value="提交" onclick="ajaxFileUpload()" id="lsd_pb_btn"/>
+	<input type="button" value="取消" onclick="parent.$('.l-dialog-close').last().trigger('click');"/>
+</div>
+<div id="result" class="tip_stu"></div>
+<div id='tip_fail'>
+<ul></ul>
+</div>
+</center>
+</body>
+</html>

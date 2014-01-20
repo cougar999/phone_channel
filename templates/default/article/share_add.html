@@ -1,0 +1,54 @@
+<!--{include file="article/path.html"}-->
+<!--{if !empty($smarty.post.submit)}-->
+	<!--{article tag=addmyshare ret=b_res}-->
+	<!--{if $b_res}-->
+	<div style="text-align:center">文章发表成功！</div>
+	<script language="javascript">window.location.replace("/article/index.html?category=3");</script>
+	<!--{else}-->
+	<div style="text-align:center">数据不能为空！</div>
+	<script language="javascript">window.history.go(-1);</script>
+	<!--{/if}-->
+<!--{else}-->
+<div class="datalist">
+	<form action="" method="post" class="formeditor" onsubmit="return msgtxt()">
+		<div class="line-editor">
+			<span>标题：</span>
+			<input type="text" name="title" id="atitle" style="width:700px">
+		</div>
+		<div class="line-editor">
+			<span>摘要：</span>
+			<textarea name="description" id="adescription" style="height:40px;width:700px"></textarea>
+		</div>
+		<div class="line-editor">
+			<span>内容：</span>
+			<textarea class="ckeditor" id="acontent" name="content"></textarea>
+		</div>
+		<div class="line-editor pright">
+			<input name="submit" type="submit" value="提 交">
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="/resources/ckeditor/ckeditor.js"></script>
+<script language="javascript">
+function msgtxt(){
+	var atitle = $("#atitle").val();
+	var adescription = $("#adescription").val();
+	var acontent = $("#acontent").val();
+	if(trim(atitle) == ''){
+		alert("分享标题不能为空");
+		$("#atitle").attr("value",'');
+		return false;
+		
+	}else if (trim(adescription) == ''){
+		alert("分享摘要不能为空");
+		$("#adescription").attr("value",'');
+		return false;
+		
+	}
+}
+
+function trim(str){ //删除左右两端的空格
+	return str.replace(/(^\s*)|(\s*$)/g, "");
+} 
+</script>
+<!--{/if}-->

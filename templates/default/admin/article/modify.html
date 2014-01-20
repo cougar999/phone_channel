@@ -1,0 +1,56 @@
+<style type="text/css">
+.datalist{background-color:#FFFFFF;clear:both;margin:20px;word-wrap:break-word;}
+.formeditor{font-size:12px;}
+.formeditor .line-editor{margin:5px;}
+.pright{float:right;}
+</style>
+<script type="text/javascript" src="/resources/ckeditor/ckeditor.js"></script>
+<!--{if !empty($smarty.post.submit)}-->
+	<!--{article tag=adminmodfiy aid=$smarty.get.aid authorid=$assign.userid ret=b_res}-->
+	<!--{if $b_res}-->
+	<div style="text-align:center">文章修改成功！</div>
+	<script language="javascript">window.location.replace("/article/index.html?category=<!--{$smarty.post.category}-->");</script>
+	<!--{else}-->
+	<div style="text-align:center">数据不能为空！</div>
+	<script language="javascript">window.history.go(-1);</script>
+	<!--{/if}-->
+<!--{else}-->
+<!--{article tag=view aid=$smarty.get.aid ret=a_article_view}-->
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="/article/index.html?category=<!--{$a_article_view.category}-->"><!--{$assign.article_category[$a_article_view.category]}--></a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web">修改信息</label>
+	</div>
+</div>
+<div class="datalist">
+	<form action="" method="post" class="formeditor">
+		<div class="line-editor">
+			<span>标题：</span>
+			<input type="text" name="title" value="<!--{$a_article_view.title}-->" style="width: 650px; height: 20px;">
+		</div>
+		<div class="line-editor">
+			<span>类型：</span>
+			<select name="category" style="width:100px">
+			<!--{foreach key=key item=category from=$assign.article_category}-->
+				<option value="<!--{$key}-->" <!--{if $key == $a_article_view.category}-->selected<!--{/if}-->><!--{$category}--></option>
+			<!--{/foreach}-->
+			</select>
+		</div>
+		<div class="line-editor">
+			<span>摘要：</span>
+			<textarea name="description" style="height:40px;width:650px;"><!--{$a_article_view.description}--></textarea>
+		</div>
+		<div class="line-editor">
+			<span>内容：</span>
+			<textarea class="ckeditor" name="content"><!--{$a_article_view.content}--></textarea>
+		</div>
+		<div class="line-editor pright">
+			<!-- <input type="reset" value="重 填"> -->
+			<input name="submit" type="submit" value="提 交">
+		</div>
+	</form>
+</div>
+<!--{/if}-->

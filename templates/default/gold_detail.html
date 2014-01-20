@@ -1,0 +1,699 @@
+<!--{config_load file="smarty.conf"}-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="description" content="爱皮下载是北京爱皮科技有限公司推出的智能手机一站式解决方案。包括android版、symbian版、零售店版以及Wap网站。提供android、symbian、ios软件的下载安装和手机的管理，可轻松备份通讯录和短信，云端数据存储保障安全。" />
+<meta name="keywords" content="爱皮下载,android软件,安卓游戏,手机管理客户端,苹果软件,安卓软件下载,手机联系人备份，手机资料备份,手机数据恢复,免费游戏下载" />
+<meta name="copyright" content=" © 1998 - 2012 Aipi" />
+<meta name="generator" content="Aipi Analytics" />
+<title>爱皮下载手机零售信息管理平台-智能手机一站解决方案·安卓软件游戏下载·android手机管理·手机备份、还原工具</title>
+<link rel="stylesheet" type="text/css" href="/resources/stats<!--{#version#}-->/styles/common.css?v=40" /><script type="text/javascript" language="javascript" src="/resources/stats/scripts/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="/resources/stats<!--{#version#}-->/scripts/jquery.min.js"></script>
+<script type="text/javascript" language="javascript" src="/resources/stats<!--{#version#}-->/scripts/jquery-ui.min.js"></script>
+<script type="text/javascript" language="javascript" src="/resources/stats<!--{#version#}-->/scripts/jquery.md5.js"></script>
+<script type="text/javascript" language="javascript" src="/resources/stats<!--{#version#}-->/scripts/date.range.js?v=12"></script>
+<script type="text/javascript" language="javascript" src="/resources/stats<!--{#version#}-->/scripts/tablesorter.pager.js?v=9"></script>
+<script type="text/javascript" language="javascript" src="/resources/stats<!--{#version#}-->/scripts/common.js?v=25"></script>
+<script type="text/javascript" language="javascript" src="/resources/stats<!--{#version#}-->/scripts/selector.js?v=1"></script>
+<script type="text/javascript" language="javascript" src="/resources/stats<!--{#version#}-->/anychart/AnyChart.js?v=4"></script>
+<!-- <script language="javascript" src="/firebug-lite/build/firebug-lite.js"></script> -->
+<!--[if IE 6]>
+<script type="text/javascript" src="/resources/js<!--{#version#}-->/DD_belatedPNG_0.0.8a.js"></script>
+<script>
+DD_belatedPNG.fix('.cmn_transparent');
+</script>
+<![endif]-->
+<style type="text/css">
+.nav_dh{color:#333333;height:28px;left:0;padding:0 0px 6px 0;position:absolute;top:9px;width:100%;}
+.nav_dh label{color:#FFFFFF;float:left;height:28px;line-height:28px;padding-left:7px;}
+.nav_dh label a{color:#FFFFFF !important;}
+.export{background:url("/resources/stats/images/icon_excel.png") no-repeat scroll 0 50% transparent;color:#336699;float:right;height:16px;line-height:16px;margin:7px 10px 0 0;padding-left:20px;}
+</style>
+<script type='text/javascript'>
+STATIC_DOMAIN = '/resources';
+$(function(){
+	URLOBJ 	 	  = parseURL(document.URL);
+	var closeLiId = _cookie.get("closeLiId");
+	if(closeLiId != null){
+		$("li[class=open_s], li[class=close_s]").each(function(){
+			if(closeLiId.indexOf($(this).attr("id").replace("li_", "")) > -1){
+	        	$(this).attr("class", "close_s");
+	        }
+	    	else{
+	    		$(this).attr("class", "open_s");
+	       	}
+	   	});
+	}
+	$("li[class=open_s] a, li[class=close_s] a").click(function(){
+		var closeLiId = "";
+		$("li[class=close_s]").each(function(){
+			closeLiId +=  $(this).attr("id").replace("li_", "") + ",";
+		});
+		if(closeLiId != "")
+			closeLiId = closeLiId.substring(0, closeLiId.length - 1);
+		_cookie.saveCookie("closeLiId", closeLiId, null, "channel.appdear.com");
+	});
+	//初始化菜单选中状态
+	$('#leftFuncMenu li').each(function(k,v){
+		if($(v).attr('class') == ''){
+			var tmp_href   = $(v).find('a').eq(0).attr('href');
+			var tmp_source = URLOBJ.path+URLOBJ.query;
+			if(tmp_href == tmp_source){
+				$(v).addClass('a');
+				return false;
+			}
+		}
+	})
+})
+</script>
+</head>
+<body>
+<!--{admin tag=checkadmingorup ret=b_admin_group_result}-->
+<div id="appendParent"></div>
+<div class="wrap">
+<div id="header">
+	<h1><a href="/"><span>爱皮科技</span></a></h1>
+	<div class="login">
+                    您好，<span id="navSiteMasterName"><!--{$assign.username}--></span>&nbsp;&nbsp;[ <a href="/logout.html">退出</a> ]
+    </div>
+    <!-- 
+	<div id="menu">
+		<a href="http://ta.qq.com/manage/site?sId=9562249"  onclick="javascript:sendHotClick('ta.top.link.manage');">站点管理</a><span class="pipe">|</span>
+	    <a id="message" href="/message/list">短消息</a>
+	    <span class="pipe">|</span>
+	    <a href="http://t.qq.com/TencentAnalysis" class="weibo" target="_blank" onclick="javascript:sendHotClick('ta.top.link.weibo');">官方微博</a>
+	    <span class="pipe">|</span>
+	    <a href="http://cp.discuz.qq.com/faq?fcId=106" target="_blank" onclick="javascript:sendHotClick('ta.top.link.help');">帮助中心 </a>
+	</div>
+	-->
+</div>
+<div class="main mt_2">
+<table class="mainframe">
+	<tr>
+		<td class="content">
+<!--
+<div class="bm_h cl">
+<div class="webset">
+	<label for="web">选择站点：</label>
+	<select name="web" id="web" onchange="javascript:changeWebsite(this);">
+		<option value="9562249" selected>www.dlzj.net</option>
+	</select>
+</div> 
+</div>
+<div class="path">
+    <a href="/">信息管理平台</a>
+    <em>&rsaquo;</em>
+    <a href="#">账户管理</a>
+</div> 
+-->		
+
+<script src="/resources/js<!--{#version#}-->/comm_op.js" type="text/javascript"></script>
+<link href="/resources/css<!--{#version#}-->/pagination.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="/resources/js<!--{#version#}-->/jquery.pagination.js"></script>
+<script src="/resources/lib<!--{#version#}-->/jquery.json-2.3.min.js" type="text/javascript"></script>
+<style type="text/css">
+#overflowDiv_fex table{table-layout:fixed;}
+#dataTable_fex td{cursor:pointer;overflow:hidden;text-align:left;white-space:nowrap;}
+#dataTable td{cursor:pointer;}
+#dataTable td{text-align:center;}
+.optionbar li{width:100%;}
+.optionbar li .a{color:#336699;cursor:pointer;margin-right:0px;}
+#load_div_cnt{_min-height:100px;min-height:100px;}
+.overflowDiv{border-bottom:1px solid #C1CBDF;border-left:0px;border-right:1px solid #C1CBDF;border-top:1px solid #C1CBDF;}
+.box{border-bottom:1px solid #C1CBDF;margin-left:-1px;}
+.optionbar dl{padding:2px 0 2px 0;}
+.controlbar{background:url("/resources/stats/images/ctrl_bg.png") repeat-x scroll 0 0 transparent;border-left:1px solid #D6D6D6;border-right:1px solid #D6D6D6;border-top:1px solid #D6D6D6;height:29px;}
+.controlbar ul{padding-left:0px;}
+.optionbar{border:1px solid #D6D6D6;}
+.date{margin:4px 0 0 108px;}
+</style>
+<script type='text/javascript'>
+var CUR_DATE = GetDateStr(-1);
+var CF_SESS  = eval('[<!--{php}-->echo json_encode($_SESSION)<!--{/php}-->]');
+CF_SESS      = CF_SESS[0];
+var CF_TYPE  = '';
+var CF_PAGE  = {
+	num_edge_entries:1,
+	prev_text:'上一页',
+	next_text:'下一页',
+	items_per_page:100,
+	num_display_entries:5,
+	callback: pageselectCallback
+};
+var get_gold_detail_head = [
+               { display: '分公司名称', name: 'channel_name' ,width:170,frozen: true,align:'left','class':'header thAjax itemTips',len:24},
+               { display: '店面名称', name: 'shop_name' ,width:170,frozen: true,align:'left','class':'header thAjax itemTips',len:24},
+               { display: '店员', name: 'seller_real_name' ,width:120,frozen: true,align:'left','class':'header thAjax itemTips',len:14},
+               { display: '任务描述', name: 'mission_desc' ,width:265,'class':'header itemTips',len:50},
+               { display: '任务完成', name: 'mission_completion_status' ,width:80,'class':'header itemTips'},
+               { display: '时间', name: 'operation_time' ,width:100,'class':'header thAjax itemTips'},
+               { display: '状态', name: 'is_valid_status' ,width:40,'class':'header thAjax itemTips'},
+               { display: '备注', name: 'remarks' ,width:95,'class':'header itemTips',len:16}
+               ];
+var DO_API_URL  = '/apis/api_statlogin.json';
+var CF_DO_PRA   = '';
+var CF_INIT_PRA = '';
+
+function cutstr(str, len) {
+    var str_length = 0;
+    var str_len = 0;
+    var ext     = '...';//...
+    str_cut = new String();
+    str_len = str.length;
+    for (var i = 0; i < str_len; i++) {
+        a = str.charAt(i);
+        str_length++;
+        if (escape(a).length > 4) {
+            str_length++
+        }
+        str_cut = str_cut.concat(a);
+        if (str_length >= len) {
+            str_cut = str_cut.concat(ext);
+            return str_cut
+        }
+    }
+    if (str_length < len) {
+        return str
+    }
+}
+function show_head(){
+	var _per_width = 150;//每列的宽度
+	var init_width = fex_width = 0;
+	var _str       = '';
+	var tmp_date   = eval(CF_TYPE+'_head');
+	var _fex_flag  = false;
+
+	$('#dataTheadTr,#dataTheadTr_fex,#dataTable tbody,#dataTable_fex tbody').empty();
+
+	$.each(tmp_date,function(k,v){
+		if(v.hide) return true;
+		if(v.frozen){
+			//设置fex表格
+			var _str = '<th order="'+v.name+'" item="'+v.name+'"';
+			$.each(v,function(kk,vv){
+				if(kk=='display' || kk=='render') return true;
+				vv = kk=='width'?vv-16:vv;
+				_str += ' '+kk+'="'+vv+'"';
+			})
+			_str += '>'+v.display+'</th>';
+			$('#dataTheadTr_fex').append(_str);
+			_fex_flag = true;
+			fex_width += v.width;
+			return true;
+		}
+		var _str = '<th order="'+v.name+'" item="'+v.name+'"';
+		$.each(v,function(kk,vv){
+			if(kk=='display' || kk=='render') return true;
+			_str += ' '+kk+'="'+vv+'"';
+		})
+		_str += '>'+v.display+'</th>';
+		$('#dataTheadTr').append(_str);
+		typeof v.width != 'undefined' && (_per_width = v.width); 
+		_per_width = _per_width<150?150:_per_width;
+		init_width += _per_width;
+	})
+	if(!_fex_flag){
+		$('#overflowDiv_fex').hide();
+		$('#overflowDiv').css({"border-left":"1px solid #C1CBDF"});
+	}else{
+		$('#overflowDiv_fex').show();
+		$('#overflowDiv').css({"border-left":"0px solid #C1CBDF"});
+	}
+	$('#dataTable').width(init_width);//动态设置宽度出现滚动条
+	$('#dataTable_fex').width(fex_width);//动态设置宽度出现滚动条
+	if ($.browser.msie && 0 < $("#overflowDiv")[0].offsetWidth && parseInt($.browser.version)<=7) { 
+		if($('#overflowDiv')[0].scrollWidth > $('#overflowDiv')[0].offsetWidth){
+			$('#overflowDiv').css({'padding-bottom' : '16px'});
+		}else $('#overflowDiv').css({'padding-bottom' : '0px'});
+	}
+	//初始化排序
+	orderAjax('', CF_DO_PRA.sortname || 'operation_time', CF_DO_PRA.sortorder || 'desc', 'thAjax', 'dataTheadTr');
+}
+function showData(pra){
+	var pra    = pra || {};
+	var _arr_cc=[];
+	var _pra   = CF_DO_PRA || {
+			'date':$('#startDate').val(),
+			'end_date':$('#endDate').val(),
+			'page':0,
+			'sortname':'',
+			'sortorder':'desc',
+			'name':$('#' + UB_URL_IPT).val() == DEFAULT_SEARCH_TXT ? '' : $('#' + UB_URL_IPT).val(),
+			'pagesize':CF_PAGE.items_per_page
+	}
+	$.each(pra,function(k,v){
+		eval("_pra."+k+" = '"+v.toString().replace(/'/g,"\\'")+"';");
+	});
+	//$("[name='tableItem\[\]'][@checked]").each(function(){
+	//	$(this).attr('checked') && _arr_cc.push($(this).val());
+	//});
+	//_pra.stu   = _arr_cc.join(',');
+	_pra.stu   = $('#op_gold').val();
+	_pra.date  = $('#startDate').val();
+	_pra.end_date = $('#endDate').val();
+	CF_TYPE    = _pra.type;
+	CF_DO_PRA  = _pra;
+	if(CF_INIT_PRA == ''){
+		CF_INIT_PRA = {};
+		$.each(CF_DO_PRA,function(k,v){
+			eval("CF_INIT_PRA."+k+" = '"+v.toString().replace(/'/g,"\\'")+"';");
+		});
+	}
+	//初始化表头
+	show_head();
+	$("#escape_div").html('');
+	$("#escape_div").text(CF_DO_PRA.name);
+	
+	$('#tip_name').html((CF_DO_PRA.name==''?'':'&nbsp;&nbsp;搜索"')+$("#escape_div").html()+(CF_DO_PRA.name==''?'':'"'));
+	$('#tip_date').html(parseDate(CF_DO_PRA.date).format("yyyy年MM月dd日")+(CF_DO_PRA.date == CF_DO_PRA.end_date?'':'至'+parseDate(CF_DO_PRA.end_date).format("yyyy年MM月dd日"))+"");
+	//初始化数据
+	showLoadingDiv($("#load_div_cnt").is(":hidden")?'load_div_cnt_no':'load_div_cnt');
+	CF_DO_PRA._act = 'cut';
+	$.getJSON(DO_API_URL,CF_DO_PRA,function(data){
+		CF_DO_PRA._act = 'info';
+		clearLoadingDiv();
+		$('#gold_pg_total').html(data.Total);
+		$(".pagination").pagination(data.Total, CF_PAGE);
+	});
+}
+function pageselectCallback(page_index,jq,opts){
+	$('#dataTable tbody,#dataTable_fex tbody').empty();
+	CF_DO_PRA.page     = page_index+1;
+	CF_DO_PRA.pagesize = opts.items_per_page;
+	
+	showLoadingDiv($("#load_div_cnt").is(":hidden")?'load_div_cnt_no':'load_div_cnt');
+	$.getJSON(DO_API_URL,CF_DO_PRA,function(data){
+		clearLoadingDiv();
+		packageData(data.Rows);
+	});
+	return false;
+}
+function isEmpty(data){
+	return $.isArray(data)?!data.length:$.isEmptyObject(data);
+}
+function packageData(data){
+	var fex_table = $('#dataTable_fex').find('table');
+	var dat_table = $('#dataTable').find('table');
+	
+	if(isEmpty(data)){
+		$('#load_div_cnt_no').show();
+		$('#load_div_cnt').hide();
+		return;
+	}else {$('#load_div_cnt').show();$('#load_div_cnt_no').hide();}
+	$.each(data,function(k,v){
+		var ke,key,display,display_y,display_n,_str,_data_info;
+		//组装fex表格数据DOM
+		_str = "<tr>";
+		$(fex_table).find('thead th').each(function(){
+			var _len= parseInt($(this).attr('len'));
+			display = eval("v."+$(this).attr('name'));
+			//display = display.replace(/(^\s*)|(\s*$)/g, "");
+			key     = eval("v."+$(this).attr('key')+" || ''");
+			key     = typeof key == 'undefined' ? '' : key;
+			
+			display_title = display.replace(/<[^>]*>/g,'');
+			if(0 < _len) display = cutstr(display,_len);
+			_str += "<td title='"+display_title+"'>"+display+"</td>";
+		});
+		$(fex_table).find('tbody').append(_str+"</tr>");
+		//组装table表格数据DOM
+		_str = "<tr>";
+		$(dat_table).find('thead th').each(function(){
+			var _len       = parseInt($(this).attr('len'));
+            var _data_info = eval("v."+$(this).attr('name'));
+            _data_info	   = _data_info || '';
+            if('is_valid_status' == $(this).attr('name')){
+                    _data_info = '<span title="" class="icon_'+(1==_data_info?'start':(0==_data_info?'close':'stop'))+'"></span>';
+            }else if('mission_completion_status' == $(this).attr('name')){
+                    _data_info = 0==_data_info?'无效操作':(1==_data_info?'已领取'+parseFloat(v.goldcoin/10)+'个金币':(2==_data_info?'有效未领取':'有效未完成'));
+            }
+            _data_info_title = _data_info?_data_info.replace(/<[^>]*>/g,''):'';
+            if(0 < _len && _data_info) _data_info = cutstr(_data_info,_len);
+            _str += "<td title='"+_data_info_title+"'>"+_data_info+"</td>";
+		});
+		$(dat_table).find('tbody').append(_str+"</tr>");
+	});
+}
+function mergeData(pra,vv){
+	$.each(vv,function(k,v){
+		eval("pra."+k+" = '"+v.toString().replace(/'/g,"\\'")+"';");
+	});
+	return pra;
+}
+function fmoney(s, n)
+{
+   n = n > 0 && n <= 20 ? n : 2;
+   s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+   var l = s.split(".")[0].split("").reverse(),
+   r = s.split(".")[1];
+   t = "";
+   for(i = 0; i < l.length; i ++ )
+   {
+      t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+   }
+   return t.split("").reverse().join("") + "." + r;
+}
+$(document).ready(function() {
+   	//if($('#overflowDiv') && !$('#overflowDiv').hasClass('overflowDivPlus')) {
+    //    $('#overflowDiv').addClass('overflowDivPlus');
+    //}
+   	$('#tip_channel_').html(URLOBJ.params.tip);
+   	$('#op_gold').live('change',function(){
+   		showData();
+   	});
+   	$("#overflowDiv table tbody tr,#overflowDiv_fex table tbody tr").live({
+		mouseenter:
+		function()
+		{
+			$('#overflowDiv_fex table tbody tr').eq($(this).index()).css({'background-color':'#F2F2F2','color':'#333'});
+			$('#overflowDiv table tbody tr').eq($(this).index()).css({'background-color':'#F2F2F2','color':'#333'});
+		},
+		mouseleave:
+		function()
+		{
+			$('#overflowDiv_fex table tbody tr').eq($(this).index()).css({'background-color':'','color':''});
+			$('#overflowDiv table tbody tr').eq($(this).index()).css({'background-color':'','color':''});
+		}
+	});
+   	$('#tab_use_info li').live('click',function(){
+   		$('#tab_use_info li').removeClass('a');
+		$(this).addClass('a');
+		$('#tag_tip').html($(this).find('a').html());
+		$('#tip_shop,#last_name').html('');
+		var _init_pra_info_ngl;
+		var isSup     = CF_SESS.isSup;
+		var cf_level  = CF_SESS.level;
+		var cf_realid = CF_SESS.real_id;
+		CF_DO_PRA   = '';
+		CF_INIT_PRA = '';
+		
+		if($(this).index() == 0){
+			_init_pra_info_ngl = {type:'get_gold_detail'};
+		}
+		showData(mergeData(_init_pra_info_ngl,URLOBJ.params));
+   	});
+   	$('#tip_channel').live('click',function(){
+   		return ;
+   		showData(CF_INIT_PRA);
+		$('#tip_channel').html(CF_SESS.username);
+		$('#tip_shop').html('');
+		$('#last_name').html('');
+	});
+	$('#tip_shop').live('click',function(){
+		return ;
+		if(CF_SESS.isSup){
+			showData({do_sp:0,do_id:$(this).find('font').attr('doid'),do_level:$(this).find('font').attr('dolevel')});
+		}
+		$('#last_name').html($(this).html());
+		$(this).html('');
+	});
+   	var startDate 		   = URLOBJ.params.date || CUR_DATE;
+    var endDate   		   = URLOBJ.params.end_date || CUR_DATE;
+    URLOBJ.params.date 	   = startDate;
+    URLOBJ.params.end_date = endDate;
+    
+    var isTodayValid = '';
+    var dateRange = new pickerDateRange('date', {
+        isTodayValid: isTodayValid,
+        startDate: startDate,
+        endDate: endDate,
+        monthRangeMax:2,
+        calendars:2,
+        needCompare: false,
+        target: 'statsTableForm',
+        success: function(obj) {
+        	showData({date:$('#startDate').val(),end_date:$('#endDate').val()});
+        }
+    });
+    if($('#tab_use_info li').eq(URLOBJ.params.index || 0).length){
+		$('#tab_use_info li').eq(URLOBJ.params.index || 0).trigger('click');
+	}
+    //$('#tip_channel').html(CF_SESS.username);
+});
+</script>
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="/statistic_gold.html">收入操作详情</a></label>
+		<label style="float:right;margin-right:10px;"><a id="exportFile" href="javascript:void(0);" class="export" title="导出数据">导出数据</a></label>
+	</div>
+</div>
+<div class="bm">
+	<div class="notice notice_t mbm" id="tipsDiv" style='display:none;'>
+        <em><a href="javascript:;" onclick="javascript:cancelTip(901, 'tipsDiv');">我知道了!</a></em>
+        <p>网站基本概况，方便您了解和掌握网站的全局情况。</p>
+    </div>
+    <form id="statsTableForm" name="statsTableForm" action="/source/keyword">
+        <input type="hidden" id="sId" name="sId" value="9562249" />
+        <input type="hidden" id="func_table" name="func" value="table" />
+        <input type="hidden" id="range_table" name="range" value="" />
+        <!-- calendar //-->
+        <div class="controlbar cl" style='display:none;'>
+            <!-- <a id="exportFile" href="javascript:void(0);" class="export" title="导出数据">导出数据</a> -->
+            <ul class="datebar cl">
+                <li class='a'>
+                    <a href="javascript:void(0);" id="aYesterday">
+                        昨天
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0);" id="aRecent7Days">
+                        最近7天
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0);" id="aRecent30Days">
+                        最近30天
+                    </a>
+                </li>
+            </ul>
+            <input type="text" name="date" id="date" value="" class="px date" />
+        </div>
+        <script type="text/javascript">
+            var crmqq = '';
+
+            $(document).ready(function() {
+            	initItemTips('itemTips');
+            	$(':checkbox').live('click',function(){
+            		return ;
+            		var name = 'tableItem';
+            		if('tableItemSelectAll' == $(this).attr('id')){
+            			$("[name='"+name+"\[\]']").attr("checked",$(this).attr("checked"));
+            		}else{
+            			var _flag = true;
+            			$("[name='"+name+"\[\]']").each(function() { 
+            				if(false == $(this).attr('checked')){
+            					_flag = false;return false;
+            				}
+            			});
+            			$('#tableItemSelectAll').attr('checked',_flag);
+            		}
+            		showData({});
+            	});
+                $('#exportFile').click(function() {
+                	var _tmp = {"sortname":CF_DO_PRA.sortname,"sortorder":CF_DO_PRA.sortorder};
+            		$.each(CF_DO_PRA,function(k,v){
+            			eval("_tmp['"+k+"']='"+v.toString().replace(/'/g,"\\'")+"';");
+            		});
+            		_tmp['exp_name'] = !$('#last_name').html()?$('#tip_channel').html():$('#last_name').html();
+            		_tmp['exp_name'] = _tmp['exp_name'].replace(/&gt;/g,'').replace(/<[^>]*>/g,'');
+            		_tmp['top_agent_id_'] = _tmp['top_agent_id'];
+            		
+            		$('#rqstr').val($.toJSON(_tmp));
+            		$('#excel_frm').submit();
+                    return false;
+                });
+            });
+        </script>
+        <div class="optionbar cl mbm">
+            <dl class="cl">
+                <dt></dt>
+                <dd>
+                    <ul class="cl">
+                        <li>
+                        	<span id="tip_date" style="margin-left: 10px;"></span>
+                        	<span id="tag_tip"></span>情况
+                        	<span style="margin-left:50px;">当前路径 ：</span>
+					    	<span id="tip_channel_"></span>
+					    	<span id="tip_channel"></span>
+					    	<span id="tip_shop"></span>
+					    	<span id="last_name"></span>
+					    	<span id="tip_name"></span>
+                        </li>
+                    </ul>
+                </dd>
+            </dl>
+        </div>
+        <div class="bm_t">
+        <div style='float:left;margin-right:10px;'>
+        	请选择要查看的操作类型：
+        	<select name='op_gold' id='op_gold'>
+        		<option value=''>所有操作</option>
+        		<option value='1'>有金币操作</option>
+        		<option value='0'>无金币操作</option>
+        	</select>
+        	共有记录数<strong id='gold_pg_total'>0</strong>条
+        	<span style='display:none;'>
+			<input type="checkbox" class="pc" checked id="tableItemSelectAll" /><label for="tableItemSelectAll">全部</label>
+			<input type="checkbox" title="无效操作" checked id="tableItem_1" name="tableItem[]" value="0"  class="pc"/><label class="a" for="tableItem_1" title="无效操作">无效操作</label>
+			<input type="checkbox" title="有效操作" checked id="tableItem_2" name="tableItem[]" value="1"  class="pc"/><label class="a" for="tableItem_2" title="无效操作">有效操作</label>
+			<input type="checkbox" title="有效操作未完成" checked id="tableItem_3" name="tableItem[]" value="3"  class="pc"/><label class="a" for="tableItem_3" title="此操作为连续任务操作任务有效但操作可能还没有全部完成">有效操作未完成</label>
+			<input type="checkbox" title="有效操作未领取" checked id="tableItem_4" name="tableItem[]" value="2"  class="pc"/><label class="a" for="tableItem_4" title="有效操作未领取">有效操作未领取</label>
+			</span>
+		</div>
+		<div style='clear:both;'></div>
+		    <h3>
+		        <div class="controlsearch vm" style='display:none;'>
+		            <input type="text" id="searchUrl" name="searchUrl" value="" class="px xg1"
+		            size="40" />
+		            <input type="hidden" id="searchUrlEncode" name="searchUrlEncode" value=""
+		            />
+		            &nbsp;
+		            <button id="searchUrlBtn" class="pnc pn">
+		                <span>
+		                    查询
+		                </span>
+		            </button>
+		            <button class="pn" id="searchUrlBackBtn" style='display:none;'>
+		                <span>
+		                    返回
+		                </span>
+		            </button>
+		        </div>
+		        <script type="text/javascript">
+		            // searchUrlBtn 表单名称
+		            var UB_URL_IPT = 'searchUrl';
+		            var UB_URLENCODE_IPT = 'searchUrlEncode';
+		            var UB_URL_BTN = 'searchUrlBtn';
+		
+		            var DEFAULT_SEARCH_TXT = '请输入要搜索的公司/店面/店员名称';
+		
+		            $(document).ready(function() {
+		                $('#' + UB_URL_IPT).val(DEFAULT_SEARCH_TXT);
+		                $('#searchUrlBackBtn').click(function() {
+		                    $('#order').val('');
+		                    $('#' + UB_URLENCODE_IPT).val('');
+		                    $('#' + UB_URL_IPT).val(DEFAULT_SEARCH_TXT);
+		                    $('#' + UB_URL_IPT).addClass('xg1');
+		                    statsFormAjax(this.form);
+		                    return false;
+		                });
+		            });
+		
+		            // 当得到焦点时
+		            $('#' + UB_URL_IPT).bind('focus',
+		            function() {
+		                if ($(this).val() == DEFAULT_SEARCH_TXT) {
+		                    $(this).val('');
+		                    $(this).removeClass('xg1');
+		                }
+		                return false;
+		            });
+		            // 当失去焦点时
+		            $('#' + UB_URL_IPT).bind('blur',
+		            function() {
+		                if ($(this).val() == '') {
+		                    $(this).val(DEFAULT_SEARCH_TXT);
+		                    $(this).addClass('xg1');
+		                } else {
+		                    $('#' + UB_URLENCODE_IPT).val(encodeURIComponent($('#' + UB_URL_IPT).val()));
+		                }
+		                return true;
+		            });
+		            // 为 searchUrlBtn 添加  click 事件
+		            $('#' + UB_URL_BTN).bind('click',
+		            function() {
+		            	var _name = $('#' + UB_URL_IPT).val() == DEFAULT_SEARCH_TXT ? '' : $('#' + UB_URL_IPT).val();
+		            	showData({name:_name});
+		                return false;
+		            });
+		        </script>
+		    </h3>
+		</div>
+        <div class="controlbar cl"  id="tab_use_info">
+            <ul class="datebar cl">
+                <li>
+                    <a id="" href="javascript:void(0);">收入操作详情</a>
+                </li>
+            </ul>
+        </div>
+    </form>
+    <div id='load_div_cnt_no' style='display:none;'><p style='text-align:center;font-size:14px;line-height:200px;'>暂无数据</p></div>
+    <div id='load_div_cnt'>
+    <div id='overflowDiv_fex' style='width:auto;float:left;'>
+		<div id="dataTable_fex" class="box">
+            <table class="tablesorter" id="sortTable">
+            <thead>
+                <tr id="dataTheadTr_fex">
+			        <!-- <th class="header thAjax itemTips" order="pv" item="pv">关键词</th> -->
+			    </tr>
+			</thead>
+			<tbody></tbody>
+            </table>
+        </div>
+	</div>
+    <div id="overflowDiv" class="overflowDiv" style='width:auto'>
+        <div id="dataTable" class="box">
+            <table class="tablesorter" id="sortTable">
+            <thead>
+                <tr id="dataTheadTr">
+                <!-- 
+			        <th class="hc">关键词</th>
+	                <th class="header thAjax itemTips" order="pv" item="pv">浏览量(PV)</th>
+	                <th class="header thAjax itemTips" order="uv" item="uv">独立访客(UV)</th>
+	                <th class="header thAjax itemTips" order="vv" item="vv">访问次数(VV)</th>
+	                <th class="hc">历史趋势</th>
+			        <th class="hc">查看引擎</th>
+				-->
+			    </tr>
+			</thead>
+			<tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="pageAjax" class="pgs cl">
+        <div class="pg">
+        	<span id='Pagination' class="pagination"></span>
+        </div>
+    </div>
+    </div>
+</div>
+<form id="excel_frm" target="" method="get" action="/api/exp.php">
+<input type='hidden' id='rqstr' name="rqstr" value='' />
+</form>
+
+		</td>
+	</tr>
+</table>
+</div>
+<div id="footer">
+<!--  
+    <p>
+        <a href="http://www.appdear.com/" target="_blank">关于爱皮</a>
+        <span class="pipe">|</span>
+        <a href="http://www.appdear.com/index_e.shtml" target="_blank">About Tencent</a>
+        <span class="pipe">|</span>
+        <a href="http://www.appdear.com/contract.shtml" target="_blank">服务条款</a>
+        <span class="pipe">|</span>
+        <a href="http://www.tencentmind.com/" target="_blank">广告服务</a>
+        <span class="pipe">|</span>
+        <a href="http://hr.appdear.com/" target="_blank">爱皮招聘</a>
+        <span class="pipe">|</span>
+        <a href="http://service.appdear.com/" target="_blank">客服中心</a>
+        <span class="pipe">|</span>
+        <a href="http://www.appdear.com/map/" target="_blank">网站导航</a>
+    </p>
+-->
+    <p>Copyright &copy; 2012 Appdear. All Rights Reserved.</p>
+    <p>北京爱皮科技有限公司  <a href="http://www.appdear.com" target="_blank">版权所有</a></p>
+</div>
+<div id="escape_div" style="display:none"></div>
+<style type='text/css'>
+a {color: #336699;}
+.pg a{margin-left:0px;}
+</style>
+</div>
+</body>
+</html>

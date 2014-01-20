@@ -1,0 +1,33 @@
+<style>
+.main_a_a {
+    height: 25px;
+    line-height: 25px;
+    width: 100%;
+	border-bottom:2px solid #7AD3FF;
+}
+.main_a1{
+	font-size:14px;
+	font-weight:bold;
+	width:107px;
+	text-align:center;
+	margin-right:31px;
+}
+.main_a2{
+	margin-right:21px;
+	color:#92c1e3;
+}
+.main_a_a1{
+	margin-top:1px;
+}
+.main_a_a a{
+	color:#545454;
+	font-family:微软雅黑,宋体,arial,verdana;
+}
+</style>
+<div class='main_a_a p_fl'>
+<!--{foreach from=$assign.article_category item=list key=key}-->
+	<div class='main_a1 p_fl<!--{if $smarty.get.category|default:$_category|default:"1" == $key}--> main_a_a1<!--{/if}-->'><a href='/article/index.html?category=<!--{$key}-->'><!--{$list}--></a></div>
+<!--{/foreach}-->
+	<div class='main_a2 p_fr'><!--{if $smarty.get.category == 3}--><a href='/article/share_add.html?category=<!--{$smarty.get.category}-->'>发布分享</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href='/article/share.html?category=<!--{$smarty.get.category}-->'>管理分享</a><!--{/if}--></div>
+</div>
+<div class='clear'></div>

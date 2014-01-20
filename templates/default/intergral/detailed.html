@@ -1,0 +1,31 @@
+<link href="/resources/stats/styles/cur_common.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+#table_tr tr td{text-align:left}
+#table_tr tr td span{text-align:right;float: right;width:auto}
+</style>
+<div class="path">
+	<a href="/">信息管理平台</a>
+	<em>&rsaquo;</em> <a href="/intergral/detailed.html">积分明细</a>
+</div>
+<!--{intergral tag='details' pageno=$smarty.get.pageno|default:1 count=20 ret=getscoredetailspage}-->
+<div class="datalist">
+	<table cellspacing="1" id="sorterTable" class="datatable">
+		<thead>
+	    	<tr>
+	        	<th width="775">积分明细</th>
+        	</tr>
+	    </thead>
+	    <tfoot>
+	    	<tr>
+	        	<td><div class="page" style="padding:0px"><!--{$getscoredetailspage.pagehtml}--></div></td>
+        	</tr>
+	    </tfoot>
+	    <tbody id="table_tr">
+        <!--{foreach from=$getscoredetailspage.info item=contact}-->
+        	 <tr>
+	        	<td><img src="/resources/images/<!--{if $contact.op_score<0}-->jian<!--{else}-->jia<!--{/if}-->_icon.png"><span style="float:left">>><!--{$contact.description}--></span><span><!--{$contact.active_day}--></span></td>
+        	</tr>
+		<!--{/foreach}-->            
+	    </tbody>
+	</table>
+    </div>

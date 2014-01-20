@@ -1,0 +1,18 @@
+.tangram_sug_wpr {
+	Z-INDEX: 2; BORDER-BOTTOM: #cccccc 1px solid; POSITION: absolute; BORDER-LEFT: #cccccc 1px solid; PADDING-BOTTOM: 0px; BACKGROUND-COLOR: white; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; COLOR: #666666; OVERFLOW: hidden; BORDER-TOP: #cccccc 1px solid; TOP: 28px; BORDER-RIGHT: #cccccc 1px solid; PADDING-TOP: 0px; LEFT: 0px
+}
+.tangram_sug_wpr TABLE {
+	WIDTH: 100%; BACKGROUND: #ffffff 0px 0px; CURSOR: default
+}
+.tangram_sug_wpr TD {
+	PADDING-BOTTOM: 6px; PADDING-LEFT: 4px; PADDING-RIGHT: 4px; FONT: 12px arial; PADDING-TOP: 6px
+}
+.tangram_sug_mo {
+	BACKGROUND-COLOR: #ccddff; COLOR: #000000
+}
+.tangram_sug_ml {
+	BACKGROUND-COLOR: #ffffff; COLOR: #666666
+}
+.tangram_sug_app {
+	TEXT-ALIGN: right; BACKGROUND-COLOR: white; FONT-SIZE: 12px
+}

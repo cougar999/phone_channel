@@ -1,0 +1,480 @@
+<script src="/resources/js<!--{#version#}-->/comm_op.js" type="text/javascript"></script>
+<link href="/resources/css<!--{#version#}-->/pagination.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="/resources/js<!--{#version#}-->/jquery.pagination.js"></script>
+<script src="/resources/lib<!--{#version#}-->/jquery.json-2.3.min.js" type="text/javascript"></script>
+<style type="text/css">
+#overflowDiv_fex table{table-layout:fixed;}
+#dataTable_fex td{cursor:pointer;overflow:hidden;text-align:left;white-space:nowrap;}
+#dataTable td{cursor:pointer;}
+#dataTable td{text-align:center;}
+.optionbar li{width:100%;}
+.optionbar li .a{color:#336699;cursor:pointer;margin-right:0px;}
+#load_div_cnt{_min-height:100px;min-height:100px;}
+#load_div_cnt{_min-height:100px;min-height:100px;}
+.overflowDiv{border-bottom:1px solid #C1CBDF;border-left:0px;border-right:1px solid #C1CBDF;border-top:1px solid #C1CBDF;}
+.box{border-bottom:1px solid #C1CBDF;margin-left:-1px;}
+.optionbar dl{padding:2px 0 2px 0;}
+.controlbar{background:url("/resources/stats/images/ctrl_bg.png") repeat-x scroll 0 0 transparent;border-left:1px solid #D6D6D6;border-right:1px solid #D6D6D6;border-top:1px solid #D6D6D6;height:29px;}
+.controlbar ul{padding-left:0px;}
+.optionbar{border:1px solid #D6D6D6;}
+.date{margin:4px 0 0 108px;}
+</style>
+<script type='text/javascript'>
+var CUR_DATE = GetDateStr(-1);
+var CF_SESS  = eval('[<!--{php}-->echo json_encode($_SESSION)<!--{/php}-->]');
+CF_SESS      = CF_SESS[0];
+var CF_TYPE  = '';
+var CF_PAGE  = {
+	is_page:false,//是否启用分页
+	num_edge_entries:1,
+	prev_text:'上一页',
+	next_text:'下一页',
+	items_per_page:10,
+	num_display_entries:5,
+	callback: pageselectCallback
+};
+var EXT_INFO = {
+	"login":{
+		"sketch":"",
+		"sketch_ad":"",
+		"detail":""
+	},
+	"fex_name":{
+		"sketch":{ display: '子公司 / 登陆<font color=red>(未登陆)</font>', name: 'channel_name' ,width:200,frozen: true,align:'left',key:'channel_id'},
+		"sketch_ad":{ display: '渠道名称 / 登陆<font color=red>(未登陆)</font>', name: 'name' ,width:200,frozen: true,align:'left',key:'top_agent_id'},
+		"detail":{ display: '店面 / 是否登陆', name: 'shop_name', width: 200 ,frozen: true,align:'left',key:'jkljkl'}//无效key
+	}
+};
+var DO_API_URL  = '/api/api_statlogin.php';
+var CF_DO_PRA   = '';
+var CF_INIT_PRA = '';
+
+function show_head(start,end){
+	var _per_width = 150;//每列的宽度
+	var init_width = 0;
+	var _str       = '';
+	var end = compareDate(end,CUR_DATE)?CUR_DATE:end;
+	var tmp_date = [];
+	if(CF_TYPE != 'sketch' && CF_TYPE != 'detail' && CF_TYPE != 'sketch_ad') return tmp_date;
+	
+	while(compareDate(GetDateStr(1,end),start)){
+		var _d = parseDate(start).format("dd");
+		var _m = parseDate(start).format("MM");
+		var _name = "d_"+_m+_d;
+		var _obj  = {};
+		tmp_date[tmp_date.length] = _obj = {display:parseInt(_m,10)+"月"+parseInt(_d,10)+"号"+EXT_INFO.login[CF_TYPE],name:_name+"_y",_name:_name,width:90};
+		start = GetDateStr(1,start);
+		init_width += _obj.width || _per_width;
+	}
+	$('#dataTheadTr,#dataTheadTr_fex,#dataTable tbody,#dataTable_fex tbody').empty();
+
+	$.each(tmp_date,function(k,v){
+		var _str = '<th class="header thAjax itemTips" order="'+v.name+'" item="'+v._name+'"';
+		$.each(v,function(kk,vv){
+			if(kk=='display') return true;
+			_str += ' '+kk+'="'+vv+'"';
+		})
+		_str += '>'+v.display+'</th>';
+		$('#dataTheadTr').append(_str);
+	})
+	$('#dataTable').width(init_width);//动态设置宽度出现滚动条
+	if ($.browser.msie && 0 < $("#overflowDiv")[0].offsetWidth && parseInt($.browser.version)<=7) { 
+		if($('#overflowDiv')[0].scrollWidth > $('#overflowDiv')[0].offsetWidth){
+			$('#overflowDiv').css({'padding-bottom' : '16px'});
+		}else $('#overflowDiv').css({'padding-bottom' : '0px'});
+	}
+	//设置fex表格
+	var v    = EXT_INFO.fex_name[CF_TYPE];
+	var _str = '<th class="header thAjax itemTips" order="'+v.name+'" item="'+v.name+'"';
+	$.each(v,function(kk,vv){
+		if(kk=='display') return true;
+		_str += ' '+kk+'="'+vv+'"';
+	})
+	_str += '>'+v.display+'</th>';
+	$('#dataTheadTr_fex').append(_str);
+	//初始化排序
+	orderAjax('', CF_DO_PRA.sortname || $('#dataTheadTr_fex').find('th').attr('name'), CF_DO_PRA.sortorder || 'asc', 'thAjax', 'dataTheadTr');
+}
+function showData(pra){
+	var pra    = pra || {};
+	var _pra   = CF_DO_PRA || {
+			'date':$('#startDate').val(),
+			'end_date':$('#endDate').val(),
+			'page':0,
+			'sortname':EXT_INFO.fex_name[pra.type].name,
+			'sortorder':'asc',
+			'name':$('#' + UB_URL_IPT).val() == DEFAULT_SEARCH_TXT ? '' : $('#' + UB_URL_IPT).val(),
+			'pagesize':CF_PAGE.items_per_page
+	}
+	$.each(pra,function(k,v){
+		eval("_pra."+k+" = '"+v.toString().replace(/'/g,"\\'")+"';");
+	});
+	_pra.date     = $('#startDate').val();
+	_pra.end_date = $('#endDate').val();
+	CF_TYPE       = _pra.type;
+	CF_DO_PRA     = _pra;
+	
+	show_head(CF_DO_PRA.date,CF_DO_PRA.end_date);
+	$("#escape_div").html('');
+	$("#escape_div").text(CF_DO_PRA.name);
+	
+	$('#tip_name').html((CF_DO_PRA.name==''?'':'&nbsp;&nbsp;搜索"')+$("#escape_div").html()+(CF_DO_PRA.name==''?'':'"'));
+	$('#tip_date').html(parseDate(CF_DO_PRA.date).format("yyyy年MM月dd日")+(CF_DO_PRA.date == CF_DO_PRA.end_date?'':'至'+parseDate(CF_DO_PRA.end_date).format("yyyy年MM月dd日"))+"");
+	showLoadingDiv($("#load_div_cnt").is(":hidden")?'load_div_cnt_no':'load_div_cnt');
+	CF_DO_PRA._act = 'cut';
+	$.getJSON(DO_API_URL,CF_DO_PRA,function(data){
+		CF_DO_PRA._act = 'info';
+		clearLoadingDiv();
+		$(".pagination").pagination(data.Total, CF_PAGE);
+	});
+}
+function pageselectCallback(page_index,jq,opts){
+	$('#dataTable tbody,#dataTable_fex tbody').empty();
+	CF_DO_PRA.page     = page_index+1;
+	CF_DO_PRA.pagesize = opts.items_per_page;
+
+	showLoadingDiv($("#load_div_cnt").is(":hidden")?'load_div_cnt_no':'load_div_cnt');
+	$.getJSON(DO_API_URL,CF_DO_PRA,function(data){
+		clearLoadingDiv();
+		packageData(data.Rows);
+	});
+	return false;
+}
+function isEmpty(data){
+	return $.isArray(data)?!data.length:$.isEmptyObject(data);
+}
+function packageData(data){
+	var fex_table = $('#dataTable_fex').find('table');
+	var dat_table = $('#dataTable').find('table');
+	
+	if(isEmpty(data)){
+		$('#load_div_cnt_no').show();
+		$('#load_div_cnt').hide();
+		return;
+	}else {$('#load_div_cnt').show();$('#load_div_cnt_no').hide();}
+	$.each(data,function(k,v){
+		var ke,key,display,display_y,display_n,_str;
+		//组装fex表格数据DOM
+		$(fex_table).find('thead th').each(function(){
+			display = eval("v."+$(this).attr('name'));
+			key     = eval("v."+$(this).attr('key')+" || ''");
+			$(fex_table).find('tbody').append("<tr doid="+key+"><td title="+display+">"+display+"</td></tr>");
+		});
+		//组装table表格数据DOM
+		_str = "<tr doid="+key+">";
+		$(dat_table).find('thead th').each(function(){
+			if(CF_TYPE == 'sketch' || CF_TYPE=='sketch_ad'){
+				display_y = eval("v."+$(this).attr('_name')+"_y");
+				display_n = eval("v."+$(this).attr('_name')+"_n");
+				display_y = typeof display_y == 'undefined' ? 0 : display_y;
+				display_n = typeof display_n == 'undefined' ? 0 : display_n;
+				_str += "<td>"+display_y+"<font color=red>("+display_n+")</font></td>";
+			}else if(CF_TYPE == 'detail'){
+				var _f = eval("v."+$(this).attr('_name')+"_y");
+				_f     = typeof _f == 'undefined' ? 0 : _f;
+				_str += "<td>"+(_f == 1?"是":"<font color=red>否</font>")+"</td>";
+			}
+		});
+		$(dat_table).find('tbody').append(_str+"</tr>");
+	});
+}
+$(document).ready(function() {
+   	//if($('#overflowDiv') && !$('#overflowDiv').hasClass('overflowDivPlus')) {
+    //    $('#overflowDiv').addClass('overflowDivPlus');
+    //}
+	$("#overflowDiv table tbody tr,#overflowDiv_fex table tbody tr").live({
+		mouseenter:
+		function()
+		{
+			$('#overflowDiv_fex table tbody tr').eq($(this).index()).css({'background-color':'#F2F2F2','color':'#333'});
+			$('#overflowDiv table tbody tr').eq($(this).index()).css({'background-color':'#F2F2F2','color':'#333'});
+		},
+		mouseleave:
+		function()
+		{
+			$('#overflowDiv_fex table tbody tr').eq($(this).index()).css({'background-color':'','color':''});
+			$('#overflowDiv table tbody tr').eq($(this).index()).css({'background-color':'','color':''});
+		}
+	});
+   	$('#tip_channel').live('click',function(){
+   		CF_DO_PRA.sortname = EXT_INFO.fex_name[CF_INIT_PRA.type].name;
+   		showData({name:'',type:CF_INIT_PRA.type});
+		$('#tip_channel').html(CF_SESS.username);
+		$('#tip_shop').html('');
+		$('#last_name').html('');
+	});
+	$('#tip_shop').live('click',function(){
+		if(CF_SESS.isSup){
+			if(CF_TYPE == 'detail'){
+				CF_DO_PRA.sortname = EXT_INFO.fex_name['sketch'].name;
+		   		showData({name:'',type:'sketch'});
+			}
+		}
+		$('#last_name').html($(this).html());
+		$(this).html('');
+	});
+   	$('#dataTable_fex table tbody tr,#dataTable table tbody tr').live('click',function(){
+   		var _index  = $(this).index();
+   		var _doId   = $(this).attr('doid');
+   		var ___name = $('#dataTable_fex table tbody tr').eq(_index).find('td').html();
+   		
+   		if(!_doId) return ;
+   		$('#' + UB_URL_IPT).val('');
+   		$('#' + UB_URL_IPT).trigger('blur');
+   		CF_DO_PRA.name = '';
+   		if(CF_TYPE == 'sketch_ad'){
+   			CF_DO_PRA.sortname = EXT_INFO.fex_name['sketch'].name;
+   			$('#last_name').html('&gt;&gt;'+___name);
+   			showData({type:'sketch',top_agent_id:_doId});
+   		}else if(CF_TYPE == 'sketch'){
+   			CF_DO_PRA.sortname = EXT_INFO.fex_name['detail'].name;
+   			if($('#last_name').html()!='') $('#tip_shop').html($('#last_name').html());
+        	$('#last_name').html('&gt;&gt;'+___name);
+   			showData({type:'detail',channel_id:_doId});
+   		}
+   	});
+   	var startDate = URLOBJ.params.date || CUR_DATE;
+    var endDate   = URLOBJ.params.end_date || CUR_DATE;
+    
+    var isTodayValid = '';
+    var dateRange = new pickerDateRange('date', {
+        isTodayValid: isTodayValid,
+        startDate: startDate,
+        endDate: endDate,
+        monthRangeMax:3,
+        needCompare: false,
+        target: 'statsTableForm',
+        success: function(obj) {
+        	CF_DO_PRA.sortname = EXT_INFO.fex_name[CF_TYPE].name;
+        	showData({date:$('#startDate').val(),end_date:$('#endDate').val()});
+        }
+    });
+	var tmp_init_cf = {};
+    tmp_init_cf.type = CF_SESS.isSup?'sketch_ad':(CF_SESS.level==1?'sketch':'detail');
+    if('2' == CF_SESS.level){
+    	tmp_init_cf.channel_id = CF_SESS.real_id;
+    }else if('3' == CF_SESS.level){
+    	tmp_init_cf.lgid = CF_SESS.real_id;
+    }
+	CF_INIT_PRA = ZwzCommonOp.clone(tmp_init_cf);
+    showData($.extend(tmp_init_cf,URLOBJ.params));
+    $('#tip_channel').html(CF_SESS.username);
+	//get来源时初始化路径
+   	if(0 < URLOBJ.params.do_level && 3 > URLOBJ.params.do_level){
+   		var _tmp_init_id   = URLOBJ.params.open.split(',');
+   		var _tmp_init_level= URLOBJ.params.p_level.split(',');
+   		var _tmp_init_view = URLOBJ.params.opens.split('>>');
+   		if(1 == _tmp_init_id.length) $('#last_name').html('>>'+_tmp_init_view);
+   		else if(1 < _tmp_init_id.length){
+   			$('#tip_shop').html('>>'+_tmp_init_view[0]);
+   			$('#last_name').html('>>'+_tmp_init_view[1]);
+   		}
+   	}
+});
+</script>
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="/statistic_login.html">登陆详情</a></label>
+		<label style="float:right;margin-right:10px;"><a id="exportFile" href="javascript:void(0);" class="export" title="导出数据">导出数据</a></label>
+	</div>
+</div>
+<div class="bm">
+    <form id="statsTableForm" name="statsTableForm" action="/source/keyword">
+        <input type="hidden" id="sId" name="sId" value="9562249" />
+        <input type="hidden" id="func_table" name="func" value="table" />
+        <input type="hidden" id="range_table" name="range" value="" />
+        <!-- calendar //-->
+        <div align="center">
+        <div class="controlbar cl">
+            <!-- <a id="exportFile" href="javascript:void(0);" class="export" title="导出数据">导出数据</a> -->
+            <ul class="datebar cl">
+                <li class='a'>
+                    <a href="javascript:void(0);" id="aYesterday">
+                        昨天
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0);" id="aRecent7Days">
+                        最近7天
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0);" id="aRecent30Days">
+                        最近30天
+                    </a>
+                </li>
+            </ul>
+            <input type="text" name="date" id="date" value="" class="px date" />
+        </div>
+        </div>
+        <script type="text/javascript">
+            var crmqq = '';
+
+            $(document).ready(function() {
+                $('#exportFile').click(function() {
+                	var _tmp = {"sortname":CF_DO_PRA.sortname,"sortorder":CF_DO_PRA.sortorder};
+            		$.each(CF_DO_PRA,function(k,v){
+            			eval("_tmp['"+k+"']='"+v.toString().replace(/'/g,"\\'")+"';");
+            		});
+            		_tmp['exp_name'] = !$('#last_name').html()?$('#tip_channel').html():$('#last_name').html();
+            		_tmp['exp_name'] = _tmp['exp_name'].replace(/&gt;/g,'');
+            		$('#rqstr').val($.toJSON(_tmp));
+            		$('#excel_frm').submit();
+                    return false;
+                });
+            });
+        </script>
+        <div class="optionbar cl mbm">
+            <dl class="cl">
+                <dt></dt>
+                <dd>
+                    <ul class="cl">
+                        <li>
+                        	<span id="tip_date" style="margin-left: 10px;"></span>
+					    	<span id="tag_tip">登陆详情情况</span>
+					    	<span style="margin-left:50px;">当前路径 ：</span>
+					    	<span id="tip_channel" class="a"></span>
+					    	<span id="tip_shop" class="a"></span>
+					    	<span id="last_name"></span>
+					    	<span id="tip_name"></span>
+					    	
+                        </li>
+                    </ul>
+                </dd>
+            </dl>
+        </div>
+        <div class="bm_t">
+		    <h3>
+		        <div class="controlsearch vm">
+		            <input type="text" id="searchUrl" name="searchUrl" value="" class="px xg1"
+		            size="40" />
+		            <input type="hidden" id="searchUrlEncode" name="searchUrlEncode" value=""
+		            />
+		            &nbsp;
+		            <button id="searchUrlBtn" class="pnc pn">
+		                <span>
+		                    查询
+		                </span>
+		            </button>
+		            <button class="pn" id="searchUrlBackBtn" style='display:none;'>
+		                <span>
+		                    返回
+		                </span>
+		            </button>
+					<span class="vm" style=" height: 23px;line-height: 23px;">
+		                <input type="radio" value="0" name="statsIcon" class="pc"><span class="lab">当前页面搜索</span>
+		                <input type="radio" value="1" name="statsIcon" class="pc" checked><span class="lab">所属体系搜索</span>
+		            </span>
+		        </div>
+		        <script type="text/javascript">
+		            // searchUrlBtn 表单名称
+		            var UB_URL_IPT = 'searchUrl';
+		            var UB_URLENCODE_IPT = 'searchUrlEncode';
+		            var UB_URL_BTN = 'searchUrlBtn';
+		
+		            var DEFAULT_SEARCH_TXT = '请输入要搜索的公司/店面/店员名称';
+		
+		            $(document).ready(function() {
+		                $('#' + UB_URL_IPT).val(URLOBJ.params.q || DEFAULT_SEARCH_TXT);
+		                $('#searchUrlBackBtn').click(function() {
+		                    $('#order').val('');
+		                    $('#' + UB_URLENCODE_IPT).val('');
+		                    $('#' + UB_URL_IPT).val(DEFAULT_SEARCH_TXT);
+		                    $('#' + UB_URL_IPT).addClass('xg1');
+		                    statsFormAjax(this.form);
+		                    return false;
+		                });
+		            });
+		
+		            // 当得到焦点时
+		            $('#' + UB_URL_IPT).bind('focus',
+		            function() {
+		                if ($(this).val() == DEFAULT_SEARCH_TXT) {
+		                    $(this).val('');
+		                    $(this).removeClass('xg1');
+		                }
+		                return false;
+		            });
+		            // 当失去焦点时
+		            $('#' + UB_URL_IPT).bind('blur',
+		            function() {
+		                if ($(this).val() == '') {
+		                    $(this).val(DEFAULT_SEARCH_TXT);
+		                    $(this).addClass('xg1');
+		                } else {
+		                    $('#' + UB_URLENCODE_IPT).val(encodeURIComponent($('#' + UB_URL_IPT).val()));
+		                }
+		                return true;
+		            });
+		            // 为 searchUrlBtn 添加  click 事件
+		            $('#' + UB_URL_BTN).bind('click',
+		            function() {
+						if(0 == $("input[@name='statsIcon']:checked").val()){
+		            		var _name = $('#' + UB_URL_IPT).val() == DEFAULT_SEARCH_TXT ? '' : $('#' + UB_URL_IPT).val();
+							showData({name:_name});
+							return false;
+		            	}else{
+		            		if ($('#' + UB_URL_IPT).val() == DEFAULT_SEARCH_TXT || $('#' + UB_URL_IPT).val() == '') {
+			                    return false;
+			                }
+			                $('#' + UB_URLENCODE_IPT).val($('#' + UB_URL_IPT).val());
+			                window.location.href = '/mag_search.html?rf=login&q='+$('#' + UB_URLENCODE_IPT).val()+'&date='+CF_DO_PRA.date+'&end_date='+CF_DO_PRA.end_date;
+			                return false;
+		            	}
+		            });
+		        </script>
+		    </h3>
+		</div>
+        <div class="bm_t">
+            <h3>
+              登陆详情列表
+                <span id='tableHeadDate' class='start_and_end_date'>
+                </span>
+            </h3>
+        </div>
+    </form>
+    <div id='load_div_cnt_no' style='display:none;'><p style='text-align:center;font-size:14px;line-height:200px;'>暂无数据</p></div>
+    <div id='load_div_cnt'>
+    <div id='overflowDiv_fex' style='width:19.9%;float:left;'>
+		<div id="dataTable_fex" class="box">
+            <table class="tablesorter" id="sortTable">
+            <thead>
+                <tr id="dataTheadTr_fex">
+			        <!-- <th class="header thAjax itemTips" order="pv" item="pv">关键词</th> -->
+			    </tr>
+			</thead>
+			<tbody></tbody>
+            </table>
+        </div>
+	</div>
+    <div id="overflowDiv" class="overflowDiv" style='width:80%'>
+        <div id="dataTable" class="box">
+            <table class="tablesorter" id="sortTable">
+            <thead>
+                <tr id="dataTheadTr">
+                <!-- 
+			        <th class="hc">关键词</th>
+	                <th class="header thAjax itemTips" order="pv" item="pv">浏览量(PV)</th>
+	                <th class="header thAjax itemTips" order="uv" item="uv">独立访客(UV)</th>
+	                <th class="header thAjax itemTips" order="vv" item="vv">访问次数(VV)</th>
+	                <th class="hc">历史趋势</th>
+			        <th class="hc">查看引擎</th>
+				-->
+			    </tr>
+			</thead>
+			<tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="pageAjax" class="pgs cl">
+        <div class="pg">
+        	<span id='Pagination' class="pagination"></span>
+        </div>
+    </div>
+    </div>
+</div>
+<form id="excel_frm" target="" method="get" action="/api/exp.php">
+<input type='hidden' id='rqstr' name="rqstr" value='' />
+</form>

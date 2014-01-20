@@ -1,0 +1,284 @@
+<!--{include file="intergral/path.html"}-->
+<link href="/resources/css/pagination.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="/resources/js/jquery.pagination.js"></script>
+<style type="text/css">
+.ranking{width:800px}
+.pos{width:266px;  margin: 10px 0;float:left}
+.pos div {float:left}
+.match{height:60px; width:30px; text-align:center; line-height:60px}
+.seller_avatar{width:67px; height:60px}
+.seller_grade{width:auto; line-height:30px}
+
+.rank_show{
+    background: url("/resources/images/datebg.gif") no-repeat scroll right top transparent;
+    color: #FFFFFF;
+	padding-right:5px;
+}
+.rank_show_font{
+    background: url("/resources/images/datebg.gif") no-repeat scroll left bottom transparent;
+    color: #FFFFFF;
+	padding-left:5px;
+}
+#sorterTable thead tr th a,#sorterTable thead tr th a font{
+	height:31px;
+	display:inline-block;
+}
+#table_tr td span{
+	margin:0 3px;
+}
+#table_tr tr td .levelid{
+	width:auto;
+}
+.pagination {
+    font-size: 100%;
+}
+#sorterTable thead tr th a font{
+	font-size:14px;
+	cursor:pointer;
+}
+.datatable{
+	width:790px;
+}
+._red{
+	color:blue;
+}
+</style>
+<script type='text/javascript'>
+var flagObj;
+var dObj = new Date();
+var mh   = dObj.getMonth()+1;
+TIP_INFO = {
+	"rank":{
+		"monthorder":mh+"月积分",
+		"allorder":"总积分",
+		"a1":mh+"月苹果应用积分",
+		"a2":mh+"月安卓应用积分",
+		"a3":mh+"月会员卡激活积分",
+		"a4":mh+"月门店积分",
+		"a5":mh+"月个人积分",
+		"a6":mh+"月积分破千用时"
+	}
+}
+CF_INFO   =   {
+	"A":{
+		"len":5,
+		"score":6000,
+		"cyjb":150,
+		"card":8
+	},
+	"B":{
+		"len":2,
+		"score":6000,
+		"cyjb":150,
+		"card":8
+	},
+	"C":{
+		"len":2,
+		"score":5000,
+		"cyjb":100,
+		"card":5
+	},
+	"D":{
+		"len":1,
+		"score":4000,
+		"cyjb":100,
+		"card":5
+	}
+}
+var Rank = {
+	pageOpt:{
+			num_edge_entries:1,
+			prev_text:'上一页',
+			next_text:'下一页',
+			items_per_page:20,
+			num_display_entries:5,
+			callback: pageselectCallback
+	},
+	type:'',
+	page:0,
+	maxlen:5,
+	init:function(){
+		var self = this;
+		$('#sorterTable thead tr th a').live('click',function(){
+			$('#sorterTable thead tr th a').removeClass('rank_show');
+			$('#sorterTable thead tr th a font').removeClass('rank_show_font');
+			$(this).addClass("rank_show");
+			$(this).find('font').addClass("rank_show_font");
+			self.type = $(this).attr('type');
+			self.maxlen = parseInt($(this).attr('maxlen')) || 5;
+			self.getData(this);
+		})	
+	},
+	getData:function(obj){
+		var self = this;
+		var cut  = parseInt($(obj).attr('page')) || 0;
+		Rank.loadingHtml('table_tr');
+		if(!cut){
+			$.getJSON('/api/rank/api_1207.php',{type:$(obj).attr('type'),act:'cut'},function(data){
+				cut = data.data[0].cut;
+				$("#Pagination").pagination(cut, self.pageOpt);
+				return ;
+			});
+		}else $("#Pagination").pagination(cut, this.pageOpt);
+	},
+	packageData:function(data){
+		var html = '';
+		$('#table_tr').empty();
+		$.each(data,function(k,v){
+			html += '<tr>';
+			if(Rank.type == 'allorder'){
+				html += '<td width="395" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">积分：<font class="'+(v.score>=6000?'_red':'')+'">'+v.score+'</font></span>\
+					<span class="levelid">下载卡激活：<font class="'+(v.card_count>=10?'_red':'')+'">'+(v.card_count>=10?10:v.card_count)+'</font>张</span>\
+					<span class="levelid">下载畅游金榜：<font class="'+(v.cyjb_count>=200?'_red':'')+'">'+(v.cyjb_count>=200?200:v.cyjb_count)+'</font>个</span>\
+					<span class="levelid">省份级别：<font class="'+setHeightRed(Rank.page*Rank.pageOpt.items_per_page+k,v.con_lvl)+'">'+v.con_lvl+'</font>级</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'a3'){
+				html += '<td width="395" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">7月积分：<font class="'+(v.score>=flagObj.score?'_red':'')+'">'+v.score+'</font></span>\
+					<span class="levelid">下载卡激活：<font class="'+(v.card_count>=flagObj.card?'_red':'')+'">'+v.card_count+'</font>张</span>\
+					<span class="levelid">下载畅游金榜：<font class="'+(v.cyjb_count>=flagObj.cyjb?'_red':'')+'">'+v.cyjb_count+'</font>个</span>\
+					<span class="levelid">省份级别：<font class="_red">'+_level+'</font>级</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'a4'){
+				html += '<td width="395" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">登陆：<font class="'+(v.login_count>=dObj.getDate()-1?'_red':'')+'">'+v.login_count+'</font>天</span>\
+					<span class="levelid">连接手机：<font class="'+(v.con_count>=10?'_red':'')+'">'+(v.con_count>=10?10:v.con_count)+'</font>部</span>\
+					<span class="levelid">下载应用数：<font class="'+(v.down_count>=150?'_red':'')+'">'+(v.down_count>=150?150:v.down_count)+'</font>个</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'a5'){
+				html += '<td width="395" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">手机复制：<font class="'+(v.copy_count>=88?'_red':'')+'">'+v.copy_count+'</font>部</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'a10'){
+				html += '<td width="395" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">更新软件：<font class="'+(v.update_count>=550?'_red':'')+'">'+v.update_count+'</font>个</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'a6'){
+				html += '<td width="395" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?'1':'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span class="levelid">'+v.ys+'</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>\
+				';
+			}else if(Rank.type == 'all'){
+				html += '<td width="395" colspan="2">\
+					<span class="pos_img'+(Rank.page*Rank.pageOpt.items_per_page+k<Rank.maxlen?(Rank.page*Rank.pageOpt.items_per_page+k==0?'0':'1'):'2')+'">'+(Rank.page*Rank.pageOpt.items_per_page+k+1)+'</span>\
+					<img src="/resources/images/nan-xiao_icon.png">\
+					<span class="levelid" title="">'+v.salesperson_name+'</span>\
+					<span style="float: right;min-width:120px;width:auto;text-align:left;" class="levelid">总积分：'+v.score+'</span>\
+					'+(typeof(v.level) == 'undefined' ? '' : '<span class="medal medal_'+v.level+'" style="float: right;width:17px"></span>')+'\
+				</td>';
+			}
+			html += '</tr>';
+		})
+		$('#table_tr').append(html);
+		bodySizeInit();
+	},
+	loadingHtml: function(id, height, width, tip, src) {
+        var height = height || $('#' + id).height();
+        var width = width || $('#' + id).width();
+        var tip = tip || '数据加载中';
+        var src = src || '/resources/images/loader.gif';
+        $('#' + id).html('<tr><td><div style="width:' + (width == 0 ? '100%': width + 'px') + ';height:' + (height == 0 ? '100%': height + 'px') + ';background:url(' + src + ') center no-repeat;display:inline-block;" alt="' + tip + '" title="' + tip + '"></div></td></tr>');
+    },
+	pageselectCallback:function(page_index, jq){
+		
+	}
+}
+function setHeightRed(k,lvl){
+	if(k==0&&lvl=='A') return '_red';
+	else if(k>=1&&k<=2&&(lvl=='A'||lvl=='B')) return '_red';
+	else return '';
+}
+function setLevel(count){
+	return count>4000?'A':(count>3000?'B':(count>1500?'C':'D'));
+}
+function bodySizeInit(){
+	$('#mainpage').css('height','auto');
+	var leftHeight = document.body.clientHeight - $('#header').outerHeight() - $('#foot').outerHeight();
+	var rightHeight = $('#mainpage').outerHeight();
+	if(leftHeight >= rightHeight){
+		$(this).css('height', leftHeight);
+		$('#side').css('height', leftHeight);
+		$('#mainpage').css('height', leftHeight);
+		$('#navigation_2').css('height', leftHeight-$('#navigation_1').outerHeight()-$('#navigation_3').outerHeight()-15);
+	}else {
+		$(this).css('height', rightHeight);
+		$('#side').css('height', rightHeight);
+		$('#navigation_2').css('height', rightHeight-$('#navigation_1').outerHeight()-$('#navigation_3').outerHeight()-15);
+	}
+}
+function pageselectCallback(page_index,jq){
+	Rank.page = page_index;
+	Rank.loadingHtml('table_tr');
+	$.getJSON('/api/rank/api_1207.php',{type:Rank.type,act:'info',page:page_index+1},function(data){
+		if(!data.data){
+			$('#table_tr').empty();
+			$('#table_tr').append('<tr><td><div style="text-align:center;display:inline-block;height:100px;line-height:100px;">暂无数据</div></td></tr>');
+		}else{
+			if(Rank.type == 'a3'){
+				Rank.maxlen = CF_INFO[data.data.lvl].len;
+				flagObj     = CF_INFO[data.data.lvl];
+				_data       = data.data.data;
+				_level      = data.data.lvl;
+			}else _data = data.data;
+			Rank.packageData(_data);
+		}
+	});
+}
+$(function(){
+	Rank.init();
+	$('#sorterTable thead tr th a').eq(0).trigger('click');
+})
+</script>
+<table cellspacing="1" class="datatable" id="sorterTable">
+	<thead>
+    	<tr>
+        	<th colspan="2" align="left">
+        		<a href="javascript:void(0);" type='allorder' maxlen="3"><font>&nbsp;7月积分排行</font></a>
+        		<a href="javascript:void(0);" type='a3'><font>&nbsp;全省总动员</font></a>
+        		<a href="javascript:void(0);" type='a10' maxlen="3"><font>&nbsp;玩转更新</font></a>
+        		<a href="javascript:void(0);" type='a5' maxlen="3"><font>&nbsp;玩转复制</font></a>
+        		<a href="javascript:void(0);" type='a4' maxlen="1"><font>&nbsp;全勤奖</font></a>
+        		<a href="javascript:void(0);" type='a6' page="20" maxlen="3"><font>&nbsp;0分助跑</font></a>
+        		<a href="javascript:void(0);" type='all' maxlen='10'><font>&nbsp;积分总排行</font></a>
+        	</th>
+    	</tr>
+    </thead>
+    <tfoot>
+    	<tr>
+        	<td colspan="2">&nbsp;<span id='Pagination' class="pagination"></span></td>
+    	</tr>
+    </tfoot>
+    <tbody id="table_tr">
+   
+    </tbody>
+</table>

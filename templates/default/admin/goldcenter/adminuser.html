@@ -1,0 +1,83 @@
+<style>
+.controlbar{background:url("/resources/stats/images/ctrl_bg.png") repeat-x scroll 0 0 transparent;border-left:1px solid #D6D6D6;border-right:1px solid #D6D6D6;border-top:1px solid #D6D6D6;height:29px;}
+.controlbar ul{padding-left:0px;}
+#overflowDiv_fex table{table-layout:fixed;}
+#overflowDiv_fex td{text-align:center;overflow:hidden;white-space:nowrap;background-color:#F3F3F3;}
+#load_div_cnt{_min-height:100px;min-height:100px;}
+.box{border:1px solid #C1CBDF;}
+.box table tr{height:40px;}
+.box table tr td a{padding:10px;}
+</style>
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="#">管理金币兑换管理员</a></label>
+		<label style="float:right;margin-right:10px;"><a id="exportFile" href="javascript:void(0);" class="export" title="导出数据">导出数据</a></label>
+	</div>
+</div>
+<div class="bm">
+ 	<div class="bm_t">
+		<h3>添加管理员：
+			<div>
+				<form id="add_admingolduser" action="adminuser_proc.php" method="post">
+					ID：<input type="text" name="real_id">
+					管理员：<input type="text" name="real_name">
+					<input type="hidden" name="proc_type" value="add">
+					<input type="submit" name="submit" value="提交">
+				</form>
+			</div>
+		</h3>
+	</div>
+	<div class="bm_t">
+		<h3>
+		金币兑换审核列表
+		<span id='tableHeadDate' class='start_and_end_date'></span>
+		</h3>
+	</div>
+	<div class="controlbar cl"  id="tab_use_info">
+		<ul class="datebar cl">
+			<li class='a'><a href="javascript:void(0);">管理员列表</a></li>
+		</ul>
+	</div>
+    <div id='load_div_cnt'>
+		<div id='overflowDiv_fex' style='width:100%;float:left;'>
+			<div class="box">
+			<table>
+				<colgroup><col width="5%"><col width="5%"><col width="5%"></colgroup>
+				<tr>
+					<th>ID</th>
+					<th>名称</th>
+					<th>操作</th>
+				</tr>
+			<!--{foreach key=key item=item from=$assign.adminuser_list}-->
+				<tr>
+					<td><!--{$key}--></td>
+					<td><!--{$item}--></td>
+					<td><a class="del_admingolduser" href="javascript:void();" rel="<!--{$key}-->">删除</a></td>
+				</tr>
+			<!--{/foreach}-->
+			</table>
+			</div>
+		</div>
+    </div>
+</div>
+<script language="javascript">
+$(function(){
+	$('#add_admingolduser').submit(function(){
+		var  real_id = $.trim($(this).find("input@[name='real_id']").val());
+		var  real_name = $.trim($(this).find("input@[name='real_name']").val());
+		if(real_id && real_name){
+		}else{
+			alert("请填写完整！");
+			return false;
+		}
+	});
+	$('.del_admingolduser').click(function(){
+		var id = $(this).attr('rel');
+		$.post('/admin/goldcenter/adminuser_proc.php',{real_id:id,proc_type:'del'},function(data){
+			document.location.href='/admin/goldcenter/adminuser.html';
+		});
+	});
+})
+</script>

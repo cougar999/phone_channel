@@ -1,0 +1,418 @@
+<templates>
+    <template name="line">
+        <chart plot_type="Spline">
+            <styles>
+                <tooltip_style name="Vista">
+                    <background enabled="true">
+                        <fill type="Gradient" opacity="1">
+                            <gradient angle="90">
+                                <key position="0" color="#FFFFFF" opacity="1" />
+                                <key position="0.5" color="#F3F4F8" opacity="1" />
+                                <key position="1" color="#E4E5F0" opacity="1" />
+                            </gradient>
+                        </fill>
+                        <border type="Solid" color="#767676" thickness="2" opacity="0.8" />
+                        <corners type="Rounded" all="5" />
+                        <inside_margin all="16" top="8" bottom="8" />
+                    </background>
+                    <font color="#333333" bold="false" italic="false" size="12" />
+                </tooltip_style>
+                <marker_style name="weekendMarker" color="#CC0000">
+                    <marker size="6" />
+                    <states><hover><marker size="9" /></hover></states>
+                </marker_style>
+            </styles>
+            <palettes>
+                <palette name="linePalette" type="DistinctColors">
+                    <item color="#058DC7" />
+                    <item color="#FF9900" />
+                    <item color="#50B432" />
+                    <item color="#8FBC8B" />
+                    <item color="#EDEF00" />
+                    <item color="#24CBE5" />
+                    <item color="#FF9655" />
+                    <item color="#64E572" />
+                    <item color="#6AF9C4" />
+                    <item color="#FFF263" />
+                </palette>
+            </palettes>
+            <chart_settings>
+                <chart_background>
+                    <border enabled="false" />
+                    <fill enabled="false" />
+                    <effects enabled="false" />
+                    <inside_margin all="0" />
+                </chart_background>
+                <data_plot_background>
+                    <border enabled="false" />
+                    <fill enabled="false" />
+                    <effects enabled="false" />
+                </data_plot_background>
+                <axes>
+                    <y_axis>
+                        <title enabled="false" />
+                        <labels align="inside">
+                            <format><![CDATA[{%Value}{numDecimals:0}]]></format>
+                        </labels>
+                    </y_axis>
+                    <x_axis enabled="true" tickmarks_placement="Center">
+                        <title enabled="false" />
+                    </x_axis>
+                </axes>
+                <legend enabled="true" padding="0" position="Top">
+                    <font size="12" />
+                    <title enabled="false" />
+                    <icon><marker enabled="true" /></icon>
+                </legend>
+            </chart_settings>
+            <data_plot_settings>
+                <line_series>
+                    <tooltip_settings enabled="true" style="Vista">
+                        <font family="Verdana" size="12" />
+                        <position halign="RIGHT" valign="TOP" padding="15" />
+                    </tooltip_settings>
+                </line_series>
+            </data_plot_settings>
+        </chart>
+    </template>
+
+	<template name="bar">
+        <chart plot_type="CategorizedVertical">
+            <styles>
+                <tooltip_style name="Vista">
+                    <background enabled="true">
+                        <fill type="Gradient" opacity="1">
+                            <gradient angle="90">
+                                <key position="0" color="#FFFFFF" opacity="1" />
+                                <key position="0.5" color="#F3F4F8" opacity="1" />
+                                <key position="1" color="#E4E5F0" opacity="1" />
+                            </gradient>
+                        </fill>
+                        <border type="Solid" color="#767676" thickness="2" opacity="0.8" />
+                        <corners type="Rounded" all="5" />
+                        <inside_margin all="16" top="8" bottom="8" />
+                    </background>
+                    <font color="#333333" bold="false" italic="false" size="12" />
+                </tooltip_style>
+            </styles>
+            <chart_settings>
+                <chart_background>
+                    <border enabled="false" />
+                    <fill enabled="false" />
+                    <effects enabled="false" />
+                </chart_background>
+                <data_plot_background>
+                    <border enabled="false" />
+                    <fill enabled="false" />
+                    <effects enabled="false" />
+                </data_plot_background>
+                <axes>
+                    <y_axis>
+                        <title enabled="false" />
+                        <labels>
+                            <format>{%Value}{numDecimals:0}</format>
+                        </labels>
+                    </y_axis>
+                    <x_axis tickmarks_placement="Center">
+                        <title enabled="false" />
+                        <scale major_interval="1" />
+                    </x_axis>
+                </axes>
+                <legend enabled="true" padding="0" position="Top">
+                    <font size="12" />
+                    <title enabled="false" />
+                    <icon><marker enabled="true" /></icon>
+                </legend>
+            </chart_settings>
+            <data_plot_settings>
+                <bar_series>
+                    <tooltip_settings enabled="true" style="Vista">
+                        <font family="Arial" size="12" />
+                        <format><![CDATA[{%Name}
+{%yName}:{%YValue}{numDecimals:0}]]></format>
+                    </tooltip_settings>
+                </bar_series>
+            </data_plot_settings>
+        </chart>
+	</template>
+
+	<template name="pie">
+		<chart plot_type="Pie">
+            <styles>
+                <tooltip_style name="Vista">
+                    <background enabled="true">
+                        <fill type="Gradient" opacity="1">
+                            <gradient angle="90">
+                                <key position="0" color="#FFFFFF" opacity="1" />
+                                <key position="0.5" color="#F3F4F8" opacity="1" />
+                                <key position="1" color="#E4E5F0" opacity="1" />
+                            </gradient>
+                        </fill>
+                        <border type="Solid" color="#767676" thickness="2" opacity="0.8" />
+                        <corners type="Rounded" all="5" />
+                        <inside_margin all="16" top="8" bottom="8" />
+                    </background>
+                    <font color="#333333" bold="false" italic="false" size="12" />
+                </tooltip_style>
+            </styles>
+            <palettes>
+                <palette name="piePalette" type="DistinctColors">
+                    <item color="#058DC7" />
+                    <item color="#FF9900" />
+                    <item color="#50B432" />
+                    <item color="#8FBC8B" />
+                    <item color="#EDEF00" />
+                    <item color="#24CBE5" />
+                    <item color="#FF9655" />
+                    <item color="#64E572" />
+                    <item color="#6AF9C4" />
+                    <item color="#FFF263" />
+                </palette>
+            </palettes>
+			<chart_settings>
+				<chart_background enabled="false" />
+				<legend enabled="true" ignore_auto_item="True" position="Right" align="Spread" rows="1" padding="0">
+					<title enabled="false" />
+					<font size="12" />
+					<format>{%Icon} {%Name} - {%Value}</format>
+					<columns_separator enabled="false" />
+					<items>
+						<item source="Points" />
+					</items>
+				</legend>
+			</chart_settings>
+            <data_plot_settings>
+                <pie_series sort="Desc" start_angle="180">
+                    <tooltip_settings enabled="true" style="Vista">
+                        <font family="Arial" size="12" />
+                        <format>{%Name} {%YPercentOfSeries}{numDecimals:1}%</format>
+                    </tooltip_settings>
+                    <label_settings>
+                        <font bold="flase" size="12" color="#333333" />
+                        <format>{%Name} {%YPercentOfSeries}{numDecimals:1}%</format>
+                    </label_settings>
+                </pie_series>
+            </data_plot_settings>
+		</chart>
+	</template>
+
+	<template name="chinaMap">
+	   <chart plot_type="Map">
+            <styles>
+                <tooltip_style name="Vista">
+                    <background enabled="true">
+                        <fill type="Gradient" opacity="1">
+                            <gradient angle="90">
+                                <key position="0" color="#FFFFFF" opacity="1" />
+                                <key position="0.5" color="#F3F4F8" opacity="1" />
+                                <key position="1" color="#E4E5F0" opacity="1" />
+                            </gradient>
+                        </fill>
+                        <border type="Solid" color="#767676" thickness="2" opacity="0.8" />
+                        <corners type="Rounded" all="5" />
+                        <inside_margin all="16" top="8" bottom="8" />
+                    </background>
+                    <font color="#333333" bold="false" italic="false" size="12" />
+                </tooltip_style>
+            </styles>
+            <thresholds>
+                <threshold name="runTime" type="Custom">
+                	<condition name="=0" type="EqualTo" value_1="{%YValue}" value_2="0" color="#c3c3c3"></condition>
+                    <condition name="1-1000" type="between" value_1="{%YValue}" value_2="1" value_3="1000" color="#00ff00" />
+                    <condition name="1000-2000" type="between" value_1="{%YValue}" value_2="1000" value_3="2000" color="#99ff00" />
+                    <condition name="2000-3000" type="between" value_1="{%YValue}" value_2="2000" value_3="3000" color="#ffff00" />
+                    <condition name="3000-5000" type="between" value_1="{%YValue}" value_2="3000" value_3="5000" color="#ff9900" />
+                    <condition name="&gt;5000" type="greaterThanOrEqualTo" value_1="{%YValue}" value_2="5000" color="#ff0000" />
+                </threshold>
+            </thresholds>
+            <chart_settings>
+                <title inside_dataplot="false">
+                    <text />
+                    <background enabled="false"/>
+                </title>
+                <subtitle align="Center" enabled="false">
+                    <text />
+                    <font size="10" bold="false"/>
+                    <background enabled="false"/>
+                </subtitle>
+                <legend enabled="true" position="Top" inside_dataplot="true" horizontal_padding="0" vertical_padding="0" rows_padding="0" ignore_auto_item="true">
+                    <title><font size="12" /></title>
+                    <background>
+                        <border enabled="false"/>
+                        <fill opacity="0"/>
+                    </background>
+                    <items>
+                        <item source="Thresholds" threshold="runTime"/>
+                    </items>
+                </legend>
+                <chart_background>
+                    <border type="Solid" color="#ffffff" thickness="1" />
+                    <corners type="Square" />
+                    <effects enabled="false" />
+                    <inside_margin all="0" />
+                    <outside_margin all="0" />
+                </chart_background>
+                <data_plot_background>
+                    <border type="Solid" color="#ffffff" thickness="1" />
+                    <corners type="Square" />
+                    <effects enabled="false" />
+                    <inside_margin all="0" />
+                    <outside_margin all="0" />
+                </data_plot_background>
+                <controls>
+                    <zoom_panel enabled="false" position="right" align="near" inside_dataplot="true">
+                        <background>
+                            <border enabled="false" />
+                            <fill opacity="0" />
+                        </background>
+                    </zoom_panel>
+                    <navigation_panel enabled="false" position="right" align="near" inside_dataplot="true">
+                        <background>
+                            <border enabled="false" />
+                            <fill opacity="0" />
+                        </background>
+                    </navigation_panel>
+                </controls>
+            </chart_settings>
+            <data_plot_settings>
+                <interactivity allow_select="false" />
+                <map_series source="china.amap" id_column="NAME">
+                    <defined_map_region>
+                        <map_region_style>
+                            <states>
+                                <hover><hatch_fill enabled="true"/></hover>
+                            </states>
+                        </map_region_style>
+                        <tooltip_settings enabled="true" style="Vista">
+                            <format><![CDATA[{%NAME}
+{%yName}:{%Value}{numDecimals:0}]]></format>
+                            <font size="12" />
+                        </tooltip_settings>
+                        <label_settings enabled="false">
+                            <format>{%Value}</format>
+                            <background>
+                                <border type="Solid" color="%Color"/>
+                                <fill opacity="0.5" />
+                            </background>
+                        </label_settings>
+                    </defined_map_region>
+                    <grid>
+                        <parallels enabled="false"/>
+                        <meridians enabled="false"/>
+                        <background enabled="false"/>
+                    </grid>
+                </map_series>
+            </data_plot_settings>
+        </chart>
+	</template>
+	
+	<template name="chinaMapSpeed">
+	   <chart plot_type="Map">
+            <styles>
+                <tooltip_style name="Vista">
+                    <background enabled="true">
+                        <fill type="Gradient" opacity="1">
+                            <gradient angle="90">
+                                <key position="0" color="#FFFFFF" opacity="1" />
+                                <key position="0.5" color="#F3F4F8" opacity="1" />
+                                <key position="1" color="#E4E5F0" opacity="1" />
+                            </gradient>
+                        </fill>
+                        <border type="Solid" color="#767676" thickness="2" opacity="0.8" />
+                        <corners type="Rounded" all="5" />
+                        <inside_margin all="16" top="8" bottom="8" />
+                    </background>
+                    <font color="#333333" bold="false" italic="false" size="12" />
+                </tooltip_style>
+            </styles>
+            <thresholds>
+                <threshold name="runTime" type="Custom">
+                	<condition name="=0s" type="EqualTo" value_1="{%YValue}" value_2="0" color="#c3c3c3" />
+                    <condition name="0-1s" type="between" value_1="{%YValue}" value_2="0" value_3="1" color="#00ff00" />
+                    <condition name="1-2s" type="between" value_1="{%YValue}" value_2="1" value_3="2" color="#99ff00" />
+                    <condition name="2-3s" type="between" value_1="{%YValue}" value_2="2" value_3="3" color="#ffff00" />
+                    <condition name="3-4s" type="between" value_1="{%YValue}" value_2="3" value_3="4" color="#ff9900" />
+                    <condition name="&gt;4s" type="greaterThanOrEqualTo" value_1="{%YValue}" value_2="4" color="#ff0000" />
+                </threshold>
+            </thresholds>
+            <chart_settings>
+                <title inside_dataplot="false">
+                    <text />
+                    <background enabled="false"/>
+                </title>
+                <subtitle align="Center" enabled="false">
+                    <text />
+                    <font size="10" bold="false"/>
+                    <background enabled="false"/>
+                </subtitle>
+                <legend enabled="true" position="Top" inside_dataplot="true" horizontal_padding="0" vertical_padding="0" rows_padding="0" ignore_auto_item="true">
+                    <title><font size="12" /></title>
+                    <background>
+                        <border enabled="false"/>
+                        <fill opacity="0"/>
+                    </background>
+                    <items>
+                        <item source="Thresholds" threshold="runTime"/>
+                    </items>
+                </legend>
+                <chart_background>
+                    <border type="Solid" color="#ffffff" thickness="1" />
+                    <corners type="Square" />
+                    <effects enabled="false" />
+                    <inside_margin all="0" />
+                    <outside_margin all="0" />
+                </chart_background>
+                <data_plot_background>
+                    <border type="Solid" color="#ffffff" thickness="1" />
+                    <corners type="Square" />
+                    <effects enabled="false" />
+                    <inside_margin all="0" />
+                    <outside_margin all="0" />
+                </data_plot_background>
+                <controls>
+                    <zoom_panel enabled="false" position="right" align="near" inside_dataplot="true">
+                        <background>
+                            <border enabled="false" />
+                            <fill opacity="0" />
+                        </background>
+                    </zoom_panel>
+                    <navigation_panel enabled="false" position="right" align="near" inside_dataplot="true">
+                        <background>
+                            <border enabled="false" />
+                            <fill opacity="0" />
+                        </background>
+                    </navigation_panel>
+                </controls>
+            </chart_settings>
+            <data_plot_settings>
+                <interactivity allow_select="false" />
+                <map_series source="china.amap" id_column="NAME">
+                    <defined_map_region>
+                        <map_region_style>
+                            <states>
+                                <hover><hatch_fill enabled="true"/></hover>
+                            </states>
+                        </map_region_style>
+                        <tooltip_settings enabled="true" style="Vista">
+                            <format><![CDATA[{%NAME}
+{%yName}:{%Value}{numDecimals:2}]]></format>
+                            <font size="12" />
+                        </tooltip_settings>
+                        <label_settings enabled="false">
+                            <format>{%Value}</format>
+                            <background>
+                                <border type="Solid" color="%Color"/>
+                                <fill opacity="0.5" />
+                            </background>
+                        </label_settings>
+                    </defined_map_region>
+                    <grid>
+                        <parallels enabled="false"/>
+                        <meridians enabled="false"/>
+                        <background enabled="false"/>
+                    </grid>
+                </map_series>
+            </data_plot_settings>
+        </chart>
+	</template>
+</templates>

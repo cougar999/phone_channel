@@ -1,0 +1,56 @@
+<!--{include file="admin/path.html"}-->
+<!--{if $smarty.post.notice_submit}-->
+	<!--{notice tag=adminadd ret=b_res}-->
+	<!--{if $b_res}-->
+		<script language="javascript">window.location.replace("/admin/note/index.html");</script>
+	<!--{else}-->
+		<div style="text-align:center">数据不能为空！</div>
+		<script language="javascript">window.history.go(-1);</script>
+	<!--{/if}-->
+<!--{else}-->
+<div class="datalist">
+<div class="datalist_top"></div>
+	<b>发送公告通知：</b>
+	<div style="margin:0 0 0 20px">
+		<form action="" method="post" onsubmit="return msgtxt()">
+				<textarea name="content" id="msgTxt" style="height:80px;width:620px"></textarea>
+				<input type="submit" value="发消息" name="notice_submit" class="u30" id="u30">
+		</form>
+	</div>
+</div>
+
+<div class="datalist">
+<div class="datalist_top"></div>
+<!--{notice tag=list count=10 pageno=$smarty.get.pageno|default:1 ret=a_notice_list}-->
+	<b>公告通知列表：</b>
+	<!--{foreach key=key item=item from=$a_notice_list.info}-->
+	<ul id="notice_<!--{$item.cnid}-->">
+		<p style="margin-left:10px">
+			<!--{$item.content}--><strong style="float:right; margin:5px"><a title="删除通知" href="javascript:delNotic(<!--{$item.cnid}-->)"><img src="/resources/images/del_button.png"></a></strong>
+		</p>
+	</ul>
+	<!--{/foreach}-->
+	<div class="page"><!--{$a_notice_list.pagehtml}--></div>
+</div>
+<!--{/if}-->
+<script type="text/javascript">
+function delNotic(cnid){
+	if(confirm('确定要删除该通知吗？') ){
+		$.post('/api/api_notice.php', {cnid:cnid,tag:'del'}, function(data){
+			if(data.result){
+		 		$("#notice_"+cnid).hide();
+			}else{
+				alert('执行失败请重试！');
+			}
+		}, "json");
+	}
+}
+
+function msgtxt(){
+	var text=$("#msgTxt").val();
+	if($.trim(text).length<1){
+		alert("消息内容不能为空！");
+		return false;
+	};
+}
+</script>

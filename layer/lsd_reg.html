@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--STATUS OK-->
+<html>
+<head>
+<meta http-equiv=content-type content="text/html; charset=utf-8">
+<title></title>
+<script language="javascript" src="/resources/js/jquery.min.js"></script>
+<script language="javascript" src="/resources/js/jquery.form.js"></script>
+<script type="text/javascript" src="http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=js"></script>
+<script type="text/javascript" src="/resources/js/jquery.provincesCity.js"></script>
+<script type="text/javascript" src="/resources/js/provincesdata.js" charset="utf-8"></script>
+<script type="text/javascript" src="/resources/js/tangram_suggestion.js" charset="utf-8"></script>
+<link style="text/css" rel="stylesheet" href="/resources/css/suggestion.css">
+
+
+<META http-equiv='Pragma' content='no-cache'>
+<style type="text/css">
+*{margin:0;padding:0;}
+p,div,form,ul,dl,ol,li,dt,dd,h1,h2,h3,span{margin:0;padding:0;list-style:none;}
+body{margin:0 auto;font-size:12px;background-color:#f9f9f9;color:#000000;font-family:"宋体";}
+a{outline: medium none;text-decoration: none;color:#1686CB;}
+a:hover{ text-decoration:underline; color:#ee3333;}
+img{ border:0;}
+br {line-height:0;}
+sup{vertical-align:text-top}
+sub{vertical-align:text-bottom}
+.clear{ clear:both;zoom:1}
+.no{display:none;}
+.clearfix:after{content:".";display:inline-block;height:0;clear:both;visibility:hidden;}
+*+html .clearfix{display:inline-block;}
+* html .clearfix{height:1%;}
+.p_fl{float:left;}
+.p_fr{float:right;}
+.p_fl,.p_fr{display:inline}
+.t_transparent{filter:alpha(opacity=50);-moz-opacity:0.5;opacity: 0.5;background:url("source.png") no-repeat scroll center top transparent;}
+.t_bg{background-color:red}
+
+body{background-color:#f8f9fa;}
+.lreg_cnt{width:100%;margin:10px;}
+.tp_tip{width:100%;height:4px;text-align:center;color:red;display:inline-block;}
+.tpa{color:#229de6;width:100%;text-align:left;font-size:14px;}
+.tpb{margin-top:15px;}
+.tpb li{float:left;width:48%;}
+.tp_sm{color:red;margin-left:14px;line-height:22px;width:180px;}
+.frm_div{margin-bottom:10px;}
+#email{width:98%;}
+#frm_lsd p{line-height:22px;margin-bottom:5px;}
+#otinfo{width:70% !important;}
+.tip_stu,.tip_time{margin-right:5px;margin-top:5px;color:red;}
+#town{display:none;}
+</style>
+
+<script language='javascript'>
+function getPArr(){
+	var arr = {};
+	var strHref = document.location.toString();
+	var intPos = strHref.indexOf("?");
+	var strRight = strHref.substr(intPos + 1);//获取到右边的参数部分
+	if(strHref.indexOf("&")<0)//只有一个参数时，添加&符方便分割成数组
+	{
+	     strRight+="&";
+	}
+	var arrTmp = strRight.split("&");//以&分割成数组
+	for(var i = 0; i < arrTmp.length; i++ ) //循环数组
+	{
+	  var dIntPos = arrTmp[i].indexOf("=");
+	  var paraName= arrTmp[i].substr(0,dIntPos);
+	  var paraData= arrTmp[i].substr(dIntPos+1);
+	  arr[paraName] = paraData;
+	}
+	return arr;
+}
+function getRealDomain(domains) {
+	domains = domains || window.location.host;
+    var redomain = '';
+    var domainArray = new Array("com", "net", "org", "gov", "edu");
+    var domains_array = domains.split('.');
+    var domain_count = domains_array.length - 1;
+    var flag = false;
+    if (domains_array[domain_count] == 'cn') {
+        for (i = 0; i < domainArray.length; i++) {
+            if (domains_array[domain_count - 1] == domainArray[i]) {
+                flag = true;
+                break;
+            }
+        }
+        if (flag == true) {
+            redomain = domains_array[domain_count - 2] + "." + domains_array[domain_count - 1] + "." + domains_array[domain_count];
+        } else {
+            redomain = domains_array[domain_count - 1] + "." + domains_array[domain_count];
+        }
+    } else {
+        redomain = domains_array[domain_count - 1] + "." + domains_array[domain_count];
+    }
+    return redomain;
+}
+function URLParamRequest(strName){
+    var strHref = document.location.toString();
+    var intPos = strHref.indexOf("?");
+    var strRight = strHref.substr(intPos + 1);//获取到右边的参数部分
+    if(strHref.indexOf("&")<0)//只有一个参数时，添加&符方便分割成数组
+    {
+         strRight+="&";
+    }
+    var arrTmp = strRight.split("&");//以&分割成数组
+   
+    for(var i = 0; i < arrTmp.length; i++ ) //循环数组
+    {
+      var dIntPos = arrTmp[i].indexOf("=");
+      var paraName= arrTmp[i].substr(0,dIntPos);
+      var paraData= arrTmp[i].substr(dIntPos+1);
+    
+      if(paraName.toUpperCase() == strName.toUpperCase())
+      {
+         return decodeURIComponent(paraData);
+      }
+    }
+    return "";
+}
+function setWaitTime(time){
+	var count = time || 30;
+	$('#lsd_pb_btn').prop("disabled",true);
+	countdown = setInterval(function(){
+		$(".tip_time").html(count + "秒后发送");
+		if (count == 0) {
+			window.clearInterval(countdown);
+			$(".tip_time").html("");
+			$('#lsd_pb_btn').prop("disabled",false);
+		}
+		count--;
+	}, 1000);
+}
+ERR_INFO   =   {
+	"email":{
+		"001":"邮箱为必填！",
+		"002":"邮件格式有误！",
+		"003":"手机号格式有误！",
+		"004":"申请失败请重试！",
+		"007":"QQ号格式非法！",
+		"010":"邮件地址请小于76字符！",
+		"006":"申请成功！"
+	}
+}
+$(function(){
+	//document.domain = getRealDomain();
+	
+	$('#tp_tip').html(URLParamRequest('tip') || '');
+	var _data = getPArr();
+	
+	$('#frm_lsd').ajaxForm({
+		url:'/api/api_send.php',//对应表单的get参数
+		type:'post',
+		data:{type:'email'},
+		dataType:'json',
+		beforeSubmit:function(){
+			$('#email').val($('#email').val().replace(/^\s+|\s+$/g,""));
+			$('#otinfo').val($('#otinfo').val().replace(/^\s+|\s+$/g,""));
+			if(!$('#email').val()){
+				$('.tip_stu').html('请填写邮箱地址！');
+				return false;
+			}
+			$('.tip_stu').html('正在提交......');
+			$('#lsd_pb_btn').prop('disabled',true);
+		},
+	    success: function(data) {
+	    	$('#lsd_pb_btn').prop('disabled',false);
+	    	$(".tip_stu").html(ERR_INFO.email[data.code]);
+	    	if(data.code == '006'){
+	    		parent.ox.alert('恭喜您！申请成功',function(){
+					
+				});
+	    	}
+	    },
+	    error:function(){
+	    	//parent.ox.close();return;
+	    	$('.tip_stu').html('服务器忙请稍后再试！');
+	    	$('#lsd_pb_btn').prop('disabled',false);
+	    }
+	});
+	$("#city_select_show").ProvinceCity(remote_ip_info.province,remote_ip_info.cify);
+})
+</script>
+</head>
+<body>
+	<div class="lreg_cnt">
+		<div class="tp_tip"></div>
+		<div class="tpa">请填写以下信息以便为您开通专属测试账号：</div>
+		<ul class="tpb">
+			<li>
+				<form id='frm_lsd'>
+					<div class="frm_div">
+						<p>请填写您所在的地区：</p>
+						<span id='city_select_show'></span>
+					</div>
+					<div class="frm_div">
+						<p><span style="color:red">*</span>请填写您的邮箱地址以便发送测试账号：</p>
+						<input type='text' name='email' id='email' autocomplete='off'/>
+					</div>
+					<div class="frm_div">
+						<p>请选择填写您的其他联系方式：</p>
+						<select name="ottype" id="ottype">
+							<option value="phone">手机</option>
+							<option value="qq">QQ</option>
+						</select>
+						<input type='text' name='otinfo' id='otinfo' />
+					</div>
+					<div class="p_fr">
+						<div class="tip_stu p_fl"></div>
+						<div class="tip_time p_fl"></div>
+						<div class="p_fr">
+							<input type='submit' name='' value='提交申请' id='lsd_pb_btn'/>
+						</div>
+					</div>
+				</form>
+			</li>
+			<li><p class="tp_sm">
+*说明：<BR>
+如果您没有时间填写左侧申请，我们提供了通用测试帐号供您使用：<BR>
+帐号：appdear<BR>
+密码：123456</p></li>
+		</ul>
+	</div>	
+<script type='text/javascript'>
+var domainList = new Array(
+	"163.com","126.com","yahoo.cn","sina.com","qq.com"//,"yahoo.com.cn","sina.com.cn","gmail.com","hotmail.com","sohu.com"
+)
+var regEmailElement = baidu.G("email");
+function filterEmail(input){
+    var emailList = new Array();
+
+    var atIndex = input.indexOf("@");
+    if(atIndex < 0){
+        input = input + "@";
+        for(key in domainList){
+            emailList.push(input+domainList[key]);
+        }
+    }
+    else if(atIndex + 1 == input.length){
+        for(key in domainList){
+            emailList.push(input+domainList[key]);
+        }
+    }
+    else{
+        var domainBegin = input.substring(atIndex + 1);
+        name = input.substring(0,atIndex+1);
+        for(key in domainList){
+            if(domainList[key].indexOf(domainBegin) == 0 && name+domainList[key] != input){
+                emailList.push(name+domainList[key]);
+            }
+        }
+    }
+    return emailList;
+}
+var suggestOptions =
+{
+    "onconfirm":function(){
+        regEmailElement.value = regEmailElement.value.replace(/\s+/g, "");
+    },
+    "getData" : function (wd){
+        var assign = function(){
+            regEmailSuggester.giveData("", filterEmail(wd));
+        }
+        setTimeout(assign, 50);
+    },
+    "append_html" : "",
+    "prepend_html" : ""
+};
+var regEmailSuggester = baidu.ui.suggestion.create( regEmailElement, suggestOptions );
+</script>
+</body>
+</html>

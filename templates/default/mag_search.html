@@ -1,0 +1,256 @@
+<script type="text/javascript" src="http://res3.www.appdear.com/resources/js/tangram_suggestion.js" charset="utf-8"></script>
+<link style="text/css" rel="stylesheet" href="http://res3.www.appdear.com/resources/css/suggestion.css">
+<link href="/resources/stats/styles/cur_common.css" rel="stylesheet" type="text/css" />
+<link href="/resources/css/pagination.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="/resources/js/jquery.pagination.js"></script>
+<script src="/resources/lib<!--{#version#}-->/jquery.json-2.3.min.js" type="text/javascript"></script>
+<style type="text/css">
+.export{background:url("/resources/stats/images/icon_excel.png") no-repeat scroll 0 50% transparent;color:#336699;float:right;height:16px;line-height:16px;margin:7px 10px 0 0;padding-left:20px;}
+.tmp_cotair{margin-top:10px;}
+.tpl{float:left;}
+.tpl ul{border:1px solid #cbcbcb;float:left;line-height:22px;margin-right:20px;padding:5px;width:200px;}
+.tpl ul li span,.tpl ul li a{cursor:pointer;}
+#tip_menu a{color:red;margin-left:5px;}
+.ser_tip{color:red;}
+#sorterTable{margin:10px 0 0 0px;}
+#table_tr tr td .levelid{width:70%;}
+</style>
+<script type='text/javascript'>
+var CF_SESS  	  = eval('[<!--{php}-->echo json_encode($_SESSION)<!--{/php}-->]');
+CF_SESS      	  = CF_SESS[0];
+URL_GETMEMBERINFO = '/api/api_member.php';
+$(function(){
+	CF_RF  			      = URLOBJ.params.rf || 'user';
+	
+	var regEmailElement   = baidu.G(UB_URL_IPT);
+	var regEmailSuggester = baidu.ui.suggestion.create( regEmailElement, {
+	    "onconfirm":function(){
+	        regEmailElement.value = regEmailElement.value.replace(/\s+/g, "");
+	        $('#'+UB_URL_BTN).trigger('click');
+	    },
+	    "getData" : function (wd){
+	    	if ($('#' + UB_URL_IPT).val() == DEFAULT_SEARCH_TXT || $('#' + UB_URL_IPT).val() == '') {
+                return false;
+            }
+			$.getJSON(URL_GETMEMBERINFO,{'kw':wd,'act':'sug'},function(data){
+	    		var assign = function(){
+		            regEmailSuggester.giveData("", data);
+		        }
+		        setTimeout(assign, 50);
+	    	})
+	    },
+	    "append_html" : "",
+	    "prepend_html" : ""
+	});
+})
+function loadingHtml(id, height, width, tip, src) {
+    var height = height || $('#' + id).height();
+    var width = width || $('#' + id).width();
+    var tip = tip || '数据加载中';
+    var src = src || '/resources/images/loader.gif';
+    $('#' + id).html('<div style="width:' + (width == 0 ? '100%': width + 'px') + ';height:' + (height == 0 ? '100%': height + 'px') + ';background:url(' + src + ') center no-repeat;display:inline-block;" alt="' + tip + '" title="' + tip + '"></div>');
+}
+function pageselectCallback(page_index,jq){
+	loadingHtml('table_tr',300);
+	$.getJSON(URL_GETMEMBERINFO,{act:'init',type:'new_info',q:$('#' + UB_URLENCODE_IPT).val(),page:page_index,'rf':CF_RF},function(data){
+		var html = '';
+		$('#table_tr').empty();
+		if(data.data == null){
+			$('#table_tr').append("<tr><td><p style='line-height:50px;'>暂无相关结果</p></td></tr>");
+			return ;
+		}
+		$.each(data.data,function(k,v){
+			html += '<tr>';
+			html += '<td width="740" colspan="2">\
+					<span class="pos_img0">'+(page_index*10+k+1)+'</span>\
+					'+(v.self_obj._type == 1 ? '<img src="/resources/images/nan-xiao_icon.png">':'')+'\
+					<span class="levelid" title="">\
+					'+(v.self_obj.status == 0 ? '<a style="color:red;">(停)</a>':'')+'\
+					';
+			var _display = v.find_dc+(v.find_dc==''?'':'>>')+v.self_obj.name;
+			var _href    = '';
+			/*公用配置*/
+			var _open    = (0==v.find_id?'':v.find_id+',')+v.self_obj.self_id;
+			var _level   = (!v.find_level?'':v.find_level+',')+v.self_obj.level;
+			var _tmp_init_id      = _open.split(',');
+			var _tmp_init_level   = _level.split(',');
+			var p_do_id = p_do_level = 0;
+			var _open_ = [];
+			$.each(_tmp_init_level,function(k,v){
+				if(2 < v || 1 > v) return false;
+				p_do_level = v;
+				p_do_id    = _tmp_init_id[k];
+				_open_.push(p_do_id);
+			});
+			0==p_do_level && (p_do_level=CF_SESS.level);
+			0==p_do_id && (p_do_id=CF_SESS.real_id);
+			/*公用配置*/
+			
+			if('user' == CF_RF){
+				_href = '/mag_user.html?q='+$('#' + UB_URLENCODE_IPT).val()+'&open='+v.find_id+'&doid='+v.self_obj.self_id+'&self='+v.self_id;
+			}else if('gold' == CF_RF){
+				_href = '/statistic_gold.html?do_level='+p_do_level+'&do_sp=0&do_id='+p_do_id+'&date='+(URLOBJ.params.date||'')+'&end_date='+(URLOBJ.params.end_date||'')+'&q='+$('#' + UB_URLENCODE_IPT).val()+'&open='+_open+'&opens='+_display+'&p_level='+_level;
+			}else if('login' == CF_RF){
+				var login_cf_tmp = {
+					"type":{
+						"1":"sketch",
+						"2":"detail"
+					},
+					"key":{
+						"1":"top_agent_id",
+						"2":"channel_id"
+					}
+				};
+				_href = '/statistic_login.html?\
+						type='+login_cf_tmp['type'][p_do_level]+'&'+login_cf_tmp['key'][p_do_level]+'='+p_do_id+'\
+						&date='+(URLOBJ.params.date||'')+'&end_date='+(URLOBJ.params.end_date||'')+'\
+						&q='+$('#' + UB_URLENCODE_IPT).val()+'\
+						&do_level='+p_do_level+'&open='+_open+'&opens='+_display+'&p_level='+_level;
+			}else if('use' == CF_RF){
+				var _cf_tmp_ = {
+					"1":{
+						"type":"use_sketch_channel",
+						"key":"top_agent_id"
+					},
+					"2":{
+						"type":"use_sketch_shop",
+						"key":"channel_id"
+					}
+				};
+				_href = '/statistic_use.html?index='+URLOBJ.params.index+'&\
+						type='+_cf_tmp_[p_do_level]['type']+'&'+_cf_tmp_[p_do_level]['key']+'='+p_do_id+'\
+						&date='+(URLOBJ.params.date||'')+'&end_date='+(URLOBJ.params.end_date||'')+'\
+						&q='+$('#' + UB_URLENCODE_IPT).val()+'\
+						&do_level='+p_do_level+'&open='+_open+'&opens='+_display+'&p_level='+_level;
+			}
+			html += '<a href="'+_href+'">'+_display+'</a></span></td></tr>';
+		})
+		$('#table_tr').append(html);
+	})
+	return false;
+}
+</script>
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="/mag_user.html">账号管理</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web">账号搜索</label>
+	</div>
+</div>
+<div class='tmp_cotair'>
+	<div class="bm_t">
+	    <h3>
+	        <div class="controlsearch vm">
+	            <input type="text" id="searchUrl" name="searchUrl" value="" class="px xg1"
+	            size="40" />
+	            <input type="hidden" id="searchUrlEncode" name="searchUrlEncode" value=""
+	            />
+	            <!-- 
+	            <select name="searchUrlIsLike" id="searchUrlIsLike">
+	                <option label="精确" value="0">
+	                    精确
+	                </option>
+	                <option label="模糊" value="1">
+	                    模糊
+	                </option>
+	            </select>
+	             -->
+	            &nbsp;
+	            <button id="searchUrlBtn" class="pnc pn">
+	                <span>
+	                    查询
+	                </span>
+	            </button>
+	            <button class="pn" id="searchUrlBackBtn" style='display:none;'>
+	                <span>
+	                    返回
+	                </span>
+	            </button>
+	        </div>
+	        <script type="text/javascript">
+	            // searchUrlBtn 表单名称
+	            var UB_URL_IPT = 'searchUrl';
+	            var UB_URLENCODE_IPT = 'searchUrlEncode';
+	            var UB_URL_BTN = 'searchUrlBtn';
+	
+	            var DEFAULT_SEARCH_TXT = '请输入要搜索的公司/店面/店员名称';
+	
+	            $(document).ready(function() {
+	                $('#' + UB_URL_IPT).val(URLOBJ.params.q || DEFAULT_SEARCH_TXT);
+	                !!URLOBJ.params.q && $('#' + UB_URL_BTN).trigger('click');
+	                $('#searchUrlBackBtn').click(function() {
+	                    $('#order').val('');
+	                    $('#' + UB_URLENCODE_IPT).val('');
+	                    $('#' + UB_URL_IPT).val(DEFAULT_SEARCH_TXT);
+	                    $('#' + UB_URL_IPT).addClass('xg1');
+	                    statsFormAjax(this.form);
+	                    return false;
+	                });
+	            });
+	
+	            // 当得到焦点时
+	            $('#' + UB_URL_IPT).bind('focus',
+	            function() {
+	                if ($(this).val() == DEFAULT_SEARCH_TXT) {
+	                    $(this).val('');
+	                    $(this).removeClass('xg1');
+	                }
+	                return false;
+	            });
+	            // 当失去焦点时
+	            $('#' + UB_URL_IPT).bind('blur',
+	            function() {
+	                if ($(this).val() == '') {
+	                    $(this).val(DEFAULT_SEARCH_TXT);
+	                    $(this).addClass('xg1');
+	                } else {
+	                    $('#' + UB_URLENCODE_IPT).val(encodeURIComponent($('#' + UB_URL_IPT).val()));
+	                }
+	                return true;
+	            });
+	            // 为 searchUrlBtn 添加  click 事件
+	            $('#' + UB_URL_BTN).bind('click',
+	            function() {
+	                if ($('#' + UB_URL_IPT).val() == DEFAULT_SEARCH_TXT || $('#' + UB_URL_IPT).val() == '') {
+	                    return false;
+	                }
+	                $('#' + UB_URLENCODE_IPT).val($('#' + UB_URL_IPT).val());
+	                $("#escape_div").text($('#' + UB_URLENCODE_IPT).val());
+					$('#ser_q').html($("#escape_div").html());
+					$('#ser_res').html('0');
+					loadingHtml('table_tr',300);
+					$.getJSON(URL_GETMEMBERINFO,{act:'init',q:$('#' + UB_URL_IPT).val(),type:'new_cut','rf':CF_RF},function(data){
+						$('#ser_res').html(data.cut);
+						$("#Pagination").pagination(data.cut, {
+							num_edge_entries:1,
+							prev_text:'上一页',
+							next_text:'下一页',
+							items_per_page:10,
+							num_display_entries:5,
+							callback: pageselectCallback
+						});
+					})
+	            });
+	        </script>
+	    </h3>
+	</div>
+</div>
+<h3>搜索“<span id='ser_q' class='ser_tip'></span>”，共找到<span id='ser_res' class='ser_tip'>0</span>条相关结果：</h3>
+<table cellspacing="1" class="datatable" id="sorterTable">
+	<thead>
+    	<tr>
+        	<th colspan="2" align="left">
+        	</th>
+    	</tr>
+    </thead>
+    <tfoot>
+    	<tr>
+        	<td colspan="2">&nbsp;<span id='Pagination' class="pagination"></span></td>
+    	</tr>
+    </tfoot>
+    <tbody id="table_tr">
+   
+    </tbody>
+</table>

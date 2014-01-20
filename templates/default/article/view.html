@@ -1,0 +1,30 @@
+<!--{article tag=view aid=$smarty.get.aid ret=a_article_view}-->
+<!--{assign var="_category" value=$a_article_view.category}-->
+<link href="/resources/stats/styles/cur_common.css" rel="stylesheet" type="text/css" />
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="/article/index.html?category=<!--{$a_article_view.category}-->"><!--{$assign.article_category[$a_article_view.category]}--></a></label>
+	</div>
+</div>
+<div class='clear'></div>
+<div class="datalist">
+	<div style="text-align:center"><h3><!--{$a_article_view.title}--></h3></div>
+	<div class="clear">
+		<div style="float:right">
+			<span>发布于：<!--{$a_article_view.create_date|date_format:"%Y-%m-%d %H:%M:%S"}--></span>
+			<span>&nbsp;|&nbsp;</span>
+			<span><!--{$a_article_view.read_num}-->次阅读</span>
+			<span>&nbsp;|&nbsp;</span>
+			<span><!--{$a_article_view.comment_num}-->次评论</span>
+			<span>&nbsp;|&nbsp;</span>
+			<span><span class="sharing_num"><!--{$a_article_view.sharing_num}-->次</span>推荐</span>
+		</div>
+	</div>
+	<div class="clear"></div>
+	<div id="text">
+		<!--{$a_article_view.content}-->
+	</div>
+</div>
+<!--{include file="article/comment.html"}-->

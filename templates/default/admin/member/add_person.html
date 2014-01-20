@@ -1,0 +1,78 @@
+<!--{include file="admin/path.html"}-->
+<!--{if !empty($smarty.post.submit)}-->
+	<!--{person tag=add ret=b_res}-->
+	<!--{if $b_res}-->
+	<div style="text-align:center">添加店员成功！</div>
+	<script language="javascript">window.location.replace("/admin/member/person_list.html?aid=<!--{$smarty.get.aid}-->");</script>
+	<!--{else}-->
+	<div style="text-align:center">数据不正确！</div>
+	<script language="javascript">setTimeout("window.history.go(-1)",1000);</script>
+	<!--{/if}-->
+<!--{else}-->
+<div class="datalist">
+	<!--{member tag=getmemberagentinfo aid=$smarty.get.aid ret=a_agent_info}-->
+	<div class="clear">
+		<h2>
+			<a href="/admin/member/index.html">渠道列表</a>
+			<!--{foreach key=key item=item from=$a_agent_info}-->
+			<!--{if (($n++)+2) > 3}-->
+			-&nbsp;<a href="/admin/member/person_list.html?aid=<!--{$key}-->"><!--{$item}--></a>
+			<!--{else}-->
+			-&nbsp;<a href="/admin/member/index.html?level=<!--{$n+1}-->&pid=<!--{$key}-->"><!--{$item}--></a>
+			<!--{/if}-->
+			<!--{/foreach}-->-&nbsp;修改店员
+		</h2>
+	</div>
+	<form action="" method="post">
+	<div class="main_container" style="padding:40px 0 0 40px;margin:0 auto">
+	  <table class="adminform_table">
+	    <!--<tr>
+	      <th>uuid:</th><td><input type="text" name="uuid" value="{uuid}"></td>
+	    </tr>-->
+	    <tr>
+	      <th>营业员真实姓名:</th>
+	      <td>
+	      	<input type="text" name="real_name" value="">
+	      	<input type="hidden" name="agent_id" value="<!--{$smarty.get.aid}-->" readonly>
+	      </td>
+	    </tr>
+	    <tr>
+	      <th>工号:</th><td><input type="text" name="job_number" value=""></td>
+	    </tr>
+	    <tr>
+	      <th>联系电话:</th><td><input type="text" name="telphone" value=""></td>
+	    </tr>
+	    <tr>
+	      <th>email:</th><td><input type="text" name="email" value=""></td>
+	    </tr>
+	    <!--
+	    <tr>
+	      <th>计费类型:</th><td><input type="text" name="billing_type" value=""></td>
+	    </tr>
+	    <tr>
+	      <th>分成比例:</th><td><input type="text" name="percent" value=""></td>
+	    </tr>
+	    <tr>
+	      <th>reserve1:</th><td><input type="text" name="reserve1" value=""></td>
+	    </tr>
+	    <tr>
+	      <th>reserve2:</th><td><input type="text" name="reserve2" value=""></td>
+	    </tr>
+	    <tr>
+	      <th>reserve3:</th><td><input type="text" name="reserve3" value=""></td>
+	    </tr>
+	    <tr>
+	      <th>reserve4:</th><td><input type="text" name="reserve4" value=""></td>
+	    </tr>-->
+     </table>
+     <center>
+     <table>
+	    <tr>
+	      <td colspan="2"><input type="submit" name="submit" value="添加">
+	    </tr>
+	  </table>
+	  </center>
+     </div>
+	</form>
+</div>
+<!--{/if}-->

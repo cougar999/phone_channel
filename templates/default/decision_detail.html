@@ -1,0 +1,229 @@
+<!--{config_load file="smarty.conf"}-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="description" content="爱皮下载是北京爱皮科技有限公司推出的智能手机一站式解决方案。包括android版、symbian版、零售店版以及Wap网站。提供android、symbian、ios软件的下载安装和手机的管理，可轻松备份通讯录和短信，云端数据存储保障安全。" />
+<meta name="keywords" content="爱皮下载,android软件,安卓游戏,手机管理客户端,苹果软件,安卓软件下载,手机联系人备份，手机资料备份,手机数据恢复,免费游戏下载" />
+<meta name="copyright" content=" © 1998 - 2012 Aipi" />
+<meta name="generator" content="Aipi Analytics" />
+<title>爱皮下载手机零售信息管理平台-智能手机一站解决方案·安卓软件游戏下载·android手机管理·手机备份、还原工具</title>
+<!--{include file="common/header_static.tpl"}-->
+<script src="/resources/js<!--{#version#}-->/comm_op.js" type="text/javascript"></script>
+<script src="/resources/lib<!--{#version#}-->/jquery.json-2.3.min.js" type="text/javascript"></script>
+<style type='text/css'>
+	.optionbar li:hover{text-decoration:underline}
+	.optionbar li.a{color:red;}
+	.optionbar li{padding:2px 0px;margin:0 5px;width:auto;cursor:pointer;}
+	.bm{min-height:200px !important;}
+	.content{height:200px;}
+	._hide{display:none;}
+	#ifr_shop{margin-top:10px;}
+	.controlbar{background:url("/resources/stats/images/ctrl_bg.png") repeat-x scroll 0 0 transparent;border-left:1px solid #D6D6D6;border-right:1px solid #D6D6D6;border-top:1px solid #D6D6D6;height:29px;}
+	.controlbar ul{padding-left:0px;}
+	.optionbar dd{float:left;}
+</style>
+<script type='text/javascript'>
+	var _INDEX;
+	var STATIC_DOMAIN = '/resources';
+	var URLOBJ	  = parseURL(document.URL);
+	var CUR_DATE  = GetDateStr(-1);
+	var DO_API_URL= '/apis/api_statlogin.json';
+	$(function(){
+		$('.optionbar li').live('click',function(){
+			_INDEX        = $(this).index();
+			var _self     = $(this);
+			var _multiple = $(_self).attr('multiple') || 1;
+			var _ext      = $(_self).attr('ext') || '';
+			var _condition= $(_self).attr('condition');
+			$('.optionbar li').removeClass('a');
+			$(this).addClass('a');
+			var _opt = {
+				condition:_condition,
+				date:$('#startDate').val(),
+				end_date:$('#endDate').val(),
+				shop_id:URLOBJ.params.shopId
+			};
+			showLoadingDiv();
+			$.getJSON(DO_API_URL+'?type=flash_decision_shop',_opt,function(data){
+				clearLoadingDiv();
+				var $_tmp_html = flashTpl = '';
+				var data       = data || {};
+				$.each(data,function(k,v){
+					$_tmp_html += "\
+						<point name='"+v[1]+"' y='"+(v[0]*_multiple)+"'>\
+							<tooltip enabled='true'>\
+								<format>\
+									<![CDATA["+v[1]+"\n"+$(_self).html()+"："+(v[0]*_multiple)+_ext+"]]>\
+								</format>\
+							</tooltip>\
+						</point>\
+					";
+				});
+				flashTpl = "\
+					<anychart>\
+						<margin all='1' />\
+						<templates path='/resources/stats/anychart/templates.xml' />\
+						<charts>\
+							<chart template='line'>\
+								<data_plot_settings>\
+									<line_series>\
+										<marker_settings enabled='false' />\
+									</line_series>\
+								</data_plot_settings>\
+								<chart_settings>\
+									<title enabled='false' />\
+									<legend enabled='true' position='Top' padding='3'>\
+										<title enabled='false' />\
+									</legend>\
+									<axes>\
+										<y_axis>\
+											<scale minimum='0'/>\
+										</y_axis>\
+										<x_axis>\
+											<scale major_interval='0' />\
+											<labels show_last_label='true' />\
+										</x_axis>\
+									</axes>\
+								</chart_settings>\
+								<data palette='linePalette'>\
+									<series type='Line' name='"+$('#startDate').val()+" 到 "+$('#endDate').val()+"  "+$(_self).html()+"'>\
+										<attributes>\
+											<attribute name='yName'>\
+												<![CDATA["+$(_self).html()+"]]>\
+											</attribute>\
+										</attributes>\
+										"+$_tmp_html+"\
+									</series>\
+								 </data>\
+							</chart>\
+						</charts>\
+						<settings>\
+							<no_data show_waiting_animation='false'>\
+							</no_data>\
+						</settings>\
+					</anychart>\
+				";
+				paintFlashChart(flashTpl, 'flashChart');
+			});
+		});
+		$('#tab_use_info li').live('click',function(){
+			var _index = $(this).index();
+			$('#tab_use_info li').removeClass('a');
+			$(this).addClass('a');
+			$('._hide').hide();
+			$('#tab'+_index).show();
+			if(0 == _index){
+				$('.optionbar li').eq(URLOBJ.params.selIndex || 0).trigger('click');
+			}else if(1 == _index){
+				if('' == $('#ifr_shop').attr('src')){
+					$('#ifr_shop').attr('src','/layer/add_shop.html?id='+URLOBJ.params.shopId+'&action=modify&callback=_callback');
+				}
+			}
+		});
+		var startDate = GetDateStr(-7);//URLOBJ.params.date || CUR_DATE;
+		var endDate   = CUR_DATE;//URLOBJ.params.end_date || CUR_DATE;
+		var dateRange = new pickerDateRange('date', {
+			isTodayValid: '',
+			startDate: startDate,
+			endDate: endDate,
+			monthRangeMax:3,
+			needCompare: false,
+			target: 'statsTableForm',
+			success: function(obj) {
+				$('.optionbar li').eq(_INDEX).trigger('click');
+			}
+		});
+		if($('#tab_use_info li').eq(URLOBJ.params.index || 0).length){
+			$('#tab_use_info li').eq(URLOBJ.params.index || 0).trigger('click');
+		}
+	})
+	function _callback(flag,obj){
+		0 == flag && parent.$('.l-dialog-close').last().trigger('click');
+		1 == flag && parent.$.ligerDialog.success('修改成功！',function(){parent.$('.l-dialog-close').last().trigger('click');});
+		throw "";
+	}
+</script>
+</head>
+<body>
+<!--{admin tag=checkadmingorup ret=b_admin_group_result}-->
+<div id="appendParent"></div>
+<div class="wrap">
+<div class="main mt_2">
+<table class="mainframe">
+	<tr>
+		<td class="content">
+		<!--start-->
+		<div class="bm">
+			<div class="bm_t">
+				<h3>
+				  <!--店面维度详情-->
+					<span id='tableHeadDate' class='start_and_end_date'>
+					</span>
+				</h3>
+			</div>
+			<div class="controlbar cl"  id="tab_use_info">
+				<ul class="datebar cl">
+					<li>
+						<a id="" href="javascript:void(0);">店面走势</a>
+					</li>
+					<li>
+						<a id="" href="javascript:void(0);">店面信息</a>
+					</li>
+				</ul>
+			</div>
+			<span id="tab0" class="_hide">
+			<span id='tab_time_op'>
+				<form id="statsTableForm" name="statsTableForm" action="">
+				<div class="controlbar cl">
+					<ul class="datebar cl">
+						<li class='a'>
+							<a href="javascript:void(0);" id="aRecent7Days">
+								最近7天
+							</a>
+						</li>
+						<li>
+							<a href="javascript:void(0);" id="aRecent30Days">
+								最近30天
+							</a>
+						</li>
+					</ul>
+					<input type="text" name="date" id="date" value="" class="px date" />
+				</div>
+				</form>
+				<div class="optionbar cl mbm">
+					<dl class="cl">
+						<dt>&nbsp;&nbsp;请选择：</dt>
+						<dd>
+							<ul class="cl">
+								<li condition='usage_rate' multiple='100' ext='%'>使用率</li>
+								<li condition='matchs' multiple='1'>连接台数</li>
+								<li condition='phones' multiple='1'>下载台数</li>
+								<li condition='conversion_rate_android' multiple='100' ext='%'>安卓下载转化率</li>
+								<li condition='conversion_rate_ios' multiple='100' ext='%'>苹果下载转化率</li>
+								<li condition='arup_ios' multiple='1'>苹果软件arup值</li>
+								<li condition='arup_android' multiple='1'>安卓软件arup值</li>
+								<li condition='arup_android_biz' multiple='1'>安卓推荐软件arup值</li>
+							</ul>
+						</dd>
+					</dl>
+				</div>
+			</span>
+			<div class="flashChart">
+				<div id="flashChart"></div>
+				<div id="ajaxFlashChart"></div>
+				<span id="chartinfo" style="display:none;"></span>
+			</div>
+			</span>
+			<span id='tab1' class='_hide'>
+				<iframe id='ifr_shop' src='' frameborder="no" border="0" marginwidth="0" marginheight="0" allowtransparency="yes" width="100%" height="350"></iframe>
+			</span>
+		</div>
+		<!--end-->
+		</td>
+	</tr>
+</table>
+</div>
+</div>
+</body>
+</html>

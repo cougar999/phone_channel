@@ -1,0 +1,95 @@
+*{margin:0;padding:0;}
+img,p,div,form,ul,dl,ol,li,dt,dd,h1,h2,h3,span{margin:0;padding:0;list-style:none;border:0;}
+body{margin:0 auto;font-size:12px;background-color:#eef1f5;color:#000000;font-family:微软雅黑,宋体,arial,verdana;position: relative;}
+a{outline: medium none;text-decoration: none;color:#1686CB;}
+a:hover{ text-decoration:underline; color:#ee3333;}
+.no{display:none;}
+.clearfix:after{content:".";display:inline-block;height:0;clear:both;visibility:hidden;}
+*+html .clearfix{display:inline-block;}
+* html .clearfix{height:1%;}
+.p_fl{float:left;}
+.p_fc{float:center;}
+.p_fr{float:right;}
+.p_fl,.p_fr{display:inline}
+.clear{clear:both;}
+.clear:after,
+.area:after{
+	display:block;
+	visibility:hidden;
+	height:0;
+	content:".";
+	clear:both;
+}
+a.clear{
+	display:block;
+	height:0;
+	content:".";
+	clear:both;}
+.t_transparent{filter:alpha(opacity=50);-moz-opacity:0.5;opacity: 0.5;background:url("s.jpg") no-repeat scroll center top transparent;}
+.t_bg{background-color:red}
+
+body{color:#545454;}
+.header{height:65px;margin:0 auto;overflow:hidden;width:1000px;}
+.header_a{margin:10px 2px;width:100%;}
+.header_a_a1{color:#0a4f81;font-size:20px;font-style:italic;font-weight:bolder;margin:2px 0 0 6px;}
+.header_a_a2{color:#57aae7;font-weight:bolder;margin:5px 0 0 8px;}
+.header_a_b{line-height:24px;margin-right:11px;text-align:center;}
+.header_a_b1{font-weight:bolder;margin-right:30px;}
+.logo{margin-left:3px;}
+.logo a{background:url('/resources/images/logo.png') no-repeat;display:inline-block;height:45px;width:45px;}
+.nav{background:url("/resources/images/nav_bg.jpg") repeat-x scroll left top transparent;height:36px;}
+.nav-bg-middle{margin:0 auto;width:1000px;}
+.nav-bg-middle li{float:left;font-size:14px;font-weight:bolder;line-height:36px;list-style-type:none;margin:0;padding:0;text-align:center;width:93px;}
+.nav-bg-middle li a{color:#FFFFFF;}
+.nav-bg-middle li a.active{background:url("/resources/images/nav_md_bg.png") no-repeat center top;color:#000000;display:block;font-size:14px;height:36px;width:93px;}
+.main{background-color:#fff;margin:0 auto;overflow:hidden;width:1000px;}
+.main_a{padding:17px 21px;}
+.footer{background:url("/resources/images/foot_bg.png") repeat-x scroll left top transparent;display:inline-block;height:89px;width:100%;}
+.footer_a{font-weight:bolder;height:89px;line-height:89px;text-align:center;}
+
+.tip_a{font-size:14px;font-weight:bolder;}
+.main_a_a1{background:url('/resources/images/cm_a.png') no-repeat;display:inline-block;height:25px;line-height:25px;text-align:center;width:107px;}
+.main_a_a2{background-color:#7ad3ff;display:inline-block;height:2px;margin-left:-2px;margin-top:22px;width:845px;}
+
+.datalist {
+    background-color: #FFFFFF;
+    clear: both;
+    margin: 20px;
+    word-wrap: break-word;
+}
+.datalist ul {
+    border-bottom: 1px dashed #B2C9E9;
+    margin: 18px;
+}
+.page{text-align:center; padding:20px}
+.page strong{background-color: #10A6F2;border: thin solid #D0D0D0;color: #FFFFFF;border: thin solid #D0D0D0;padding:2px 5px 2px 5px;}
+.page a{border: thin solid #D0D0D0;font-weight:bold; padding:2px 5px 2px 5px;}
+
+.article-list{background:#CCCCCC;margin-bottom:2px}
+.formeditor{font-size:12px;}
+.formeditor .line-editor{margin:5px}
+.pleft{float:left}
+.pright{float:right}
+
+#text{color:#000000;overflow: hidden;}
+
+#comment {margin:5px;color:#000000}
+#comment .comment_title{padding-left:5px;font-size:14px;font-weight:800;border-bottom-color:#b2c9e9; border-bottom-style: double; border-bottom-width:1px;}
+#comment .comment_sharing{float:left;width:40px;text-align:center;padding-top:10px}
+#comment .comment_sharing a{display:inline-block;padding-top:20px}
+#comment .sharing_num{display:inline-block;}
+#comment textarea{width:90%;height:60px}
+#comment .comment_list{margin:5px}
+#comment .comment_list .comment_list_content{margin:10px;}
+#navigation_2{background:#ebf3fc;}
+#date span{ line-height:30px; font-weight:bolder; font-size:14px; color:#666666}
+#date span a{color:#2179cb}
+
+body {
+    font-size: 13px;
+    line-height: 1.8em;
+}
+.formeditor{font-size:12px;}
+.formeditor .line-editor{margin:5px}
+
+.s_had_ed_content a{margin-right:5px;}

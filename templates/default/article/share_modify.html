@@ -1,0 +1,54 @@
+<!--{if !empty($smarty.post.submit)}-->
+	<!--{article tag=modfiymyshare aid=$smarty.get.aid authorid=$assign.userid ret=b_res}-->
+	<!--{if $b_res}-->
+	<div style="text-align:center">文章发表成功！</div>
+	<script language="javascript">window.location.replace("/article/view.html?aid=<!--{$smarty.get.aid}-->");</script>
+	<!--{/if}-->
+<!--{else}-->
+<!--{article tag=view aid=$smarty.get.aid ret=a_article_view}-->
+<!--{assign var="_category" value=$a_article_view.category}-->
+<!--{include file="article/path.html"}-->
+<div class="datalist">
+	<form action="" method="post" class="formeditor" onsubmit="return msgtxt()">
+		<div class="line-editor">
+			<span>标题：</span>
+			<input type="text" name="title" id="atitle" value="<!--{$a_article_view.title}-->">
+		</div>
+		<div class="line-editor">
+			<span>摘要：</span>
+			<textarea name="description" id="adescription" style="height:40px;width:94%"><!--{$a_article_view.description}--></textarea>
+		</div>
+		<div class="line-editor">
+			<span>内容：</span>
+			<textarea class="ckeditor" name="content" id="acontent"><!--{$a_article_view.content}--></textarea>
+		</div>
+		<div class="line-editor pright">
+			<input type="reset" value="重 填">
+			<input name="submit" type="submit" value="提 交">
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="/resources/ckeditor/ckeditor.js"></script>
+<script language="javascript">
+function msgtxt(){
+	var atitle = $("#atitle").val();
+	var adescription = $("#adescription").val();
+	var acontent = $("#acontent").val();
+	if(trim(atitle) == ''){
+		alert("分享标题不能为空");
+		$("#atitle").attr("value",'');
+		return false;
+		
+	}else if (trim(adescription) == ''){
+		alert("分享摘要不能为空");
+		$("#adescription").attr("value",'');
+		return false;
+		
+	}
+}
+
+function trim(str){ //删除左右两端的空格
+	return str.replace(/(^\s*)|(\s*$)/g, "");
+} 
+</script>
+<!--{/if}-->

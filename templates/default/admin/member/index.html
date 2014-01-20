@@ -1,0 +1,125 @@
+<!--{include file="admin/path.html"}-->
+<!--{member tag=getmemberagentinfo aid=$smarty.get.pid ret=a_agent_info}-->
+<div class="datalist">
+<div class="datalist_top"></div>
+	<div class="clear">
+		<h2>
+			<a href="/admin/member/index.html">渠道列表</a>
+			<!--{foreach key=key item=item from=$a_agent_info}-->
+			&nbsp;-&nbsp;
+			<!--{if ($n++) == ($a_agent_info|@count)-1}-->
+				<!--{$item}-->
+			<!--{else}-->
+				<a href="/admin/member/index.html?level=<!--{$n+1}-->&pid=<!--{$key}-->"><!--{$item}--></a>
+			<!--{/if}-->
+			<!--{/foreach}-->
+		</h2>
+	</div>
+	<div style="height:5px" class="float_clear"></div>
+<!--{agent tag=list pid=$smarty.get.pid level=$smarty.get.level|default:1 pageno=$smarty.get.pageno|default:1 count=10 ret=a_agent_list}-->
+	<ul class="ch_agent">
+		<li class="ch_agent_t1"></li>
+		<li class="ch_agent_t1"><b>ID</b></li>
+		<li class="ch_agent_t2"><b>渠道名</b>(<span class="truedata"><font>表示为正常数据</font></span><span class="errordata"><font>表示为已删除数据</font></span>)</li>
+		<li class="ch_agent_t3"><b>操作</b></li>
+	</ul>
+	<!--{foreach key=key item=item from=$a_agent_list.info}-->
+	<div id="channel_<!--{$item.id}-->">
+		<ul class="ch_agent_list">
+			<li class="ch_agent_t1" onclick="getChannelList(<!--{$item.id}-->,<!--{$item.level+1}-->)"><a id="a_channel_<!--{$item.id}-->" href="javascript:;" title="查看子渠道">[+]</a></li>
+			<li class="ch_agent_t1"><!--{$item.id}--></li>
+			<li class="ch_agent_t2">
+			<!--{if $smarty.get.level < 3}-->
+				<a href="/admin/member/index.html?level=<!--{$item.level+1}-->&pid=<!--{$item.id}-->" title="点击查看子渠道"><!--{$item.name}--></a>
+			<!--{else}-->
+				<a href="/admin/member/person_list.html?aid=<!--{$item.id}-->" title="点击查看店员"><!--{$item.name}--></a>
+			<!--{/if}-->
+			<!--{if $item.status == 0}-->
+			<span class="errordata" title="已删除数据">&nbsp;</span>
+			<!--{elseif $item.status == 1}-->
+			<span class="truedata" title="正常数据">&nbsp;</span>
+			<!--{/if}-->
+			</li>
+			<li class="ch_agent_t3">
+				<!--<span><a href="" title="修改渠道"><img src="/resources/images/modify_button.png"></a></span>-->
+				<!--{if $smarty.get.level < 3}-->
+				<span><a href="/admin/member/index.html?level=<!--{$item.level+1}-->&pid=<!--{$item.id}-->" title="查看子渠道"><img src="/resources/images/view.gif"></a></span>
+				<!--{else}-->
+				<span><a href="/admin/member/person_list.html?aid=<!--{$item.id}-->" title="查看店员"><img src="/resources/images/personbg.gif" height="16"></a></span>
+				<!--{/if}-->
+			</li>
+		</ul>
+		<div id="child_channel_<!--{$item.id}-->"></div>
+		<!--{if $smarty.get.level == 2}-->
+		<ul class="ch_agent_list">
+			<li class="ch_agent_t1"></li>
+			<li><div class="lastboard"><a class="addtr" href="/admin/member/add_agent.html?pid=<!--{$item.id}-->&level=<!--{$item.level+1}-->">添加店面</a></div></li>
+		</ul>
+		<!--{/if}-->
+	</div>
+	<!--{/foreach}-->
+	<div class="clear"></div>
+	<!--{if $smarty.get.level == 3}-->
+	<ul class="ch_agent_list">
+		<li><div class="lastboard"><a class="addtr" href="/admin/member/add_agent.html?pid=<!--{$smarty.get.pid}-->&level=<!--{$smarty.get.level|default:1}-->">添加店面</a></div></li>
+	</ul>
+	<div class="clear"></div>
+	<!--{/if}-->
+	<div class="page"><!--{$a_agent_list.pagehtml}--></div>
+</div>
+<script language="javascript">
+function getChannelList(pid,level){
+	var html = $("#a_channel_"+pid).html();
+	if(html == "[+]"){
+		if($("#child_channel_"+pid).html().length > 0){
+			$("#a_channel_"+pid).attr("title","隐藏子渠道");
+			$("#a_channel_"+pid).html("[-]");
+			$("#child_channel_"+pid).show();
+		}else{
+			$.post("/api/api_adminagent.php", {tag:'list',level:level,pid:pid,count:100}, function(data){
+				if(data.result){
+					var childchannel_html = '';
+					if(data.info.length > 0){
+						for(x in data.info){
+							n = parseInt(x)+1;
+							childchannel_html += "<ul class=\"ch_agent_list\"><li class=\"ch_agent_t1\"><b>"+n+"</b></li><li class=\"ch_agent_t1\">" + data.info[x].id + "</li><li class=\"ch_agent_t2\"><div class=\"board\">";
+							if(parseInt(data.info[x].level) < 3){
+								childchannel_html += "<a href=\"/admin/member/index.html?level=" + (parseInt(data.info[x].level) + 1) + "&pid=" + data.info[x].id + "\" title=\"点击查看子渠道\">" + data.info[x].name + "</a>";
+							}else{
+								childchannel_html += "<a href=\"/admin/member/person_list.html?aid=" + data.info[x].id + "\" title=\"点击查看店员\">" + data.info[x].name + "</a>";
+							}							
+							if(data.info[x].status == 0){
+								childchannel_html += "<span class=\"errordata\" title=\"已删除数据\">&nbsp;</span>";
+							}else if(data.info[x].status == 1){
+								childchannel_html += "<span class=\"truedata\" title=\"正常数据\">&nbsp;</span>";
+							}
+							childchannel_html += "</div></li>";
+							if(parseInt(data.info[x].level) < 3){
+								var ch_level = parseInt(data.info[x].level) + 1;
+								childchannel_html += "<li class=\"ch_agent_t3\"><span><a href=\"/admin/member/index.html?level=" + ch_level + "&pid=" + data.info[x].id + "\" title=\"查看子渠道\"><img src=\"/resources/images/view.gif\"></a></span></li>";
+							}else{
+								childchannel_html += "<li class=\"ch_agent_t3\"><span><a href=\"/admin/member/person_list.html?aid=" + data.info[x].id + "\" title=\"查看店员\"><img src=\"/resources/images/personbg.gif\" height=\"16\"></a></span></li>";
+							}
+							childchannel_html += "</ul>";
+						}
+					}else{
+						childchannel_html += "<ul class=\"ch_agent_list\"><li style=\"color:red\">没有子渠道！</li></ul>";
+					}
+					$("#child_channel_"+pid).append(childchannel_html);
+					$("#a_channel_"+pid).attr("title","隐藏子渠道");
+					$("#a_channel_"+pid).html("[-]");
+				}else{
+					alert("请求失败");
+				}
+			}, "json");
+		}
+	}else{
+		$("#child_channel_"+pid).hide();
+		$("#a_channel_"+pid).attr("title","显示子渠道");
+		$("#a_channel_"+pid).html("[+]");
+	}
+}
+$(function(){
+	getChannelList(132,2);
+})
+</script>

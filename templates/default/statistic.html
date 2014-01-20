@@ -1,0 +1,371 @@
+<style>
+.main_a_a {
+    height: 25px;
+    line-height: 25px;
+    width: 100%;
+	border-bottom:2px solid #7AD3FF;
+}
+.main_a1{
+	font-size:14px;
+	font-weight:bold;
+	width:107px;
+	text-align:center;
+	margin-right:31px;
+}
+.main_a2{
+	margin-right:21px;
+	color:#92c1e3;
+}
+.main_a_a1{
+	margin-top:1px;
+}
+.main_a_a a{
+	color:#8f8e8e;
+}
+
+.main_a_a div{cursor:pointer;}
+.sel_quk a{cursor:pointer;}
+</style>
+<div class='main_a_a p_fl'>
+	<div class='main_a1 p_fl'>登陆详情</div>
+	<div class='main_a1 p_fl'>使用详情</div>
+</div>
+<div class='clear'></div>
+<!--{if empty($smarty.session.level) && !$smarty.session.isSup}-->
+<p style="text-align:center;line-height:300px">暂无数据</p>
+<!--{else}-->
+<link href="/resources/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+<link href="/resources/css/monthpicker.css" rel="stylesheet" type="text/css" />
+<script src="/resources/lib/ligerUI/js/core/base.js" type="text/javascript"></script> 
+<script src="/resources/lib/ligerUI/js/plugins/ligerGrid.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerResizable.js" type="text/javascript"></script>
+<!-- <script src="/resources/lib/ligerUI/js/plugins/ligerCheckBox.js" type="text/javascript"></script> -->
+<script src="/resources/lib/jquery.json-2.3.min.js" type="text/javascript"></script>
+<script src="/resources/lib/monthpicker.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+<script src="/resources/js/comm_op.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+var g;
+cur_date= GetDateStr(-1,new Date().format("yyyy-MM"));
+var channel_tip = '';
+var init_so     = urlObj.params.show || 0;
+var cf_level    = '<!--{$smarty.session.level}-->';
+var cf_realid   = '<!--{$smarty.session.real_id}-->';
+var cf_sd       = '<!--{php}-->echo date('Y-m-01',strtotime('-1 days'))<!--{/php}-->';
+var cf_ed       = '<!--{php}-->echo date('Y-m-d',strtotime('-1 days'))<!--{/php}-->';
+var isSup       = parseInt('<!--{$smarty.session.isSup}-->');
+_tip_username   = '<!--{$assign.username}-->';
+
+detail_dtinfo_head = [{ display: '店面', name: 'shop_name' ,width:160,frozen: true,align:'left'}];
+detail_dt_head = [{ display: '主键', name: 'channel_id', align: 'left',hide:1 },
+           { display: '分公司', name: 'channel_name' ,width:180,frozen:true,align:'left'}];
+detail_dt_ad_head = [{ display: '主键', name: 'top_agent_id', align: 'left',hide:1 },
+           { display: '渠道名称', name: 'name' ,width:180,frozen:true,align:'left'}];
+
+$(function ()
+{
+	$("#sel_name").keydown(function(e){
+		if(e.keyCode==13){
+			$('#ser_btn').trigger('click');
+		}
+	});
+	$("#sel_name").val($("#sel_name").attr('title')).addClass("waiting")
+    .blur(function () {  
+        if ($.trim($(this).val()) == "") {  
+        	$(this).val($(this).attr('title')).addClass("waiting");  
+        }  
+    })  
+    .focus(function () {  
+        if ($.trim($(this).val()) == $(this).attr('title')) {  
+        	$(this).val("").removeClass("waiting");  
+        }  
+    });
+	$('#data-start').val(parseDate(cur_date).format("yyyy-MM"));
+	$('#tip_channel').live('click',function(){
+		channel_tip = '';
+		reload_data(addval(defaulePra,[{name:'name',value:''},{name:'s_day',value:getval(g.options.parms,'s_day')},{name:'e_day',value:getval(g.options.parms,'e_day')}]));
+		$('#tip_channel').html(_tip_username);
+		$('#tip_shop').html('');
+		$('#last_name').html('');
+	});
+	$('#tip_shop').live('click',function(){
+		var tmp_type = getval(g.options.parms,'type');
+		if(isSup){
+			if(tmp_type == 'detail_dtinfo'){
+				channel_tip = '';
+				reload_data(addval(defaulePra,[{name:'name',value:''},{name:'type',value:'detail_dt'},{name:'s_day',value:getval(g.options.parms,'s_day')},{name:'e_day',value:getval(g.options.parms,'e_day')}]));
+			}
+		}
+		$('#last_name').html($(this).html());
+		$(this).html('');
+	});
+	$('.sel_ed').live('click',function(){
+		if($(this).attr('id') == 'sel_cnt_sp_channel'){
+			reload_data([
+		           			{name: 'channel_id', value: 0},
+		        			{name: 'type', value: 'detail_dt'}
+		        		]);
+		}else if($(this).attr('id') == 'sel_cnt_sp_name'){
+			reload_data([
+		        			{name: 'name', value: ''}
+		        		]);
+		}else if($(this).attr('id') == 'sel_cnt_sp_date'){
+			reload_data([
+		        			{name: 's_day', value: getval(defaulePra,'s_day')},
+		        			{name: 'e_day', value: getval(defaulePra,'e_day')}
+		        		]);
+		}
+	});
+	$('#ser_btn').live('click',function(){
+		$('#sel_name').val($.trim($('#sel_name').val()));
+    	if ($('#sel_name').val() == $('#sel_name').attr('title')) $('#sel_name').val('');
+		reload_data([
+           			//{name: 'date', value: $('#data-start').val()},
+        			{name: 'name', value: $('#sel_name').val()}
+        		]);
+	});
+	$('.reset').live('click',function(){
+		reload_data(addval(defaulePra,[
+			{name:'name',value:''}
+		]),1);
+	});
+	$('#excel_btn').live('click',function(){
+		if(g.getData()==''){
+			$.ligerDialog.confirm('当前内容为空确认要导出吗？', function (yes)
+		     {
+	             if(yes){
+	            	 var _tmp = {"sortname":g.options.sortName,"sortorder":g.options.sortOrder};
+	         		$.each(g.options.parms,function(k,v){
+	         			eval("_tmp['"+v.name+"']='"+v.value+"';");
+	         		});
+	         		_tmp['exp_name'] = !$('#last_name').html()?$('#tip_channel').html():$('#last_name').html();
+	         		$('#rqstr').val($.toJSON(_tmp));
+	         		$('#excel_frm').submit();
+	             }
+		     });
+		}else{
+			var _tmp = {"sortname":g.options.sortName,"sortorder":g.options.sortOrder};
+			$.each(g.options.parms,function(k,v){
+				eval("_tmp['"+v.name+"']='"+v.value+"';");
+			});
+			_tmp['exp_name'] = !$('#last_name').html()?$('#tip_channel').html():$('#last_name').html();
+			$('#rqstr').val($.toJSON(_tmp));
+			$('#excel_frm').submit();
+		}
+	});
+	$("#data01").monthpicker(callback1);
+	
+	function callback1(data,$e){
+		$("#data-start").val(data.year+'-'+data.month);
+		reload_data([
+	           			{name: 's_day', value: data.year+'-'+data.month+'-01'},
+	        			{name: 'e_day', value: getLastDay(data.year+'-'+data.month+'-01')}
+	        		]);
+	}
+	$('.main_a_a div').live('click',function(){
+		$('.main_a_a div').removeClass('main_a_a1');
+		$(this).addClass('main_a_a1');
+		$('#tag_tip').html($(this).html());
+		
+		if($(this).index() == 0){
+			if(isSup){
+				defaulePra = [
+				              	{name:'type',value:'detail_dt_ad'},
+				              	{name:'e_day',value:cf_ed},
+				              	{name:'s_day',value:cf_sd}
+				            	];
+			}else if(cf_level == 1){
+				defaulePra = [
+				              	{name:'type',value:'detail_dt'},
+				              	{name:'e_day',value:cf_ed},
+				              	{name:'s_day',value:cf_sd}
+				            	];
+			}else if(cf_level == 2){
+				defaulePra = [
+			   	              	{name:'type',value:'detail_dtinfo'},
+			   	              	{name:'channel_id',value:cf_realid},
+			   	             	{name:'e_day',value:cf_ed},
+				              	{name:'s_day',value:cf_sd}
+			   	            	];
+			}else if(cf_level == 3){
+				defaulePra = [
+			 	              	{name:'type',value:'detail_dtinfo'},
+			 	              	{name:'channel_id',value:0},
+			 	              	{name:'lgid',value:cf_realid},
+			 	              	{name:'e_day',value:cf_ed},
+				              	{name:'s_day',value:cf_sd}
+			 	            	];
+			}
+			show_init(defaulePra);
+		}else if($(this).index() == 1){
+			window.location.href = '/statistic_use.html';
+		}
+	});
+	//startop
+	if($('.main_a_a div').eq(init_so).length){
+		$('.main_a_a div').eq(init_so).trigger('click');
+	}
+});
+function add_sel_tip(id,tip){
+	if($('#'+id).length){
+		$('#'+id).html(tip);
+	}else $('#sel_cnt_sp').append('<a class="sel_ed" id="'+id+'">'+tip+'</a>');
+}
+function show_head(start,end){
+	var end = compareDate(end,cur_date)?cur_date:end;
+	var tmp_date = [];
+	
+	while(compareDate(GetDateStr(1,end),start)){
+		var _d = parseDate(start).format("dd");
+		var _m = parseDate(start).format("MM");
+		tmp_date[tmp_date.length] = {display:parseInt(_d,10)+"号",name:"d_"+_m+_d,width:40};
+		start = GetDateStr(1,start);
+	}
+	return tmp_date;
+}
+function reload_data(pra,_flag){
+	var _flag = _flag || 0;
+	
+	var pra    = !_flag?addval(g.options.parms,pra):pra;
+	flag_login = false;
+	var type   = getval(pra,'type');
+
+	if(getval(pra,'name')==''||getval(pra,'name')==null){
+		$('#sel_name').val('');
+		$('#sel_cnt_sp_name').remove();
+	}else{
+		$('#sel_name').val(getval(pra,'name'));
+		add_sel_tip('sel_cnt_sp_name',$('#sel_name').val());
+	}
+	if(!getval(pra,'s_day')){
+		$('#data-start').val(cur_date);
+		$('#sel_cnt_sp_date').remove();
+	}else{
+		$('#data-start').val(parseDate(getval(pra,'s_day')).format('yyyy-MM'));
+		add_sel_tip('sel_cnt_sp_date',$('#data-start').val());
+	}
+	if(!getval(pra,'channel_id')){
+		$('#sel_cnt_sp_channel').remove();
+	}
+	
+	$('#tip_name').html(($('#sel_name').val()==''?'':'&nbsp;&nbsp;搜索"')+$('#sel_name').val()+($('#sel_name').val()==''?'':'"'));
+	//$('#tip_shop').html((channel_tip!=''?"&nbsp;&nbsp;":"")+channel_tip);
+	$('#tip_date').html(parseDate($('#data-start').val()+"-01").format("yyyy年MM月")+"&nbsp;&nbsp;");
+	//if($('#sel_cnt_sp a').length) $('.s_had_ed').show();
+	//else $('.s_had_ed').hide();
+	
+	var common_date = show_head(getval(pra,'s_day'),getval(pra,'e_day'));
+	g.setOptions(
+//		{ parms: pra,columns: type == 'detail_dt' ? ch_head.concat(common_date) : sh_head.concat(common_date),newPage:1,sortName:''}
+		{ parms: pra,columns: eval(type+'_head').concat(common_date),newPage:1,sortName:''}
+	);
+	g.loadData(true);
+}
+function show_init(pra){
+	var type = getval(pra,'type');
+	var common_date = show_head(getval(pra,'s_day'),getval(pra,'e_day'));
+	
+	
+	g = $("#maingrid").ligerGrid({
+        columns: eval(type+'_head').concat(common_date),
+        parms:pra,
+		isScroll: true, 
+		allowHideColumn: false,
+		pageSizeOptions: [50, 100 ,200], 
+		pageSize :50,
+		page:1,
+		url:'/api/api_statlogin.php',
+        showTitle: false,
+        width:'99%',
+        height:'auto',
+        rownumbers:true,
+        onSelectRow: function (data, rowindex, rowobj)
+        {
+        	if(getval(g.options.parms,'type')=='detail_dtinfo') return;
+        	if(getval(g.options.parms,'type')=='detail_dt_ad'){
+        		reload_data([
+                  			{name: 'type', value: 'detail_dt'},
+                 			{name: 'top_agent_id', value: data.top_agent_id}
+                 		]);
+        		$('#last_name').html(data.name);
+        		return ;
+        	}
+        	channel_tip = data.channel_name;
+			add_sel_tip('sel_cnt_sp_channel',channel_tip);
+        	reload_data([
+                 			{name: 'type', value: 'detail_dtinfo'},
+                			{name: 'channel_id', value: data.channel_id}
+                		]);
+        	if($('#last_name').html()!='') $('#tip_shop').html($('#last_name').html());
+        	$('#last_name').html(channel_tip);
+        },
+        onUnSelectRow: function (data, rowindex, rowobj)
+        {
+            
+        },
+        onSuccess:function(data){
+        	$('.s_red').html(data.Total);
+        },
+        onError: function (a, b){ 
+        	typeof g != 'undefined' && g.reRender();
+        }
+    });
+	$('#tip_date').html(parseDate($('#data-start').val()+"-01").format("yyyy年MM月")+"&nbsp;&nbsp;");
+	$('#tip_channel').html('<!--{$assign.username}-->');
+}
+</script>
+<div class="p_fl sear_cnt">
+<div class="MonthPicker p_fl" id="data01" ></div>
+<span class='p_fr' style='margin-top:10px;'>
+<form id="excel_frm" target="" method="get" action="/api/exp.php">
+<input type='hidden' id='rqstr' name="rqstr" value='' />
+<input type='button' name='excel_btn' id='excel_btn' value='导出excel'/>
+</form>
+</span>
+<div class='clear'></div>
+<span class='p_fl'><input type="hidden" id="data-start"  value="" /></span>
+</div>
+<div class='clear'></div>
+<style>
+.waiting{ color:Gray;}
+.sear_cnt{margin:10px;width:98%;}
+.sear_cnt span{margin-left:2px;}
+.l-grid-row-over{cursor:pointer;}
+
+.reset {background: url("/resources/images/search_icon.png") no-repeat scroll 100% -8px #FFFFFF; border: 1px solid #96CAF0;display: inline-block;line-height: 20px;margin: 1px 2px 4px 0;padding: 2px 20px 3px 10px;vertical-align: middle;}
+.sel_ed {background: url("/resources/images/search_icon.png") no-repeat scroll 100% -39px #FFFFFF; border: 1px solid #96CAF0;display: inline-block;line-height: 20px;margin: 1px 2px 4px 0;padding: 2px 20px 3px 10px;vertical-align: middle;}
+.s_had_ed{width:99%; min-height:30px; height:auto !important; height:30px; float:left; background-color:#D9D9D9;}
+.s_had_ed strong {margin-top:4px;float: left;overflow: hidden;text-align: right;width: 95px; line-height:30px; color:#FF5500;}
+.s_had_ed_content {margin-top:4px;float: left;padding-left:10px;}
+.s_had_ed_content li{float: left;width: auto; height:30px; line-height:30px; margin-left:4px;}
+.s_red{font-weight:bold; font-size:16px; margin-left:4px;color:red;}
+.s_had_ed a{cursor:pointer;}
+
+#data01{margin:10px;}
+.l-grid-header{font-weight:bold}
+</style>
+<div style="display:none;" class="s_had_ed">
+    <strong>已选条件：</strong>
+    <div class="s_had_ed_content">
+       <span id='sel_cnt_sp'></span>
+       <span>共有<span class="s_red">0</span> 个符合条件</span><span><a class="reset">重新筛选</a></span> 
+    </div>
+</div>
+<div class="s_had_ed">
+    <div class="s_had_ed_content">
+    	<span id='tip_date'></span>
+    	<a id='tip_channel'></a>
+    	<a id='tip_shop'></a>
+    	<span id='last_name'></span>
+    	<span id='tip_name'></span>
+    	<span style='margin-left:10px;' id='tag_tip'></span>
+    	<span style='margin-left:20px;'>
+			<input type='text' size='' name='sel_name' id='sel_name' value='<!--{$smarty.get.name}-->' title='请输入关键字'/>
+			<input type='button' name='' id='ser_btn' value='查询' />
+		</span>
+    </div>
+</div>
+<div class='clear'></div>
+<div id="maingrid" style="margin:10px 0px;"></div>
+<!--{/if}-->

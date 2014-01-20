@@ -1,0 +1,16 @@
+<!--{include file="article/path.html"}-->
+<div class="datalist">
+	<!--{article tag=lists authorid=$assign.userid pageno=$smarty.get.pageno|default:1 category=3 count=10 ret=a_my_article_list}-->
+	<!--{foreach key=key item=list from=$a_my_article_list.info}-->
+	<div class="clear" style="margin:10px">
+		<div class="pleft" style="width:400px">
+			<span class="pleft"><a href="/article/view.html?aid=<!--{$list.aid}-->"><!--{$list.title}--></a></span>
+		</div>
+		<div class="pright">
+			<span><!--{$list.create_date|date_format:"%Y-%m-%d"}--></span>
+			<span><a href="/article/share_modify.html?aid=<!--{$list.aid}-->" title="修改我分享的文章"><img src="/resources/images/modify_button.png"></a></span>
+		</div>
+	</div>
+	<!--{/foreach}-->
+	<div class="page"><!--{$a_my_article_list.pagehtml}--></div>
+</div>

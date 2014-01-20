@@ -1,0 +1,81 @@
+<!--{include file="admin/path.html"}-->
+<div class="datalist">
+	<!--{member tag=getmemberagentinfo aid=$smarty.get.aid ret=a_agent_info}-->
+	<div class="clear">
+		<h2>
+			<a href="/admin/member/index.html">渠道列表</a>
+			<!--{foreach key=key item=item from=$a_agent_info}-->
+			&nbsp;-&nbsp;
+			<!--{if ($n++) == ($a_agent_info|@count)-1}-->
+				<!--{$item}-->
+			<!--{else}-->
+				<a href="/admin/member/index.html?level=<!--{$n+1}-->&pid=<!--{$key}-->"><!--{$item}--></a>
+			<!--{/if}-->
+			<!--{/foreach}-->&nbsp;-&nbsp;&nbsp;店员列表
+		</h2>
+	</div>
+	<div style="height:5px" class="float_clear"></div>
+	<ul class="ch_person">
+		<li class="ch_person_t1"></li>
+		<li class="ch_person_t1"><b>ID</b></li>
+		<li class="ch_person_t2"><b>店员</b>(<span class="truedata"><font>表示为正常数据</font></span><span class="errordata"><font>表示为已删除数据</font></span>)</li>
+		<li class="ch_person_t3"><b>工号</b></li>
+		<li class="ch_person_t4"><b>操作</b></li>
+	</ul>
+	<!--{person tag=list aid=$smarty.get.aid pageno=$smarty.get.pageno|default:1 count=10 ret=a_person_list}-->
+	<!--{foreach key=key item=item from=$a_person_list.info}-->
+	<ul class="ch_person_list">
+		<li class="ch_person_t1"></li>
+		<li class="ch_person_t1"><!--{$item.id}--></li>
+		<li class="ch_person_t2">
+			<!--{$item.real_name}-->
+			<!--{if $item.status == 0}-->
+			<span class="errordata" title="已删除数据"></span>
+			<!--{elseif $item.status == 1}-->
+			<span class="truedata" title="正常数据"></span>
+			<!--{/if}-->
+		</li>
+		<li class="ch_person_t3"><!--{$item.job_number}--></li>
+		<li class="ch_person_t4">
+			<a title="查看详细" href="/admin/member/person_view.html?id=<!--{$item.id}-->"><img src="/resources/images/view.gif"></a>
+			<a title="修改该店员" href="/admin/member/person_modify.html?id=<!--{$item.id}-->"><img src="/resources/images/modify_button.png"></a>
+			<!--{if $item.status == 1}-->
+			<a title="删除该店员" onclick="" href="javascript:;"><img src="/resources/images/del_button.png"></a>
+			<!--{else if $item.status == 0}-->
+			<!--{/if}-->
+		</li>
+	</ul>
+	<!--{/foreach}-->
+	<ul class="ch_person_list">
+		<li class="ch_person_t1"></li>
+		<li><div class="lastboard"><a class="addtr" href="/admin/member/add_person.html?aid=<!--{$smarty.get.aid}-->">添加店员</a></div></li>
+	</ul>
+	<div class="clear"></div>
+	<div class="page"><!--{$a_person_list.pagehtml}--></div>
+</div>
+<script type="text/javascript">
+var leftHeight = document.body.clientHeight - $('#header').outerHeight() - $('#foot').outerHeight();
+var rightHeight = $('#mainpage').outerHeight();
+$('#leftpage').each(function(){
+	if(leftHeight >= rightHeight){
+		$(this).css('height', leftHeight);
+		$('#side').css('height', leftHeight);
+		$('#mainpage').css('height', leftHeight);
+	}else {
+		$(this).css('height', rightHeight);
+		$('#side').css('height', rightHeight);
+	}
+});
+$(window).resize(function(){
+	$('#leftpage').each(function(){
+		if(leftHeight >= rightHeight){
+			$(this).css('height', leftHeight);
+			$('#side').css('height', leftHeight);
+			$('#mainpage').css('height', leftHeight);
+		}else {
+			$(this).css('height', rightHeight);
+			$('#side').css('height', rightHeight);
+		}
+	});
+});
+</script>

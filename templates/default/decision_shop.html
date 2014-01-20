@@ -1,0 +1,649 @@
+<script src="/resources/js<!--{#version#}-->/comm_op.js" type="text/javascript"></script>
+<link href="/resources/css<!--{#version#}-->/pagination.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="/resources/js<!--{#version#}-->/jquery.pagination.js"></script>
+<script src="/resources/lib<!--{#version#}-->/jquery.json-2.3.min.js" type="text/javascript"></script>
+<script src="/resources/lib<!--{#version#}-->/jquery.linkagesel-min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/resources/js/jquery.provincesCity.js"></script>
+<script type="text/javascript" src="/resources/js/provincesdata.js" charset="utf-8"></script>
+
+<link href="/resources/lib/ligerUI/skins/Aqua/css/ligerui-dialog.css" rel="stylesheet" type="text/css" />
+<script src="/resources/lib/ligerUI/js/core/base.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+
+<style type="text/css">
+#overflowDiv_fex table{table-layout:fixed;}
+#dataTable_fex td{cursor:pointer;overflow:hidden;text-align:left;white-space:nowrap;}
+#dataTable td{cursor:pointer;}
+#dataTable td{text-align:center;}
+.optionbar li{width:100%;}
+.optionbar li .a{color:#336699;cursor:pointer;margin-right:0px;}
+#load_div_cnt{_min-height:100px;min-height:100px;}
+.overflowDiv{border-bottom:1px solid #C1CBDF;border-left:0px;border-right:1px solid #C1CBDF;border-top:1px solid #C1CBDF;}
+.box{border-bottom:1px solid #C1CBDF;margin-left:-1px;}
+.optionbar dl{padding:2px 0 2px 0;}
+.controlbar{background:url("/resources/stats/images/ctrl_bg.png") repeat-x scroll 0 0 transparent;border-left:1px solid #D6D6D6;border-right:1px solid #D6D6D6;border-top:1px solid #D6D6D6;height:29px;}
+.controlbar ul{padding-left:0px;}
+.optionbar{border:1px solid #D6D6D6;}
+.date{margin:4px 0 0 108px;}
+.fix_tmp{margin-left:0px;}
+
+#city,#town{display:none;}
+#city_select_show{margin-right:5px;}
+
+span.desc { padding: 0 14px 0 0px; background:url(/resources/stats/images/icon_down_.png) no-repeat 100% 50%; color: #C00; }
+span.asc { padding: 0 14px 0 0px; background:url(/resources/stats/images/icon_up_.png) no-repeat 100% 50%; color: #77AD06; }
+span.equal { padding: 0 14px 0 0px; background:url(/resources/stats/images/icon_equal.png) no-repeat 100% 50%; }
+
+.over_a{background-color:#F2F2F2;color:#333}
+/*.box tr:hover td{background-color:#FFF !important;}*/
+
+.box td, .box th{padding:4px 2px}
+.box th a{margin-left:2px;}
+</style>
+<script type='text/javascript'>
+var linkageSel,LKSOPT,DIALOG,INIT_SCROLL_LEFT,_INIT_SCROLL_LEFT,__INIT_LEFT__;
+var CUR_DATE = GetDateStr(-1);
+var CF_SESS  = eval('[<!--{php}-->echo json_encode($_SESSION)<!--{/php}-->]');
+CF_SESS      = CF_SESS[0];
+var CF_TYPE  = '';
+var CF_PAGE  = {
+	num_edge_entries:1,
+	prev_text:'上一页',
+	next_text:'下一页',
+	items_per_page:50,
+	num_display_entries:5,
+	callback: pageselectCallback
+};
+var decision_shop_head = [
+               { display: '主键', name: 'shop_id',frozen: true,hide:1 },
+               { display: '店面名称', name: 'shop_name',width:'180',frozen:true,len:26,is_order:true,
+			   format:function(data,display,opt,html){
+					$(html).attr('title',display);
+					return ZwzCommonOp.char_cutstr(display,opt.len);
+			   }},
+               { display: '销量', name: 'daily_sales' ,width:50 ,is_order:true ,
+			   format:function(data,display,opt,html){
+					if(0 == display){
+						$(html).attr('title','无效数据');
+						return '--';
+					}
+					return display;
+			   }},
+               { display: '安卓连接', name: 'match_android' ,width:68 ,is_order:true},
+               //{ display: '苹果连接', name: 'match_ios' ,width:68 ,is_order:true},
+               { display: '使用率', name: 'usage_rate' ,width:70 ,is_order:true,
+			   format:function(data,display,opt,html){
+					var _display    = ZwzCommonOp.roundFun(display*1000/10,2);
+					var _usage_rate = ZwzCommonOp.roundFun(data.average[0].usage_rate*1000/10,2);
+					ITEM_TIPS_MESSAGE['usage_rate'] = '当前时间'+opt.display+'平均为：'+(_usage_rate)+'%';
+					if(0 == _display){
+						$(html).attr('title','无效数据');
+						return '--';
+					}
+					return "<span class='"+(_usage_rate==_display?'equal':(_usage_rate>_display?'desc':'asc'))+"'>"+(_display)+"%</span>";
+			   }},
+               { display: '安卓下载数', name: 'phone_android' ,width:80 ,is_order:true},
+               { display: '安卓转化率', name: 'conversion_rate_android' ,width:100 ,is_order:true,
+			   format:function(data,display,opt,html){
+					var _display    = ZwzCommonOp.roundFun(display*1000/10,2);
+					var _conversion_rate_android = ZwzCommonOp.roundFun(data.average[0].conversion_a_rate*1000/10,2);
+					ITEM_TIPS_MESSAGE['conversion_rate_android'] = '当前时间'+opt.display+'平均为：'+_conversion_rate_android+'%';
+					return "<span class='"+(_conversion_rate_android==_display?'equal':(_conversion_rate_android>_display?'desc':'asc'))+"'>"+_display+"%</span>";
+			   }},
+			   { display: '安卓arup', name: 'arup_android' ,width:85 ,is_order:true,
+			   format:function(data,display,opt,html){
+					var _display    = ZwzCommonOp.roundFun(display,2);
+					var arup_android = ZwzCommonOp.roundFun(data.average[0].arup_android,2);
+					ITEM_TIPS_MESSAGE['arup_android'] = '当前时间'+opt.display+'平均为：'+arup_android;
+					return "<span class='"+(arup_android==_display?'equal':(arup_android>_display?'desc':'asc'))+"'>"+_display+"</span>";
+			   }},
+              /* { display: '苹果arup', name: 'arup_ios' ,width:85 ,is_order:true,
+			   format:function(data,display,opt,html){
+					var _display    = ZwzCommonOp.roundFun(display,2);
+					var arup_ios = ZwzCommonOp.roundFun(data.average[0].arup_ios,2);
+					ITEM_TIPS_MESSAGE['arup_ios'] = '当前时间'+opt.display+'平均为：'+arup_ios;
+					return "<span class='"+(arup_ios==_display?'equal':(arup_ios>_display?'desc':'asc'))+"'>"+_display+"</span>";
+			   }},*/
+               { display: '推荐arup', name: 'arup_android_biz' ,width:85 ,is_order:true,
+			   format:function(data,display,opt,html){
+					var _display    = ZwzCommonOp.roundFun(display,2);
+					var _average    = ZwzCommonOp.roundFun(data.average[0].arup_android_biz,2);
+					ITEM_TIPS_MESSAGE['arup_android_biz'] = '当前时间'+opt.display+'平均为：'+_average;
+					return "<span class='"+(_average==_display?'equal':(_average>_display?'desc':'asc'))+"'>"+_display+"</span>";
+			   }},
+               { display: '安卓下载量', name: 'soft_android' ,width:80 ,is_order:true},
+			   { display: '安卓推荐下载', name: 'biz_soft_android' ,width:95 ,is_order:true},
+              /* { display: '苹果下载数', name: 'phone_ios' ,width:80 ,is_order:true},
+               { display: '苹果转化率', name: 'conversion_rate_ios' ,width:95 ,is_order:true,
+			   format:function(data,display,opt,html){
+					var _display    = ZwzCommonOp.roundFun(display*1000/10,2);
+					var conversion_rate_ios = ZwzCommonOp.roundFun(data.average[0].conversion_i_rate*1000/10,2);
+					ITEM_TIPS_MESSAGE['conversion_rate_ios'] = '当前时间'+opt.display+'平均为：'+conversion_rate_ios+'%';
+					return "<span class='"+(conversion_rate_ios==_display?'equal':(conversion_rate_ios>_display?'desc':'asc'))+"'>"+_display+"%</span>";
+			   }},
+			   { display: '苹果下载量', name: 'soft_ios' ,width:80 ,is_order:true},*/
+               { display: '单台成本', name: 'single_cost' ,width:95 ,is_order:true,
+			   format:function(data,display,opt,html){
+					var _display    = ZwzCommonOp.roundFun(display,2);
+					var _average    = ZwzCommonOp.roundFun(data.average[0].single_cost,2);
+					ITEM_TIPS_MESSAGE['single_cost'] = '当前时间'+opt.display+'平均为：'+_average;
+					if(0 == _display){
+						$(html).attr('title','无效数据');
+						return '--';
+					}
+					return "<span class='"+(_average==_display?'equal':(_average>_display?'desc':'asc'))+"'>"+_display+"</span>";
+			   }},
+               { display: '一键安装数', name: 'phone_one_key_install' ,width:80 ,is_order:true},
+               { display: '一键安装率', name: 'usage_rate_one_key_install' ,width:95 ,is_order:true,
+			   format:function(data,display,opt,html){
+					var _display    = ZwzCommonOp.roundFun(display,2);
+					var _average    = ZwzCommonOp.roundFun(data.average[0].usage_rate_one_key_install,2);
+					ITEM_TIPS_MESSAGE['usage_rate_one_key_install'] = '当前时间'+opt.display+'平均为：'+_average+'%';
+					return "<span class='"+(_average==_display?'equal':(_average>_display?'desc':'asc'))+"'>"+_display+"%</span>";
+			   }}
+               ];
+var DO_API_URL  = '/apis/api_statlogin.json';
+var CF_DO_PRA   = '';
+var CF_INIT_PRA = '';
+var CF_INIT_FLAG= true;
+var over_a_tmp  = 0;
+ITEM_TIPS_MESSAGE = {
+	'usage_rate':'',
+	'conversion_rate_android':'',
+	'conversion_rate_ios':'',
+	'single_cost':'',
+	'arup_android_biz':'',
+	'arup_ios':'',
+	'usage_rate_one_key_install':'',
+	'arup_android':''
+};
+
+function show_head(){
+	var _per_width = 80;//每列的宽度
+	var init_width = init_width_fix = 0;
+	var _str       = '';
+	var tmp_date   = eval(CF_TYPE+'_head');
+	var _fex_flag  = false;
+
+	$('#fixedtableheader,#fixedtableheader0').remove();
+	$('#dataTheadTr,#dataTheadTr_fex,#dataTable tbody,#dataTable_fex tbody').empty();
+
+	$.each(tmp_date,function(k,v){
+		var _str = '<th class="header '+(v.is_order?'thAjax ':'')+'itemTips" order="'+v.name+'" index="'+k+'" item="'+v.name+'" style="display:'+(v.hide?'none':'')+'"';
+		$.each(v,function(kk,vv){
+			if(kk=='display' || kk=='format') return true;
+			_str += ' '+kk+'="'+vv+'"';
+		})
+		_str += '>'+v.display+'</th>';
+		
+		if(v.frozen){
+			//设置fex表格
+			$('#dataTheadTr_fex').append(_str);
+			_fex_flag = true;
+			if(!v.hide){
+				var _width_ = typeof v.width != 'undefined' ? v.width : 80;
+				init_width_fix += parseInt(_width_);
+			}
+			return true;
+		}
+		$('#dataTheadTr').append(_str);
+		typeof v.width != 'undefined' && (_per_width = v.width); 
+		init_width 	   += _per_width;
+	})
+	if(!_fex_flag){
+		$('#overflowDiv_fex').hide();
+		$('#overflowDiv').css({"width":"auto","border-left":"1px solid #C1CBDF"});
+	}else{
+		$('#overflowDiv_fex').show();
+		$('#overflowDiv').css({"width":"auto","border-left":"0px solid #C1CBDF"});
+	}
+	$('#dataTable').width(init_width);//动态设置宽度出现滚动条
+	$('#overflowDiv_fex').width(init_width_fix+6);//动态设置fex宽度
+	if ($.browser.msie && 0 < $("#overflowDiv")[0].offsetWidth && $.browser.version=='7.0') { 
+		if($('#overflowDiv')[0].scrollWidth > $('#overflowDiv')[0].offsetWidth){
+			$('#overflowDiv').css({'padding-bottom' : '16px'});
+		}else $('#overflowDiv').css({'padding-bottom' : '0px'});
+	}
+	
+	//初始化排序
+	orderAjax('', CF_DO_PRA.sortname, CF_DO_PRA.sortorder, 'thAjax', 'dataTheadTr');
+	//初始化提示信息
+	initItemTips('itemTips');
+	$('div:.prmm').remove();
+}
+function showData(pra){
+	var pra    = pra || {};
+	var _pra   = CF_DO_PRA || {
+			'date':$('#startDate').val(),
+			'end_date':$('#endDate').val(),
+			'page':0,
+			'sortname':'match_android',
+			'sortorder':'desc',
+			'name':$('#' + UB_URL_IPT).val() == DEFAULT_SEARCH_TXT ? '' : $('#' + UB_URL_IPT).val(),
+			'pagesize':CF_PAGE.items_per_page
+	};
+	_pra = $.extend(_pra,pra,{
+		province:$('#province').val()
+	});
+	CF_TYPE    = _pra.type;
+	CF_DO_PRA  = _pra;
+	
+	//初始化表头
+	show_head();
+	$("#escape_div").html('');
+	$("#escape_div").text(CF_DO_PRA.name);
+	
+	$('#tip_name').html((CF_DO_PRA.name==''?'':'&nbsp;&nbsp;搜索"')+$("#escape_div").html()+(CF_DO_PRA.name==''?'':'"'));
+	$('#tip_date').html(parseDate(CF_DO_PRA.date).format("yyyy年MM月dd日")+(CF_DO_PRA.date == CF_DO_PRA.end_date?'':'至'+parseDate(CF_DO_PRA.end_date).format("yyyy年MM月dd日"))+"");
+	//初始化数据
+	showLoadingDiv($("#load_div_cnt").is(":hidden")?'load_div_cnt_no':'load_div_cnt');
+	CF_DO_PRA._act = 'cut';
+	$.getJSON(DO_API_URL,CF_DO_PRA,function(data){
+		CF_DO_PRA._act = 'info';
+		clearLoadingDiv();
+		$(".pagination").pagination(data.Total, CF_PAGE);
+	});
+}
+function pageselectCallback(page_index,jq,opts){
+	$('#fixedtableheader,#fixedtableheader0').remove();
+	$('#dataTable tbody,#dataTable_fex tbody').empty();
+	CF_DO_PRA.page     = page_index+1;
+	CF_DO_PRA.pagesize = opts.items_per_page;
+	
+	showLoadingDiv($("#load_div_cnt").is(":hidden")?'load_div_cnt_no':'load_div_cnt');
+	$.getJSON(DO_API_URL,CF_DO_PRA,function(data){
+		clearLoadingDiv();
+		packageData(data.Rows);
+	});
+	return false;
+}
+function packageData(datas){
+	var data = datas.analysis;
+	var fex_table = $('#dataTable_fex').find('table');
+	var dat_table = $('#dataTable').find('table');
+	var head_obj  = eval(CF_TYPE+'_head');
+	var _str,__str,_display,_index;
+	
+	if(ZwzCommonOp.isEmpty(data)){
+		$('#load_div_cnt_no').show();
+		$('#load_div_cnt').hide();
+		return;
+	}else {$('#load_div_cnt').show();$('#load_div_cnt_no').hide();}
+	$.each(data,function(k,v){
+		//组装fex表格数据DOM
+		_str = $('<tr></tr>');
+		$(fex_table).find('thead th').each(function(){
+			__str    = $('<td id="'+k+'_'+$(this).attr('name')+'"></td>');
+			_display = eval("v."+$(this).attr('name'));
+			_index   = $(this).attr('index');
+			_display = 'function' == typeof head_obj[_index].format ? head_obj[_index].format(datas,_display,head_obj[_index],$(__str)) : _display;
+
+			$(__str).html(_display);
+			head_obj[_index].hide && $(__str).hide();
+			$(_str).append($(__str));
+		});
+		0 < $(fex_table).find('thead th').length && $(fex_table).find('tbody').append($(_str));
+		//组装table表格数据DOM
+		_str = $('<tr></tr>');
+		$(dat_table).find('thead th').each(function(){
+			__str    = $('<td id="'+k+'_'+$(this).attr('name')+'"></td>');
+			_display = eval("v."+$(this).attr('name'));
+			_index   = $(this).attr('index');
+			_display = 'function' == typeof head_obj[_index].format ? head_obj[_index].format(datas,_display,head_obj[_index],$(__str)) : _display;
+
+			$(__str).html(_display);
+			head_obj[_index].hide && $(__str).hide();
+			$(_str).append($(__str));
+		});
+		0 < $(dat_table).find('thead th').length && $(dat_table).find('tbody').append($(_str));
+	});
+	/*固定表头*/
+	$(".tablesorter").fixedtableheader({ addclass:['box','fix_tmp'],headerrowsize: 1 });
+	//处理滚动隐藏start
+	if('undefined' == typeof _INIT_SCROLL_LEFT) _INIT_SCROLL_LEFT= $('#overflowDiv').scrollLeft();
+	
+	$('<div id="fixedtableheader"><div id="fixedtableheader_"></div></div>').appendTo($("body"));
+	$('#fixedtableheader1').css('position','relative');
+	if('undefined' == typeof __INIT_LEFT__){
+		__INIT_LEFT__ = $('#fixedtableheader1').css('left');
+		__INIT_LEFT__ = (Math.floor(__INIT_LEFT__.replace(/px/g,''))+_INIT_SCROLL_LEFT)+'px';
+	}
+	$('#fixedtableheader').css({
+		"overflow":"hidden",
+		"width":$("#overflowDiv").width(),
+		"position":"fixed",
+		"top":"0px",
+		"left":__INIT_LEFT__
+	});
+	$('#fixedtableheader_').css({
+		"position":"relative",
+		"top":"0px",
+		"left":'-'+__INIT_LEFT__
+	});
+	$('#fixedtableheader_').append($('#fixedtableheader1'));
+	//处理滚动隐藏end
+	//初始化横向滚动条事件
+	$('#overflowDiv').scroll(function(){
+		var _scrollLeft = $(this).scrollLeft();
+		if(!INIT_SCROLL_LEFT){
+			INIT_SCROLL_LEFT = $('#fixedtableheader1').offset().left+_INIT_SCROLL_LEFT;
+		}
+		if(0 < INIT_SCROLL_LEFT){
+			$('#fixedtableheader1').css('left',parseInt(INIT_SCROLL_LEFT-_scrollLeft)+'px');
+		}
+	});
+	/*固定表头*/
+}
+function mergeData(pra,vv){
+	var pra  = pra || {};
+	var vv   = vv || {};
+	var _pra = ZwzCommonOp.clone(pra,2);
+	$.each(vv,function(k,v){
+		eval("_pra."+k+" = '"+(!!v?v.toString().replace(/'/g,"\\'"):'')+"';");
+	});
+	return _pra;
+}
+$(document).ready(function() {
+   	//if($('#overflowDiv') && !$('#overflowDiv').hasClass('overflowDivPlus')) {
+    //    $('#overflowDiv').addClass('overflowDivPlus');
+    //}
+	$('#dataTable_fex table tbody tr,#dataTable table tbody tr').live('click',function(){
+		var _index  = $(this).index();
+   		var _doId   = parseInt($('#'+_index+'_shop_id').text());
+   		var _done   = $('#'+_index+'_shop_name').text();
+   		if(!_doId) return ;
+		var _url 	= '/decision_detail.html?shopId='+_doId+'&date='+CF_DO_PRA.date+'&end_date='+CF_DO_PRA.end_date;
+		DIALOG 		= $.ligerDialog.open({ url: _url,isResize:true,width:900,height:490,title:_done });
+	});
+	$("#overflowDiv table tbody tr,#overflowDiv_fex table tbody tr").live({
+		mouseenter:
+		function()
+		{
+			$('#overflowDiv_fex table tbody tr').eq($(this).index()).css({'background-color':'#F2F2F2','color':'#333'});
+			$('#overflowDiv table tbody tr').eq($(this).index()).css({'background-color':'#F2F2F2','color':'#333'});
+		},
+		mouseleave:
+		function()
+		{
+			$('#overflowDiv_fex table tbody tr').eq($(this).index()).css({'background-color':'','color':''});
+			$('#overflowDiv table tbody tr').eq($(this).index()).css({'background-color':'','color':''});
+		}
+	});
+   	$('#tab_use_info li').live('click',function(){
+   		$('#tab_use_info li').removeClass('a');
+		$(this).addClass('a');
+		
+		var isSup     = CF_SESS.isSup;
+		var cf_level  = CF_SESS.level;
+		var cf_realid = CF_SESS.real_id;
+		CF_DO_PRA   = '';
+		CF_INIT_PRA = '';
+		$('#' + UB_URL_IPT).val('');
+   		$('#' + UB_URL_IPT).trigger('blur');
+		
+		if($(this).index() == 0){
+			CF_INIT_PRA = {type:'decision_shop',total:0,do_id:isSup?0:cf_realid};
+		}
+		if(CF_INIT_FLAG){
+			CF_INIT_PRA  = mergeData(CF_INIT_PRA,URLOBJ.params);
+			CF_INIT_FLAG = false;
+		}
+		showData(CF_INIT_PRA);
+   	});
+   	var startDate 		   = URLOBJ.params.date || CUR_DATE;
+    var endDate   		   = URLOBJ.params.end_date || CUR_DATE;
+    
+    var dateRange = new pickerDateRange('date', {
+        isTodayValid: '',
+        startDate: startDate,
+        endDate: endDate,
+        monthRangeMax:3,
+        needCompare: false,
+        target: 'statsTableForm',
+        success: function(obj) {
+        	showData({date:$('#startDate').val(),end_date:$('#endDate').val()});
+        }
+    });
+	//初始化体系结构
+	LKSOPT = {
+		ajax: DO_API_URL+'?type=get_member_info&id='+(CF_SESS.isSup?0:CF_SESS.real_id),
+		selStyle: 'margin-left: 3px;',
+		loaderImg:'/resources/stats/images/loading.gif',
+		defVal: (URLOBJ.params.selId || '').split(','),//[8317,10651,10656],
+		autoLink:false,
+		head:'所有渠道',
+		minWidth:150,
+		onChange:function(){
+			setTimeout(function(){
+				if(LKSOPT.defVal[0]!=''){
+					linkageSel.changeValues(LKSOPT.defVal);
+					var arr = linkageSel.getSelectedArr();
+					if(arr.join(',') == LKSOPT.defVal.join(',')) LKSOPT.defVal = [];
+				}
+			},100);
+		},
+		select: '#sys_show'
+	};
+	linkageSel = new LinkageSel(LKSOPT);
+	$("#city_select_show").ProvinceCity((URLOBJ.params.province || ''),'','',1);
+	if($('#tab_use_info li').eq(URLOBJ.params.index || 0).length){
+		$('#tab_use_info li').eq(URLOBJ.params.index || 0).trigger('click');
+	}
+	$(window).keydown(function(event){
+		switch(event.keyCode){
+			case 37://左
+				$("#overflowDiv").scrollLeft($("#overflowDiv").scrollLeft()-5);
+			break;
+			case 39://右
+				$("#overflowDiv").scrollLeft($("#overflowDiv").scrollLeft()+5);
+			break;
+			default:break;
+		}
+     });
+});
+</script>
+<div class="bm_h cl">
+	<div class="nav_dh">
+		<label for="web"><a href="/">信息管理平台</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="javascript:void(0);">决策系统</a></label>
+		<label for="web">&rsaquo;</label>
+		<label for="web"><a href="/decision_shop.html">店面维度</a></label>
+		<label style="float:right;margin-right:10px;width:80px;"><a id="exportFile" href="javascript:void(0);" class="export" title="导出数据">导出数据</a></label>
+		<!--{if $smarty.session.isSup}--><label style="float:right;margin-right:10px;width:110px;"><a id="implodeFile" href="javascript:void(0);" class="export" title="导入销量数据">导入销量数据</a></label><!--{/if}-->
+	</div>
+</div>
+<div class="bm">
+    <form id="statsTableForm" name="statsTableForm" action="/source/keyword">
+        <input type="hidden" id="sId" name="sId" value="9562249" />
+        <input type="hidden" id="func_table" name="func" value="table" />
+        <input type="hidden" id="range_table" name="range" value="" />
+        <!-- calendar //-->
+        <div class="controlbar cl">
+            <!-- <a id="exportFile" href="javascript:void(0);" class="export" title="导出数据">导出数据</a> -->
+            <ul class="datebar cl">
+                <li class='a'>
+                    <a href="javascript:void(0);" id="aYesterday">
+                        昨天
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0);" id="aRecent7Days">
+                        最近7天
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0);" id="aRecent30Days">
+                        最近30天
+                    </a>
+                </li>
+            </ul>
+            <input type="text" name="date" id="date" value="" class="px date" />
+        </div>
+        <script type="text/javascript">
+            var crmqq = '';
+
+            $(document).ready(function() {
+				$('#implodeFile').live('click',function(){
+					DIALOG = $.ligerDialog.open({ 
+						url: '/layer/sales_implode.html',
+						isResize:true,
+						width:600,
+						height:300 
+					});
+				});
+                $('#exportFile').click(function() {
+                	var _tmp = {"sortname":CF_DO_PRA.sortname,"sortorder":CF_DO_PRA.sortorder};
+            		$.each(CF_DO_PRA,function(k,v){
+            			eval("_tmp['"+k+"']='"+(!!v?v.toString().replace(/'/g,"\\'"):'')+"';");
+            		});
+            		$('#rqstr').val($.toJSON(_tmp));
+            		$('#excel_frm').submit();
+                    return false;
+                });
+            });
+        </script>
+        <div class="optionbar cl mbm">
+            <dl class="cl">
+                <dt></dt>
+                <dd>
+                    <ul class="cl">
+                        <li>
+                        	<span id="tip_date" style="margin-left: 10px;"></span>
+                        	<span id="tag_tip"></span>区域：
+							<!--
+                        	<span style="margin-left:50px;">当前路径 ：</span>
+					    	<span id="tip_channel" class="a"></span>
+					    	<span id="tip_shop" class="a"></span>
+					    	<span id="last_name"></span>
+					    	<span id="tip_name"></span>
+							-->
+							<span id='city_select_show'></span>
+							渠道：
+							<select id="sys_show" ></select>
+                        </li>
+                    </ul>
+                </dd>
+            </dl>
+        </div>
+        <div class="bm_t">
+		    <h3>
+		        <div class="controlsearch vm">
+		            <input type="text" id="searchUrl" name="searchUrl" value="" class="px xg1" size="40" />
+		            <input type="hidden" id="searchUrlEncode" name="searchUrlEncode" value="" />
+		            &nbsp;
+		            <button id="searchUrlBtn" class="pnc pn">
+		                <span>查询</span>
+		            </button>
+		            <button class="pn" id="searchUrlBackBtn" style='display:none;'>
+		                <span>返回</span>
+		            </button>
+		        </div>
+		        <script type="text/javascript">
+		            // searchUrlBtn 表单名称
+		            var UB_URL_IPT = 'searchUrl';
+		            var UB_URLENCODE_IPT = 'searchUrlEncode';
+		            var UB_URL_BTN = 'searchUrlBtn';
+		
+		            var DEFAULT_SEARCH_TXT = '请输入要搜索的公司/店面/店员名称';
+		
+		            $(document).ready(function() {
+		                $('#' + UB_URL_IPT).val(URLOBJ.params.q || DEFAULT_SEARCH_TXT);
+		                $('#searchUrlBackBtn').click(function() {
+		                    $('#order').val('');
+		                    $('#' + UB_URLENCODE_IPT).val('');
+		                    $('#' + UB_URL_IPT).val(DEFAULT_SEARCH_TXT);
+		                    $('#' + UB_URL_IPT).addClass('xg1');
+		                    statsFormAjax(this.form);
+		                    return false;
+		                });
+		            });
+		
+		            // 当得到焦点时
+		            $('#' + UB_URL_IPT).bind('focus',
+		            function() {
+		                if ($(this).val() == DEFAULT_SEARCH_TXT) {
+		                    $(this).val('');
+		                    $(this).removeClass('xg1');
+		                }
+		                return false;
+		            });
+		            // 当失去焦点时
+		            $('#' + UB_URL_IPT).bind('blur',
+		            function() {
+		                if ($(this).val() == '') {
+		                    $(this).val(DEFAULT_SEARCH_TXT);
+		                    $(this).addClass('xg1');
+		                } else {
+		                    $('#' + UB_URLENCODE_IPT).val(encodeURIComponent($('#' + UB_URL_IPT).val()));
+		                }
+		                return true;
+		            });
+		            // 为 searchUrlBtn 添加  click 事件
+		            $('#' + UB_URL_BTN).bind('click',
+		            function() {
+		            	var _name = $('#' + UB_URL_IPT).val() == DEFAULT_SEARCH_TXT ? '' : $('#' + UB_URL_IPT).val();
+						showData({name:_name,do_id:linkageSel.getSelectedValue()});
+						return false;
+		            });
+		        </script>
+		    </h3>
+		</div>
+        <div class="bm_t">
+            <h3>
+              店面维度列表
+                <span id='tableHeadDate' class='start_and_end_date'>
+                </span>
+            </h3>
+        </div>
+        <div class="controlbar cl"  id="tab_use_info">
+            <ul class="datebar cl">
+                <li>
+                    <a id="" href="javascript:void(0);">店面维度</a>
+                </li>
+            </ul>
+        </div>
+    </form>
+    <div id='load_div_cnt_no' style='display:none;'><p style='text-align:center;font-size:14px;line-height:200px;'>暂无数据</p></div>
+    <div id='load_div_cnt'>
+    <div id='overflowDiv_fex' style='float:left;'>
+		<div id="dataTable_fex" class="box">
+            <table class="tablesorter" id="sortTable">
+            <thead>
+                <tr id="dataTheadTr_fex">
+			        <!-- <th class="header thAjax itemTips" order="pv" item="pv">关键词</th> -->
+			    </tr>
+			</thead>
+			<tbody></tbody>
+            </table>
+        </div>
+	</div>
+    <div id="overflowDiv" class="overflowDiv" style='width:auto'>
+        <div id="dataTable" class="box">
+            <table class="tablesorter" id="sortTable">
+            <thead>
+                <tr id="dataTheadTr">
+                <!-- 
+			        <th class="hc">关键词</th>
+	                <th class="header thAjax itemTips" order="pv" item="pv">浏览量(PV)</th>
+	                <th class="header thAjax itemTips" order="uv" item="uv">独立访客(UV)</th>
+	                <th class="header thAjax itemTips" order="vv" item="vv">访问次数(VV)</th>
+	                <th class="hc">历史趋势</th>
+			        <th class="hc">查看引擎</th>
+				-->
+			    </tr>
+			</thead>
+			<tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="pageAjax" class="pgs cl">
+        <div class="pg">
+        	<span id='Pagination' class="pagination"></span>
+        </div>
+    </div>
+    </div>
+</div>
+<form id="excel_frm" target="" method="get" action="/api/exp.php">
+<input type='hidden' id='rqstr' name="rqstr" value='' />
+</form>

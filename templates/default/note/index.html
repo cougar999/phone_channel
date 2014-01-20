@@ -1,0 +1,211 @@
+<style>
+.main_a_c2{
+	margin-left:75px;
+	overflow:hidden;
+	width:440px;
+}
+.main_a_c1{
+	width:440px;
+	overflow:hidden;
+}
+.datalist{
+	margin:0px;
+}
+.Communication_left {
+    border-right: 1px solid #999999;
+    padding-right: 10px;
+    width: 440px;
+}
+.float_left {
+    float: left;
+}
+.float_clear {
+    clear: both;
+    width: 100%;
+}
+.Communication{font-family:Arial;font-size:13px;font-weight:normal;font-style:normal;text-decoration:none;color:#666666; width:auto}
+#msgTxt{resize: none; height:79px; width:390px;border-left:1px double #8c8c8c; border-top:1px double #8c8c8c; border-right:1px double #99bbe8; border-bottom:1px double #99bbe8;}
+.u30{border: 0 none;cursor: pointer;outline: medium none;overflow: hidden;text-align: left;text-indent: -9999em;_text-indent: 37em; margin-left:10px; background: url("/resources/images/send_out.gif") no-repeat scroll 0 0 transparent;height: 25px;width: 77px;margin-left: 10px;}
+.Communication_form{width: 440px; margin-top:20px;margin-bottom:5px;}
+.textarea_content{width: 440px;float:left}
+.input_submit{width: 77px;float:left; margin-top:30px; _margin-top:-50px}
+.Communication_left{width:440px;padding-right:10px;_padding-right:5px;border-right-color:#999999;border-right-width:1px;border-right-style: solid;}
+.Communication_left ul{border-bottom-width: 1px;border-bottom-style: dashed;border-bottom-color: #999999;margin:10px;_margin-bottom:-20px; padding:0px;}
+.Communication_left ul li{clear:both;}
+.Communication_left ul li p{text-indent:2em; float:left}
+.Communication_right{width:203px; font-family:Arial;font-size:13px;font-weight:normal;font-style:normal;text-decoration:none;color:#333333;background-color:#f4f4f4}
+.Communication_right ul{border:none}
+.Communication_right ul li{height:30px; line-height:22px}
+.Communication_right ul li img{vertical-align:bottom;padding-bottom:3px;}
+
+.msgCnt{
+	border-top: 1px dashed #D8D8D8;padding:10px;
+}
+.relayList li{
+	width:440px;word-wrap:break-word;
+}
+.relayList .msgCnt {
+    display: block;
+    font-size: 12px;
+    line-height: 19px;
+    padding: 0 0 0 4px;
+    word-wrap: break-word;
+    margin-left:2em;
+    border-top: 1px dashed #D8D8D8;padding:2px 0
+}
+.msgCnt strong {
+	background: url("/resources/images/user_head.gif") no-repeat scroll 0 4px transparent;
+	padding-left: 20px;
+    padding-right: 5px;
+    text-align: left;
+}
+
+.relayList .msgCnt strong {
+	background: url("/resources/images/user_head.gif") no-repeat scroll 0 2px transparent;
+	padding-left: 20px;
+    padding-right: 5px;
+    text-align: left;
+}
+.msgCnt .content {
+    margin: 0 4px 0 0;
+    display:block;
+    padding-left: 20px;
+    word-wrap: break-word;
+    text-indent:2em;
+}
+</style>
+<link href="/resources/css/pagination.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="/resources/js/jquery.pagination.js"></script>
+<script type='text/javascript'>
+var opt = {
+	num_edge_entries:1,
+	prev_text:'上一页',
+	next_text:'下一页',
+	items_per_page:10,
+	num_display_entries:5,
+	callback: pageselectCallback
+};
+function getLocalTime(nS) {  
+    return new Date(parseInt(nS) * 1000).toLocaleString().replace(/:\d{1,2}$/,' ').replace(/年|月/g, "-").replace(/日/g, " ");
+}
+function packageData(data){
+	var html = '';
+	$('#show_data').empty();
+	$.each(data,function(k,v){
+		html += '<ul>\
+					<span>'+v.content+'</span>\
+					<span class="pright">'+getLocalTime(v.create_date)+'</span>\
+				</ul>';
+	});
+	$('#show_data').append(html);
+}
+function pageselectCallback(page_index,jq){
+	UtilCp.loadingHtml('show_data','/resources/images/loader.gif');
+	$.post('/api/api_notice.php',{tag:'list',act:'info',pageno:page_index+1,count:opt.items_per_page},function(data){
+		packageData(data.info);
+		return ;
+	},'json');
+}
+function click_reply(nid){
+	var content = $("#record_"+nid).val();
+	if(trim(content)==''){
+		alert('回复内容不能为空！');
+		return false;
+	}
+	$.post('/api/record.php', {nid:nid, content:content}, function(data){
+		$("#record_"+nid).attr('value','');
+		$("#ul_"+nid).html(data);
+		return false;
+	});
+}
+function msgtxt(){
+	var text=$("#msgTxt").val();
+	if(trim(text)==''){
+		alert("消息内容不能为空");
+		return false;
+	};
+}
+function trim(str){ //删除左右两端的空格
+    return str.replace(/(^\s*)|(\s*$)/g, "");
+}
+$(function(){
+	UtilCp.loadingHtml('show_data','/resources/images/loader.gif');
+	$.post('/api/api_notice.php',{tag:'list',act:'cut'},function(data){
+		$("#Pagination_a").pagination(data.cut, opt);
+		return ;
+	},'json');
+})
+</script>
+<div class="main_a_c1 p_fl">
+		<div class="main_a_a1 tip_a p_fl">公告通知</div>
+		<div style="width: 333px;" class="main_a_a2 p_fl"></div>
+		<div class="clear"></div>
+		<div class="main_a_c11">
+			<div class="datalist">
+				<div class="datalist_top"></div>
+				<span id='show_data' style="min-height:300px;height:auto;width:440px;"></span>
+				<div id="Pagination_a" class="pagination"></div>
+			</div>
+		</div>
+</div>
+<div class="main_a_c2 p_fl">
+		<div class="main_a_a1 tip_a p_fl">在线信息</div>
+		<div style="width: 333px;" class="main_a_a2 p_fl"></div>
+		<div class="clear"></div>
+		<div class="main_a_c11">
+			<div class="datalist">
+				<div class="datalist_top"></div>
+<!--{if $smarty.post.content}-->
+	<!--{communication tag=add ret=b_res}-->
+	<!--{if $b_res}-->
+		<div style="text-align:center">发表成功！</div>
+	<!--{else}-->
+		<div style="text-align:center">发表消息不能为空！</div>
+	<!--{/if}-->
+	<script language="javascript">window.location.replace("/note/index.html");</script>
+<!--{else}-->
+<div class="Communication_left float_left">
+<form method="post" action="" onsubmit="return msgtxt()">
+	<div class="Communication_form">
+		<input type='text' id='msgTxt' name='content' title='请输入要发布的信息' style='height:19px;width:328px;padding-top:3px;'>&nbsp;&nbsp;
+		<input type='submit' name='communicat_submit' id='btn_send' value='快捷发信息' class='u30'/>
+	</div>
+</form>	
+	<div class="float_clear"></div>
+	<!--{communication tag=list count=10 ret=arrdb}-->
+	<b>我收到的消息：</b>
+	<div style="padding:10px;">
+		<div class="datalist_top"></div>
+		<!--{section name=k loop=$arrdb}-->
+		<div class="msgCnt">
+			<div><strong class="pleft"><!--{if $arrdb[k].uid==$assign.userid}-->我<!--{else}--><!--{$arrdb[k].real_name}--><!--{/if}-->&nbsp;说:</strong><span class="pright"><!--{$arrdb[k].create_date|date_format:"%Y:%m:%d %T"}--></span></div>
+			<div class="clear"></div>
+			<div class="content"><!--{$arrdb[k].content}--></div>
+			<div style="text-indent:2em">
+				<input name="" id="record_<!--{$arrdb[k].nid}-->" maxlength="140" type="text" style="float:left;width:295px;height:25px;_height:20px;border:1px solid #CCCCCC">
+				<a onclick="javascript:click_reply(<!--{$arrdb[k].nid}-->)" href="javascript:void(0)"><img style="float:right;margin-bottom: -12px;_margin-bottom: -5px;" src="/resources/images/reply.gif" /></a>
+			</div>
+		</div>
+		<div class="clear"></div>
+		<div id='ul_<!--{$arrdb[k].nid}-->' class="relayList" style="">
+			<!--{communication_record nid=$arrdb[k].nid ret='record_list'}-->
+			<!--{section name=j loop=$record_list}-->
+			<li>
+				<div class="msgCnt">
+					<div><strong class="pleft"><!--{if $record_list[j].uid==$assign.userid}-->我<!--{else}--><!--{$record_list[j].name}--><!--{/if}-->&nbsp;说:</strong><span class="pright"><!--{$record_list[j].create_date|date_format:"%Y:%m:%d %T"}--></span></div>
+					<div class="clear"></div>
+					<div class="content"><!--{$record_list[j].content}--></div>
+				</div>
+			</li>
+			<!--{/section}-->
+			<div class="clear"></div>
+		</div>
+		<div class="clear"></div>
+		<!--{/section}-->
+		
+	</div>
+</div>
+<!--{/if}-->
+			</div>
+		</div>
+</div>

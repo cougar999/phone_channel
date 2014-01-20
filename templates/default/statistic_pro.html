@@ -1,0 +1,475 @@
+<style>
+.main_a_b{min-height:300px;height:auto;}
+.main_a_c1{width:458px;}
+.main_a_c2{margin-left:53px;width:440px;}
+.main_a_c{height:242px;}
+.main_a_c11{padding-top:12px;}
+.main_a_c11 ul li{height:32px;line-height:32px;overflow:hidden;}
+.main_a_c11p{color:#0000ff;height:32px;line-height:32px;overflow:hidden;width:370px;}
+.main_a_c2 p{line-height:23px;}
+.main_a_ab{margin-top:13px;}
+
+.main_a_a1 {
+    margin-top: 1px;
+}
+.main_a_a {
+    height: 25px;
+    line-height: 25px;
+    width: 100%;
+	border-bottom:2px solid #7AD3FF;
+}
+.main_a1{
+	font-size:14px;
+	font-weight:bold;
+	width:107px;
+	text-align:center;
+	margin-right:31px;
+}
+.main_a2{
+	margin-right:21px;
+	color:#92c1e3;
+}
+.main_a_a div{cursor:pointer;}
+.sel_quk a{cursor:pointer;}
+
+.waiting{ color:Gray;}
+.sear_cnt{margin:10px;width:98%;}
+.sear_cnt span{margin-left:2px;}
+.l-grid-row-over{cursor:pointer;}
+</style>
+<div class="main_a_a p_fl">
+	<div class="main_a1 p_fl"><a href='/statistic.html'>登陆概览</a></div>
+	<div class="main_a1 p_fl"><a href='/statistic_use.html'>使用概览</a></div>
+	<div class="main_a1 p_fl main_a_a1">产品概览</div>
+</div>
+<div class='clear'></div>
+<div class='main_a_b'>
+<!--{if empty($smarty.session.level)}-->
+<p style="text-align:center;line-height:300px">暂无数据</p>
+<!--{else}-->
+<link href="/resources/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+<script src="/resources/lib/ligerUI/js/core/base.js" type="text/javascript"></script> 
+<script src="/resources/lib/ligerUI/js/plugins/ligerGrid.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerResizable.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerDateEditor.js" type="text/javascript"></script>
+<script src="/resources/lib/jquery.json-2.3.min.js" type="text/javascript"></script>
+<script src="/resources/lib/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>
+<script src="/resources/js/comm_op.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+var g;
+flag_login 		= false;
+cur_date   		= GetDateStr(-1);
+var channel_tip = '';
+var init_so     = urlObj.params.show || 0;
+var cf_level    = <!--{$smarty.session.level}-->;
+var cf_realid   = <!--{$smarty.session.real_id}-->;
+_tip_username   = '<!--{$assign.username}-->';
+
+EXT_INFO   =   {
+	"login":{
+		"sketch":"登陆<font color=red>(未登陆)</font>",
+		"detail":"是否登陆"
+	}
+}
+var use_soft_detail_head = [
+               { display: '软件名称', name: 'soft_name' ,width:300},
+               { display: '下载数量', name: 'download_times' ,width:100}
+               ];
+var phone_imei_sketch_head = [
+               { display: 'IMEI', name: 'imei' ,width:300},
+               { display: '软件下载数', name: 'download_count' ,width:100}
+               ];
+var phone_type_sketch_head = [
+               { display: '主键', name: 'channel_id', align: 'left',hide:1 },
+               { display: '机型', name: 'phone_type_name' ,width:200,frozen: true},
+               { display: '平台', name: 'phone_os' ,width:100},
+               { display: '连接台数', name: 'connect_count' ,width:100}
+               ];
+var use_sketch_shop_head = [
+			   { display: '公司名', name: 'channel_name', width: 150 ,frozen: true},
+               { display: '店名', name: 'shop_name', width: 150 ,frozen: true},
+               { display: '手机连接(台)', name: 'phone_connect',width:110 ,
+	            	   render:function(item, column, cell ,a){
+	            		   return item.phone_connect == 0 ? "<font color=red>无</font>" : item.phone_connect;
+	            	   }},
+               { display: '苹果软件下载(个)', name: 'iso_soft_dl',width:110 ,
+                   	   render:function(item, column, cell ,a){
+                   		   return item.iso_soft_dl == 0 ? "<font color=red>无</font>" : item.iso_soft_dl;
+                   	   }},
+               { display: '安卓软件下载(个)', name: 'apk_soft_dl',width:110 ,
+                   	   render:function(item, column, cell ,a){
+                   		   return item.apk_soft_dl == 0 ? "<font color=red>无</font>" : item.apk_soft_dl;
+                   	   }},
+               { display: '苹果卡激活(张)', name: 'iso_card_act',width:110 ,
+                  	   render:function(item, column, cell ,a){
+                  		   return item.iso_card_act == 0 ? "<font color=red>无</font>" : item.iso_card_act;
+                  	   }},
+               { display: '下载卡激活(张)', name: 'dl_card_act',width:110 ,
+                   	   render:function(item, column, cell ,a){
+                   		   return item.dl_card_act == 0 ? "<font color=red>无</font>" : item.dl_card_act;
+                   	   }}
+               ];
+               
+function add_sel_tip(id,tip){
+	if($('#'+id).length){
+		$('#'+id).html(tip);
+	}else $('#sel_cnt_sp').append('<a class="sel_ed" id="'+id+'">'+tip+'</a>');
+}
+function reload_data(pra,_flag){
+	var _flag  = _flag || 0;
+	pra 	   = addval(pra,[{name: 'date', value: $('#sel_date').val()},{name: 'end_date', value: $('#sel_end_date').val()}]);
+	
+	var pra    = !_flag?addval(g.options.parms,pra):pra;
+	flag_login = false;
+	var type   = getval(pra,'type');
+	_type 	   = type;
+
+	if(getval(pra,'name')==''||getval(pra,'name')==null){
+		$('#sel_name').val('');
+		$('#sel_cnt_sp_name').remove();
+	}else{
+		$('#sel_name').val(getval(pra,'name'));
+		add_sel_tip('sel_cnt_sp_name',$('#sel_name').val());
+	}
+	if(!getval(pra,'date')){
+		$('#sel_date').val(cur_date);
+		$('#sel_cnt_sp_date').remove();
+	}else{
+		$('#sel_date').val(getval(pra,'date'));
+		add_sel_tip('sel_cnt_sp_date',$('#sel_date').val());
+	}
+	if(!getval(pra,'channel_id')){
+		$('#sel_cnt_sp_channel').remove();
+	}
+	$('#tip_name').html(($('#sel_name').val()==''?'':'&nbsp;&nbsp;搜索"')+$('#sel_name').val()+($('#sel_name').val()==''?'':'"'));
+	$('#tip_shop').html((channel_tip!=''?"&nbsp;&nbsp;":"")+channel_tip);
+	$('#tip_date').html(parseDate($('#sel_date').val()).format("yyyy年MM月dd日")+($("#date_sel_end").is(":hidden")?'':'到'+parseDate($('#sel_end_date').val()).format("yyyy年MM月dd日"))+"&nbsp;&nbsp;");
+	//if($('#sel_cnt_sp a').length) $('.s_had_ed').show();
+	//else $('.s_had_ed').hide();
+	
+	g.setOptions(
+		{ parms: pra,columns: eval(type+'_head').concat(show_head($('#sel_date').val(),$('#sel_end_date').val())),newPage:1,sortName:''}
+	);
+	g.loadData(true);
+	
+}
+function show_head(start,end){
+	var end = compareDate(end,cur_date)?cur_date:end;
+	var tmp_date = [];
+	if(_type != 'sketch' && _type != 'detail') return tmp_date;
+	
+	while(compareDate(GetDateStr(1,end),start)){
+		var _d = parseDate(start).format("dd");
+		var _m = parseDate(start).format("MM");
+		var _name = "d_"+_m+_d;
+		tmp_date[tmp_date.length] = {display:parseInt(_m,10)+"月"+parseInt(_d,10)+"号"+EXT_INFO.login[_type],name:_name+"_y",_name:_name,width:120,
+				render:function(item, column, cell ,a){
+					if(_type == 'sketch') return eval("item."+a._name+"_y")+"<font color=red>("+eval("item."+a._name+"_n")+")</font>";
+					else if(_type == 'detail'){
+						var _f = eval(eval("item."+a._name+"_y"));
+						return _f == 1 ? "是" : "<font color=red>否</font>";
+					}
+				}
+		};
+		start = GetDateStr(1,start);
+	}
+	return tmp_date;
+}
+function show_init(pra){
+	!!urlObj.params.name && $('#sel_name').val(urlObj.params.name);
+	!!urlObj.params.date && $('#sel_date').val(urlObj.params.date);
+	!!urlObj.params.end_date && $('#sel_end_date').val(urlObj.params.end_date);
+	
+	var type = getval(pra,'type');
+	_type    = type;
+	pra 	 = addval(pra,[{name: 'date', value: $('#sel_date').val()},{name: 'end_date', value: $('#sel_end_date').val()}]);
+	
+	g = $("#maingrid").ligerGrid({
+        columns: eval(type+'_head').concat(show_head($('#sel_date').val(),$('#sel_end_date').val())),
+        parms:pra,
+		isScroll: true, 
+		allowHideColumn: false,
+		pageSizeOptions: [50, 100 ,200], 
+		pageSize :50,
+		page:1,
+		newPage:1,
+		sortName:'',
+		//mouseoverRowCssClass:'',
+		//data:CustomersData,
+		url:'/api/api_statlogin.php',
+        showTitle: false,
+        width:'99%',
+        height:'auto',
+        rownumbers:true,
+        //columnWidth:120,
+        //detail: { onShowDetail: f_showOrder },
+        onSelectRow: function (data, rowindex, rowobj)
+        {
+        	if(getval(g.options.parms,'type')=='phone_type_sketch'){
+        		channel_tip = data.phone_type_name;
+    			add_sel_tip('sel_cnt_sp_channel',channel_tip);
+//            	reload_data(addval(g.options.parms,[{name:'type',value:'phone_imei_sketch'}]));
+            	reload_data([{name:'type',value:'phone_imei_sketch'},{name:'phone_type_name',value:data.phone_type_name}]);
+        	}
+        },
+        onUnSelectRow: function (data, rowindex, rowobj)
+        {
+            
+        },
+        onSuccess:function(data){
+        	$('.s_red').html(data.Total);
+        	if(!flag_login){
+            	flag_login = true;
+        	}else return;
+        },
+        onError: function (a, b){ 
+        	
+        }
+    });
+	$('#tip_date').html(parseDate($('#sel_date').val()).format("yyyy年MM月dd日")+($("#date_sel_end").is(":hidden")?'':'到'+parseDate($('#sel_end_date').val()).format("yyyy年MM月dd日"))+"&nbsp;&nbsp;");
+	$('#tip_channel').html(_tip_username);
+	/*try{
+		typeof g != 'undefined' && g.reRender();
+	}catch(e){}*/
+}
+$(function ()
+{
+	$("#kw").val($("#kw").attr('title')).addClass("waiting")
+    .blur(function () {  
+        if ($.trim($(this).val()) == "") {  
+            $("#kw").val($(this).attr('title')).addClass("waiting");  
+        }  
+    })  
+    .focus(function () {  
+        if ($.trim($("#kw").val()) == $(this).attr('title')) {  
+            $("#kw").val("").removeClass("waiting");  
+        }  
+    });  
+    $("#sel_name").val($("#sel_name").attr('title')).addClass("waiting")
+    .blur(function () {  
+        if ($.trim($(this).val()) == "") {  
+        	$(this).val($(this).attr('title')).addClass("waiting");  
+        }  
+    })  
+    .focus(function () {  
+        if ($.trim($(this).val()) == $(this).attr('title')) {  
+        	$(this).val("").removeClass("waiting");  
+        }  
+    });  
+    $('#btn_send').live('click',function(){
+    	$('#kw').val($.trim($('#kw').val()));
+    	if ($('#kw').val() == $('#kw').attr('title')) $('#kw').val('');
+    	if($('#kw').val()==''){
+    		$('#kw').focus();
+    		alert('内容不能为空！');
+    		return ;
+    	}
+    	$('#note_frm').submit();
+    });
+	$("#sel_name").keydown(function(e){
+		if(e.keyCode==13){
+			$('#ser_btn').trigger('click');
+		}
+	});
+	$('#tip_channel').live('click',function(){
+		channel_tip = '';
+		reload_data(addval(defaulePra,[{name:'name',value:''}]));
+	});
+	$('.sel_ed').live('click',function(){
+		if($(this).attr('id') == 'sel_cnt_sp_channel'){
+			reload_data([
+		           			{name: 'channel_id', value: 0},
+		        			{name: 'type', value: 'sketch'}
+		        		]);
+		}else if($(this).attr('id') == 'sel_cnt_sp_name'){
+			reload_data([
+		        			{name: 'name', value: ''}
+		        		]);
+		}else if($(this).attr('id') == 'sel_cnt_sp_date'){
+			reload_data([
+		        			{name: 'date', value: ''}
+		        		]);
+		}
+	});
+	$('#ser_btn').live('click',function(){
+		$('#sel_name').val($.trim($('#sel_name').val()));
+    	if ($('#sel_name').val() == $('#sel_name').attr('title')) $('#sel_name').val('');
+		reload_data([
+        			{name: 'name', value: $('#sel_name').val()}
+        		]);
+	});
+	$('.reset').live('click',function(){
+		reload_data(addval(defaulePra,[
+			{name:'name',value:''},
+			{name:'date',value:''}
+		]),1);
+	});
+	$('#excel_btn').live('click',function(){
+		if(g.getData()==''){
+			$.ligerDialog.confirm('当前内容为空确认要导出吗？', function (yes)
+            {
+                if(yes){
+                	var _tmp = {"sortname":g.options.sortName,"sortorder":g.options.sortOrder};
+            		$.each(g.options.parms,function(k,v){
+            			eval("_tmp['"+v.name+"']='"+v.value+"';");
+            		});
+            		$('#rqstr').val($.toJSON(_tmp));
+            		$('#excel_frm').submit();
+                }
+            });
+		}else{
+			var _tmp = {"sortname":g.options.sortName,"sortorder":g.options.sortOrder};
+    		$.each(g.options.parms,function(k,v){
+    			eval("_tmp['"+v.name+"']='"+v.value+"';");
+    		});
+    		$('#rqstr').val($.toJSON(_tmp));
+    		$('#excel_frm').submit();
+		}
+	});
+	$('.use_menu a').live('click',function(){
+		$('.use_menu a').removeClass('use_sel');
+		$(this).addClass('use_sel');
+		$('#tag_tip').html($(this).html());
+		
+		if($(this).index() == 0){
+			if(cf_level == 1){
+				 defaulePra = [{name:'type',value:'use_sketch_shop'},{name:'total',value:'1'}];
+			}else if(cf_level == 2){
+				defaulePra = [
+			                	{name:'type',value:'use_sketch_shop'},
+			                	{name:'total',value:'1'},
+			                	{name:'channel_id',value:cf_realid}
+			              	];
+			}else if(cf_level == 3){
+				  defaulePra = [
+				              	{name:'type',value:'use_sketch_shop'},
+				              	{name:'total',value:'1'},
+				              	{name:'shop_id',value:cf_realid}
+				            	];
+			}
+		}else if($(this).index() == 1){
+			if(cf_level == 1){
+				defaulePra = [{name:'type',value:'phone_type_sketch'}];
+			}else if(cf_level == 2){
+				defaulePra = [{name:'type',value:'phone_type_sketch'},{name:'channel_id',value:cf_realid}];
+			}else if(cf_level == 3){
+				defaulePra = [{name:'type',value:'phone_type_sketch'},{name:'shop_id',value:cf_realid}];
+			}
+		}else if($(this).index() == 2 || $(this).index() == 3){
+			if(cf_level == 1){
+				defaulePra = [{name:'type',value:'use_soft_detail'}];
+			}else if(cf_level == 2){
+				defaulePra = [{name:'type',value:'use_soft_detail'},{name:'channel_id',value:cf_realid}];
+			}else if(cf_level == 3){
+				defaulePra = [{name:'type',value:'use_soft_detail'},{name:'shop_id',value:cf_realid}];
+			}
+			defaulePra = addval(defaulePra,[{name:'soft_type',value:$(this).index()==2?'1':'2'}]);
+		}
+		show_init(addval(defaulePra,formatval(urlObj.params)));
+	});
+	$("#sel_date,#sel_end_date").ligerDateEditor({
+		label: '', labelWidth: 100, labelAlign: 'right', initValue: cur_date,
+		onChangeDate:function(value){
+			$('#ser_btn').trigger('click');
+		}
+	});
+	$('.sel_quk a').live('click',function(){
+		var s_date = $("#sel_date").val();
+		var e_date = $("#sel_end_date").val();
+		if($(this).attr('act') == 'prev_day'){
+			$("#sel_date").ligerGetDateEditorManager().setValue(GetDateStr(-1,s_date));
+			$("#sel_end_date").ligerGetDateEditorManager().setValue(GetDateStr(-1,s_date));
+		}else if($(this).attr('act') == 'next_day'){
+			$("#sel_date").ligerGetDateEditorManager().setValue(GetDateStr(1,s_date));
+			$("#sel_end_date").ligerGetDateEditorManager().setValue(GetDateStr(1,s_date));
+		}
+		reload_data();
+	});
+	//startop
+	if($('.use_menu a').eq(init_so).length){
+		$('.use_menu a').eq(init_so).trigger('click');
+	}
+});
+</script>
+<style>
+.use_menu{margin:10px;}
+.use_menu a{cursor:pointer;margin-left:10px;}
+.use_sel{color:red;}
+</style>
+<div class='p_fl use_menu'>
+	<a>店面使用</a>
+	<a>机型使用</a>
+	<a>苹果软件下载</a>
+	<a>安卓软件下载</a>
+</div>
+<div class='clear'></div>
+<div class="p_fl sear_cnt">
+<span class='p_fl'>请选择日期：</span>
+<span class='p_fl'>
+	<input type="text" id="sel_date" />
+</span>
+<span class='p_fl' id='date_sel_tip'>到</span>
+<span class='p_fl' id='date_sel_end'>
+	<input type="text" id="sel_end_date" />
+</span>
+<span class='p_fl sel_quk'>
+	<a act='prev_day'>前一天</a>
+	<a act='next_day'>后一天</a>
+</span>
+<span class='p_fr'>
+<form id="excel_frm" target="" method="get" action="/api/exp.php">
+<input type='hidden' id='rqstr' name="rqstr" value='' />
+<!-- 
+<input type='hidden' id='type' name="type" value='' />
+<input type='hidden' id='name' name="name" value='' />
+<input type='hidden' id='date' name="date" value='' />
+<input type='hidden' id='channel_id' name="channel_id" value='0' />
+<input type='hidden' id='lgid' name="lgid" value='0' />
+ -->
+<input type='button' name='excel_btn' id='excel_btn' value='导出excel'/>
+</form>
+</span>
+</div>
+<div class='clear'></div>
+<style>
+.reset {background: url("/resources/images/search_icon.png") no-repeat scroll 100% -8px #FFFFFF; border: 1px solid #96CAF0;display: inline-block;line-height: 20px;margin: 1px 2px 4px 0;padding: 2px 20px 3px 10px;vertical-align: middle;}
+.sel_ed {background: url("/resources/images/search_icon.png") no-repeat scroll 100% -39px #FFFFFF; border: 1px solid #96CAF0;display: inline-block;line-height: 20px;margin: 1px 2px 4px 0;padding: 2px 20px 3px 10px;vertical-align: middle;}
+.s_had_ed{width:99%; min-height:30px; height:auto !important; height:30px; float:left; background-color:#D9D9D9;}
+.s_had_ed strong {margin-top:4px;float: left;overflow: hidden;text-align: right;width: 95px; line-height:30px; color:#FF5500;}
+.s_had_ed_content {margin-top:4px;float: left;padding-left:10px;}
+.s_had_ed_content li{float: left;width: auto; height:30px; line-height:30px; margin-left:4px;}
+.s_red{font-weight:bold; font-size:16px; margin-left:4px;color:red;}
+.s_had_ed a{cursor:pointer;}
+.l-grid-header{font-weight:bold}
+</style>
+<div style="display:none;" class="s_had_ed">
+    <strong>已选条件：</strong>
+    <div class="s_had_ed_content">
+       <span id='sel_cnt_sp'></span>
+       <span>共有<span class="s_red">0</span> 个符合条件</span><span><a class="reset">重新筛选</a></span> 
+    </div>
+</div>
+<div class="s_had_ed">
+    <div class="s_had_ed_content">
+    	<span id='tip_date'></span>
+    	<a id='tip_channel'></a>
+    	<span id='tip_shop'></span>
+    	<span id='tip_name'></span>
+    	<span style='margin-left:10px;' id='tag_tip'></span>
+    	<span style="margin-left:20px;">
+		<input type='text' size='' name='sel_name' id='sel_name' value='<!--{$smarty.get.name}-->' title="请输入关键字"/>
+		<input type='button' name='' id='ser_btn' value='查询' />
+		</span>
+    </div>
+</div>
+<div class='clear'></div>
+<div id="maingrid" style="margin:10px 0px;"></div>
+<!--{/if}-->
+</div>
+<!-- 开始 -->
+<table>
+
+</table>
+<!-- 结束-->
+<div class='clear'></div>
