@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" src="http://res5.pcr5.appdear.com/resources/js/jquery-1.7.2.min.js"></script>
+<title></title>
+<style>
+	.windows {font-size:12px;background:#fbfeff url(http://pcr5.appdear.com/resources/img40/windowbg.jpg) repeat-x 0 -31px;width:330px;height:207px;}
+	.wd_tit {height:30px; line-height:28px;padding:0 10px;display:none;}
+	.wd_tit h1 {color:#fff; font-size:12px; font-weight:bold; font-family:Simsun;margin:0;padding:0;float:left;}
+	.wd_tit .closeWindow {float:right;width:51px;height:22px;background:url(http://pcr5.appdear.com/resources/img40/window_spirit.png) no-repeat -1px -223px;text-indent:-1000px;overflow:hidden;}
+	.wd_tit .closeWindow a {display:block;height:22px;}
+	.wd_text {overflow:hidden;work-break:normal; white-space:normal;padding:18px 18px 0 72px;width:238px;height:133px;color:#4e4f4f;font-size:12px;line-height:180%;background:url(http://pcr5.appdear.com/resources/img40/window_spirit.png) no-repeat 10px 8px;}
+	.wd_text a {color:#2188fc;text-decoration:underline;font-weight:bold;line-height:23px;}
+	.wd_text a:hover {color:#f00;}
+	.wd_service {padding:8px 12px;margin-top:15px;}
+	.wd_service .callme {color:#ff6633;background:url(http://pcr5.appdear.com/resources/img40/window_spirit.png) no-repeat 87px -324px;padding-right:18px;margin-top:4px;float:left;}
+	.wd_service .qqonline {width:78px;height:24px;float:left;margin-left:20px;}
+	.wd_service .qqoffline {width:78px;height:24px;float:left;margin-left:20px;}
+	body , html{padding:0;margin:0;overflow: hidden;}
+</style>
+</head>
+<body>
+<div class="windows">
+	<div class="wd_text">
+		关于永久消息，部分地区，隔天收，上海，广东，云南
+	</div>
+	<div class="wd_service">
+		<span class="callme">有问题？来找我</span>
+		<div class="qqonline"><a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=105047908&site=qq&menu=yes" class="openlink"><img border="0" src="http://wpa.qq.com/pa?p=2:105047908:41 &r=0.17891979683190584" alt="有问题？来找我" title="有问题？来找我"></a></div>
+		<div class="qqoffline"><a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=458435777&site=qq&menu=yes" class="openlink"><img border="0" src="http://wpa.qq.com/pa?p=2:458435777:41 &r=0.17891979683190584" alt="有问题？来找我" title="有问题？来找我"></a></div>
+	</div>
+</div>
+<script type="text/javascript">
+	function closeWindow(){
+		setDataCache(null, 'newfeaturesclose', '', function(data, status){
+			if (status != 'ok') return;
+			log('close window');
+		});
+	}
+</script>
+<script type="text/javascript" src="http://res5.pcr5.appdear.com/resources/js/phone.js"></script>
+<script type="text/javascript" src="http://res5.pcr5.appdear.com/resources/js/app.js"></script>
+</body>
+</html>

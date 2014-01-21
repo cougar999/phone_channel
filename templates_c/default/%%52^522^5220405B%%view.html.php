@@ -1,4 +1,9 @@
-<link rel="stylesheet" type="text/css" href="/resources/css<!--{#version#}-->/form.css" />
+<?php /* Smarty version 2.6.26, created on 2014-01-20 22:34:38
+         compiled from admin/pcmessage/view.html */ ?>
+<?php require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
+smarty_core_load_plugins(array('plugins' => array(array('function', 'pcmessage', 'admin/pcmessage/view.html', 53, false),)), $this); ?>
+<link rel="stylesheet" type="text/css" href="/resources/css<?php echo $this->_config[0]['vars']['version']; ?>
+/form.css" />
 <style>
 #overflowDiv_fex td{text-align:left;}
 .windows {margin-left:30px;font-size:12px;background:#fbfeff url(http://pc2.d-fone.com/resources/img40/windowbg.jpg) repeat-x left top;width:328px;height:236px;border:1px solid #3275b4;border-top-left-radius:5px;border-top-right-radius:5px;}
@@ -50,7 +55,8 @@
 			<li><a href="javascript:void(0);">编辑推送消息</a></li>
 		</ul>
 	</div>
-	<!--{pcmessage tag=view id=$smarty.get.id ret=item}-->
+	<?php echo smarty_function_pcmessage(array('tag' => 'view','id' => $_GET['id'],'ret' => 'item'), $this);?>
+
     <div id='load_div_cnt'>
 		<div id='overflowDiv_fex' style='width:100%;float:left;'>
 			<div class="box">
@@ -61,18 +67,21 @@
 						</tr>
 						<tr>
 							<th><font color="red">*</font>标题：</th>
-							<td><input type="text" style="width:400px;" class="measure-input" name="title" value="<!--{$item.title}-->"></td>
+							<td><input type="text" style="width:400px;" class="measure-input" name="title" value="<?php echo $this->_tpl_vars['item']['title']; ?>
+"></td>
 						</tr>
 						<tr>
 							<th><font color="red">*</font>内容：</th>
 							<td>
 								<div class="windows">
 									<div class="wd_tit">
-										<h1><!--{$item.title}--></h1>
+										<h1><?php echo $this->_tpl_vars['item']['title']; ?>
+</h1>
 										<div class="closeWindow"><a href="##">关闭</a></div>
 									</div>
 									<div class="wd_text">
-										<!--{$item.mess}-->
+										<?php echo $this->_tpl_vars['item']['mess']; ?>
+
 									</div>
 									<div class="wd_service">
 										<span class="callme">有问题？来找我</span>
@@ -93,18 +102,18 @@
 							<th><font color="red">*</font>用户类型：</th>
 							<td>
 								<div class="f_line" id="for_type">
-									<input type="radio" name="for_type" value="1" <!--{if $item.for_type == 1}-->checked<!--{/if}--> id="alluser">全部用户
-									<input type="radio" name="for_type" value="2" <!--{if $item.for_type == 2}-->checked<!--{/if}--> id="someuser">部分用户
-									<input type="radio" name="for_type" value="3" <!--{if $item.for_type == 3}-->checked<!--{/if}--> id="otheruser">指定用户
+									<input type="radio" name="for_type" value="1" <?php if ($this->_tpl_vars['item']['for_type'] == 1): ?>checked<?php endif; ?> id="alluser">全部用户
+									<input type="radio" name="for_type" value="2" <?php if ($this->_tpl_vars['item']['for_type'] == 2): ?>checked<?php endif; ?> id="someuser">部分用户
+									<input type="radio" name="for_type" value="3" <?php if ($this->_tpl_vars['item']['for_type'] == 3): ?>checked<?php endif; ?> id="otheruser">指定用户
 								</div>
 								<div id="alluser_content" class="f_line">
 								</div>
 								<div id="someuser_content" class="f_line1">
 									<div class="f_line1">设定登录状态：
 										<select name="isanony">
-											<option value="" <!--{if $item.isanony == ''}-->selected<!--{/if}-->>所有用户</option>
-											<option value="0" <!--{if $item.isanony == 0}-->selected<!--{/if}-->>登录用户</option>
-											<option value="1" <!--{if $item.isanony == 1}-->selected<!--{/if}-->>匿名用户</option>
+											<option value="" <?php if ($this->_tpl_vars['item']['isanony'] == ''): ?>selected<?php endif; ?>>所有用户</option>
+											<option value="0" <?php if ($this->_tpl_vars['item']['isanony'] == 0): ?>selected<?php endif; ?>>登录用户</option>
+											<option value="1" <?php if ($this->_tpl_vars['item']['isanony'] == 1): ?>selected<?php endif; ?>>匿名用户</option>
 										</select>
 									</div>
 									<div class="f_line1">
@@ -114,16 +123,26 @@
 											<a href="javascript:void(0);" id="add_agent">加入设定列表</a>
 											<div id="add_agent_content">
 												<ul class="szlist clear">
-												<!--{foreach key=key item=link_channel from=$item.link_channel}-->
-													<li rel="<!--{$link_channel.channel1}-->,<!--{$link_channel.channel2}-->">
+												<?php $_from = $this->_tpl_vars['item']['link_channel']; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array'); }if (count($_from)):
+    foreach ($_from as $this->_tpl_vars['key'] => $this->_tpl_vars['link_channel']):
+?>
+													<li rel="<?php echo $this->_tpl_vars['link_channel']['channel1']; ?>
+,<?php echo $this->_tpl_vars['link_channel']['channel2']; ?>
+">
 														<p class="tagFun">
-															<a class="tag"><!--{$link_channel.channel1name}--> > <!--{$link_channel.channel2name}--></a>
+															<a class="tag"><?php echo $this->_tpl_vars['link_channel']['channel1name']; ?>
+ > <?php echo $this->_tpl_vars['link_channel']['channel2name']; ?>
+</a>
 															<a class="delTag" href="javascript:void(0);">×</a>
 														</p>
-														<span class="tag"><!--{$link_channel.channel1name}--> > <!--{$link_channel.channel2name}--></span>
-														<input type="hidden" name="msg_channel[]" value="<!--{$link_channel.channel1}-->,<!--{$link_channel.channel2}-->">
+														<span class="tag"><?php echo $this->_tpl_vars['link_channel']['channel1name']; ?>
+ > <?php echo $this->_tpl_vars['link_channel']['channel2name']; ?>
+</span>
+														<input type="hidden" name="msg_channel[]" value="<?php echo $this->_tpl_vars['link_channel']['channel1']; ?>
+,<?php echo $this->_tpl_vars['link_channel']['channel2']; ?>
+">
 													</li>
-												<!--{/foreach}-->
+												<?php endforeach; endif; unset($_from); ?>
 												</ul>
 											</div>
 										</div>
@@ -134,16 +153,26 @@
 											<a href="javascript:void(0);" id="add_area">加入设定列表</a>
 											<div id="add_area_content">
 												<ul class="szlist clear">
-												<!--{foreach key=key item=link_area from=$item.link_area}-->
-													<li rel="<!--{$link_area.province}-->,<!--{$link_area.city}-->">
+												<?php $_from = $this->_tpl_vars['item']['link_area']; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array'); }if (count($_from)):
+    foreach ($_from as $this->_tpl_vars['key'] => $this->_tpl_vars['link_area']):
+?>
+													<li rel="<?php echo $this->_tpl_vars['link_area']['province']; ?>
+,<?php echo $this->_tpl_vars['link_area']['city']; ?>
+">
 														<p class="tagFun">
-														<a class="tag"><!--{$link_area.province}--> > <!--{$link_area.city}--></a>
+														<a class="tag"><?php echo $this->_tpl_vars['link_area']['province']; ?>
+ > <?php echo $this->_tpl_vars['link_area']['city']; ?>
+</a>
 														<a class="delTag" href="javascript:void(0);">×</a>
 														</p>
-														<span class="tag"><!--{$link_area.province}--> > <!--{$link_area.city}--></span>
-														<input type="hidden" name="msg_area[]" value="<!--{$link_area.province}-->,<!--{$link_area.city}-->">
+														<span class="tag"><?php echo $this->_tpl_vars['link_area']['province']; ?>
+ > <?php echo $this->_tpl_vars['link_area']['city']; ?>
+</span>
+														<input type="hidden" name="msg_area[]" value="<?php echo $this->_tpl_vars['link_area']['province']; ?>
+,<?php echo $this->_tpl_vars['link_area']['city']; ?>
+">
 													</li>
-												<!--{/foreach}-->
+												<?php endforeach; endif; unset($_from); ?>
 												</ul>
 											</div>
 										</div>
@@ -160,23 +189,30 @@
 											<a href="javascript:void(0);" id="add_pcversion">加入设定列表</a>
 											<div id="add_pcversion_content">
 												<ul class="szlist clear">
-												<!--{foreach key=key item=for_version from=$item.for_version}-->
-													<li rel="<!--{$key}-->">
+												<?php $_from = $this->_tpl_vars['item']['for_version']; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array'); }if (count($_from)):
+    foreach ($_from as $this->_tpl_vars['key'] => $this->_tpl_vars['for_version']):
+?>
+													<li rel="<?php echo $this->_tpl_vars['key']; ?>
+">
 														<p class="tagFun">
-															<a class="tag"><!--{$for_version}--></a>
+															<a class="tag"><?php echo $this->_tpl_vars['for_version']; ?>
+</a>
 															<a class="delTag" href="javascript:void(0);">×</a>
 														</p>
-														<span class="tag"><!--{$for_version}--></span>
-														<input type="hidden" name="msg_version[]" value="<!--{$key}-->">
+														<span class="tag"><?php echo $this->_tpl_vars['for_version']; ?>
+</span>
+														<input type="hidden" name="msg_version[]" value="<?php echo $this->_tpl_vars['key']; ?>
+">
 													</li>
-												<!--{/foreach}-->
+												<?php endforeach; endif; unset($_from); ?>
 												</ul>
 											</div>
 										</div>
 									</div>
 								</div>
 								<div id="otheruser_content" class="f_line">
-									添加用户：<textarea style="width:100%;height:100px;"><!--{$item.for_udids}--></textarea>
+									添加用户：<textarea style="width:100%;height:100px;"><?php echo $this->_tpl_vars['item']['for_udids']; ?>
+</textarea>
 									<br/>按英文输入法逗号“,”分割
 								</div>
 							</td>
@@ -192,10 +228,10 @@
 							<th><font color="red">*</font>该消息的有效时间为：</th>
 							<td>
 								<select name="etime">
-									<option value="当天有效" <!--{if $item.etime == '当天有效'}-->selected<!--{/if}-->>当天有效</option>
-									<option value="本周有效" <!--{if $item.etime == '本周有效'}-->selected<!--{/if}-->>本周有效</option>
-									<option value="本月有效" <!--{if $item.etime == '本月有效'}-->selected<!--{/if}-->>本月有效</option>
-									<option value="永久有效" <!--{if $item.etime == '永久有效'}-->selected<!--{/if}-->>永久有效</option>
+									<option value="当天有效" <?php if ($this->_tpl_vars['item']['etime'] == '当天有效'): ?>selected<?php endif; ?>>当天有效</option>
+									<option value="本周有效" <?php if ($this->_tpl_vars['item']['etime'] == '本周有效'): ?>selected<?php endif; ?>>本周有效</option>
+									<option value="本月有效" <?php if ($this->_tpl_vars['item']['etime'] == '本月有效'): ?>selected<?php endif; ?>>本月有效</option>
+									<option value="永久有效" <?php if ($this->_tpl_vars['item']['etime'] == '永久有效'): ?>selected<?php endif; ?>>永久有效</option>
 								</select>
 							</td>
 						</tr>
